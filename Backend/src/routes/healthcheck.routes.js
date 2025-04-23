@@ -4,7 +4,7 @@ import { healthCheck } from "../controllers/healthcheck.controller.js";
 
 const router=Router();
 
-router.route("/health")
+router.route("/")
 .get(healthCheck)
 
 
