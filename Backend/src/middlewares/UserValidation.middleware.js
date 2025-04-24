@@ -1,4 +1,4 @@
-import { RegisterUserSchema,LoginUserSchema } from "../validation/user.validation";
+import { RegisterUserSchema,LoginUserSchema } from "../validation/user.validation.js";
 
 
 const validateRegisterUser=(req,_res,next)=>{

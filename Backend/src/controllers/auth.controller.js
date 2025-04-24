@@ -1,7 +1,8 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { db } from "../libs/db.js";
-import bcrypt from "bcryptjs"
+import bcrypt from "bcrypt"
 import {ApiError} from "../utils/api.error.js"
+import {ApiResponse} from "../utils/api.response.js"
 import { generateTemporaryToken } from "../mail/generateTempToken.js";
 import { SendMail,emailVerificationMailGenContent } from "../mail/mail.js";
 
@@ -20,15 +21,19 @@ const register=asyncHandler(async(req,res,next)=>{
     }
     
     const hashedPassword=await bcrypt.hash(password,10);
+    console.log(hashedPassword);
 
     const newUser=await db.user.create({
         data:{
             email,
             username,
             password:hashedPassword
-        }
-   
-})
+            }
+        })
+
+    if (!newUser) {
+        return next(new ApiError(400, "Something Wrong User not register"));
+    }
 //create token
 
 const {hashedToken,unHashedToken,tokenExpiry}=generateTemporaryToken();
@@ -37,13 +42,25 @@ newUser.verificationToken=hashedToken
 newUser.verificationTokenExpiry=tokenExpiry
 
 await SendMail({
-    email: user.email,
+    email: newUser.email,
     subject: "Verify Your Email",
     mailGenContent: emailVerificationMailGenContent(
-      user.username,
+      newUser.username,
       `${process.env.BASE_URL}/api/v1/users/verify/${unHashedToken}`,
     ),
   });
+
+  return res
+  .status(200)
+  .json(new ApiResponse(200,
+            {
+                id:newUser.id,
+                email:newUser.email,
+                username:newUser.username,
+                password:newUser.password
+            },
+            "User Registered Successfully"
+            ))
 
 })
 
