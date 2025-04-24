@@ -2,6 +2,8 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { db } from "../libs/db.js";
 import bcrypt from "bcryptjs"
 import {ApiError} from "../utils/api.error.js"
+import { generateTemporaryToken } from "../mail/generateTempToken.js";
+import { SendMail,emailVerificationMailGenContent } from "../mail/mail.js";
 
 const register=asyncHandler(async(req,res,next)=>{
 
@@ -25,7 +27,24 @@ const register=asyncHandler(async(req,res,next)=>{
             username,
             password:hashedPassword
         }
-    })
+   
+})
+//create token
+
+const {hashedToken,unHashedToken,tokenExpiry}=generateTemporaryToken();
+
+newUser.verificationToken=hashedToken
+newUser.verificationTokenExpiry=tokenExpiry
+
+await SendMail({
+    email: user.email,
+    subject: "Verify Your Email",
+    mailGenContent: emailVerificationMailGenContent(
+      user.username,
+      `${process.env.BASE_URL}/api/v1/users/verify/${unHashedToken}`,
+    ),
+  });
+
 })
 
 
