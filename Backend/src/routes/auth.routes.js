@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import {LoginUser, register, VerifyUser} from "../controllers/auth.controller.js"
+import {LoginUser, LogoutUser, register, VerifyUser} from "../controllers/auth.controller.js"
 import { validateLoginUser, validateRegisterUser } from "../middlewares/UserValidation.middleware.js";
 import { isLoggedIn } from "../middlewares/auth.middleware.js";
 
@@ -16,6 +16,6 @@ router.route("/login")
 .get(validateLoginUser,LoginUser)
 
 router.route("/logout")
-.get(isLoggedIn)
+.get(isLoggedIn,LogoutUser)
 
 export default router;

@@ -160,5 +160,16 @@ const LoginUser=asyncHandler(async(req,res,next)=>{
 })
 
 
+const LogoutUser=asyncHandler(async(_req,res,_next)=>{
+    res.clearCookie("LoginToken", {
+        httpOnly: true,  
+        secure: process.env.NODE_ENV !== "development"
+      });
 
-export {register,VerifyUser,LoginUser}
+      return res
+      .status(200)
+      .json(new ApiResponse(200,"User Logout Successfully"))
+})
+
+
+export {register,VerifyUser,LoginUser,LogoutUser}
