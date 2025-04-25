@@ -75,4 +75,35 @@ await SendMail({
 })
 
 
-export {register}
+const VerifyUser=asyncHandler(async(req,res,next)=>{
+
+    const {Incomingtoken}=req.params
+
+    if(!Incomingtoken){
+        return next(new ApiError(400,"Token is missing"));
+    }
+
+    const hashedToken=crypto.createHash("sha256").update(Incomingtoken).digest("hex")
+
+    const User=await db.user.findfirst({
+        where:{
+            verificationToken:hashedToken,
+            verificationTokenExpiry :{gt:new Date()}
+        }
+    })   
+
+    if(!User){
+        return next(new ApiError(400,"User not Found"))
+    }
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,"User Verified Successfully"));
+
+
+})
+
+
+
+
+export {register,VerifyUser}
