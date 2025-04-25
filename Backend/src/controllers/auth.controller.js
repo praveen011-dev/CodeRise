@@ -2,6 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { db } from "../libs/db.js";
 import crypto from "crypto"
 import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken"
 import {ApiError} from "../utils/api.error.js"
 import {ApiResponse} from "../utils/api.response.js"
 import { generateTemporaryToken } from "../mail/generateTempToken.js";
@@ -70,6 +71,8 @@ await SendMail({
             "User Registered Successfully"
             ))
 
+
+
 })
 
 
@@ -96,14 +99,45 @@ const VerifyUser=asyncHandler(async(req,res,next)=>{
         return next(new ApiError(400,"User not Found Or Token Expire"))
     }
 
+    const UpdateUser=await db.user.update({
+        where:{
+            id:User.id
+        },
+        data:{
+            isVerified:true,
+            verificationToken:undefined,
+            verificationTokenExpiry:undefined
+        }
+    })
+
     return res
     .status(200)
-    .json(new ApiResponse(200,"User Verified Successfully"));
+    .json(new ApiResponse(200,UpdateUser,"User Verified Successfully"));
+
 
 
 })
 
 
+const LoginUser=asyncHandler(async(req,res,next)=>{
+
+    const {email,password}=req.body
+
+    const User=await db.findUnique({
+        where:{
+            email
+        }
+    })
+
+    if(!User){
+        return next(new ApiError(400,"User not found"))
+    }
+    //generate JWT token
+
+    const token = jwt.sign({email})
+
+})
 
 
-export {register,VerifyUser}
+
+export {register,VerifyUser,LoginUser}
