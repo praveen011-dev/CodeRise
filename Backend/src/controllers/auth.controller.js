@@ -38,8 +38,17 @@ const register=asyncHandler(async(req,res,next)=>{
 
 const {hashedToken,unHashedToken,tokenExpiry}=generateTemporaryToken();
 
-newUser.verificationToken=hashedToken
-newUser.verificationTokenExpiry=tokenExpiry
+
+const UpdateUser=await db.user.update({
+    where:{
+        id:newUser.id
+    },
+    data:{
+        verificationToken:hashedToken,
+        verificationTokenExpiry:tokenExpiry
+    }
+})
+
 
 await SendMail({
     email: newUser.email,
@@ -54,10 +63,11 @@ await SendMail({
   .status(200)
   .json(new ApiResponse(200,
             {
-                id:newUser.id,
-                email:newUser.email,
-                username:newUser.username,
-                password:newUser.password
+                id:UpdateUser.id,
+                email:UpdateUser.email,
+                username:UpdateUser.username,
+                verificationToken:UpdateUser.verificationToken,
+                verificationTokenExpiry:UpdateUser.verificationTokenExpiry
             },
             "User Registered Successfully"
             ))
