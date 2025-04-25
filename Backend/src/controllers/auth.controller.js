@@ -1,5 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { db } from "../libs/db.js";
+import crypto from "crypto"
 import bcrypt from "bcrypt"
 import {ApiError} from "../utils/api.error.js"
 import {ApiResponse} from "../utils/api.response.js"
@@ -21,7 +22,6 @@ const register=asyncHandler(async(req,res,next)=>{
     }
     
     const hashedPassword=await bcrypt.hash(password,10);
-    console.log(hashedPassword);
 
     const newUser=await db.user.create({
         data:{
@@ -38,7 +38,6 @@ const register=asyncHandler(async(req,res,next)=>{
 
 const {hashedToken,unHashedToken,tokenExpiry}=generateTemporaryToken();
 
-
 const UpdateUser=await db.user.update({
     where:{
         id:newUser.id
@@ -48,7 +47,6 @@ const UpdateUser=await db.user.update({
         verificationTokenExpiry:tokenExpiry
     }
 })
-
 
 await SendMail({
     email: newUser.email,
@@ -83,9 +81,11 @@ const VerifyUser=asyncHandler(async(req,res,next)=>{
         return next(new ApiError(400,"Token is missing"));
     }
 
+    console.log("hello");
     const hashedToken=crypto.createHash("sha256").update(Incomingtoken).digest("hex")
+    console.log(hashedToken)
 
-    const User=await db.user.findfirst({
+    const User=await db.user.findFirst({
         where:{
             verificationToken:hashedToken,
             verificationTokenExpiry :{gt:new Date()}
@@ -93,7 +93,7 @@ const VerifyUser=asyncHandler(async(req,res,next)=>{
     })   
 
     if(!User){
-        return next(new ApiError(400,"User not Found"))
+        return next(new ApiError(400,"User not Found Or Token Expire"))
     }
 
     return res
