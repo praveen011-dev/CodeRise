@@ -1,7 +1,7 @@
 import { Router } from "express";
 
-import {register, VerifyUser} from "../controllers/auth.controller.js"
-import { validateRegisterUser } from "../middlewares/UserValidation.middleware.js";
+import {LoginUser, register, VerifyUser} from "../controllers/auth.controller.js"
+import { validateLoginUser, validateRegisterUser } from "../middlewares/UserValidation.middleware.js";
 
 const router=Router();
 
@@ -10,5 +10,9 @@ router.route("/register")
 
 router.route("/verify/:Incomingtoken")
 .get(VerifyUser)
+
+router.route("/login")
+.get(validateLoginUser,LoginUser)
+
 
 export default router;

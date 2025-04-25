@@ -1,5 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { db } from "../libs/db.js";
+import dotenv from "dotenv"
 import crypto from "crypto"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
@@ -7,6 +8,8 @@ import {ApiError} from "../utils/api.error.js"
 import {ApiResponse} from "../utils/api.response.js"
 import { generateTemporaryToken } from "../mail/generateTempToken.js";
 import { SendMail,emailVerificationMailGenContent } from "../mail/mail.js";
+
+dotenv.config();
 
 const register=asyncHandler(async(req,res,next)=>{
 
@@ -123,7 +126,7 @@ const LoginUser=asyncHandler(async(req,res,next)=>{
 
     const {email,password}=req.body
 
-    const User=await db.findUnique({
+    const User=await db.user.findUnique({
         where:{
             email
         }
@@ -132,10 +135,28 @@ const LoginUser=asyncHandler(async(req,res,next)=>{
     if(!User){
         return next(new ApiError(400,"User not found"))
     }
+
+    const isPasswordCorrect =await bcrypt.compare(password,User.password)
+
+    if(!isPasswordCorrect){
+        return next(new ApiError(400,"Password incorrect"))
+    }
+
     //generate JWT token
 
-    const token = jwt.sign({email})
+    const token = jwt.sign({email},process.env.JWT_SECRET,{
+            expiresIn:process.env.JWT_SECRET_EXPIRY
+    })
 
+    res.cookie("Logintoken",token, {
+        httpOnly: true,      
+        secure: true, 
+        maxAge: 24 * 60 * 60 * 1000})
+
+
+        return res
+        .status(200)
+        .json(new ApiResponse(200,"User Login SuccessFully"))
 })
 
 
