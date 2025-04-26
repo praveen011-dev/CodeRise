@@ -155,7 +155,7 @@ const LoginUser=asyncHandler(async(req,res,next)=>{
     res.cookie("AccessToken",AccessToken,options)
     res.cookie("RefreshToken",RefreshToken,options)
 
-    const UpdateUser=await db.user.update({
+    await db.user.update({
         where:{
             id:User.id
         },
@@ -166,15 +166,31 @@ const LoginUser=asyncHandler(async(req,res,next)=>{
 
         return res
         .status(200)
-        .json(new ApiResponse(200,UpdateUser,"User Login SuccessFully"))
+        .json(new ApiResponse(200,"User Login SuccessFully"))
 })
 
 
-const LogoutUser=asyncHandler(async(_req,res,_next)=>{
-    res.clearCookie("LoginToken", {
+const LogoutUser=asyncHandler(async(req,res,_next)=>{
+
+    await db.user.update({
+        where:{
+            id:req.user.id
+        },
+        data:{
+            refreshToken:null
+        }
+    })
+
+      res.clearCookie("AccessToken", {
         httpOnly: true,  
         secure:  process.env.NODE_ENV !== "development"
       });
+
+      res.clearCookie("RefreshToken", {
+        httpOnly: true,  
+        secure:  process.env.NODE_ENV !== "development"
+      });
+
 
       return res
       .status(200)
