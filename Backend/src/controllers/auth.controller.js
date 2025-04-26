@@ -3,11 +3,11 @@ import { db } from "../libs/db.js";
 import dotenv from "dotenv"
 import crypto from "crypto"
 import bcrypt from "bcrypt"
-import jwt from "jsonwebtoken"
 import {ApiError} from "../utils/api.error.js"
 import {ApiResponse} from "../utils/api.response.js"
 import { generateTemporaryToken } from "../mail/generateTempToken.js";
 import { SendMail,emailVerificationMailGenContent } from "../mail/mail.js";
+import { accessToken } from "../Access&RefreshToken/AccessToken&RefreshToken.js";
 
 dotenv.config();
 
@@ -144,14 +144,16 @@ const LoginUser=asyncHandler(async(req,res,next)=>{
 
     //generate JWT token
 
-    const token = jwt.sign({email},process.env.JWT_SECRET,{
-            expiresIn:process.env.JWT_SECRET_EXPIRY
-    })
 
-    res.cookie("Logintoken",token, {
-        httpOnly: true,      
-        secure: true, 
-        maxAge: 60 * 60 * 1000})
+    const AccessToken=await accessToken(User.id);
+
+    const options={
+        httpOnly:true,
+        secure:true,
+    }
+  
+
+    res.cookie("AcessToken",AccessToken,options)
 
 
         return res
