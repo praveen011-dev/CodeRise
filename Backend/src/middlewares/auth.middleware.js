@@ -8,13 +8,13 @@ import { db } from "../libs/db.js";
 dotenv.config();
 
 const isLoggedIn=asyncHandler(async(req,_res,next)=>{
-        const {Logintoken}=req.cookies
-        console.log(Logintoken)
-        if(!Logintoken){
-            return next(new ApiError(400,"Login token is missing"))
+        const {AccessToken}=req.cookies
+
+        if(!AccessToken){
+            return next(new ApiError(400,"token is missing"))
         }
 
-        const decodedData= jwt.verify(Logintoken,process.env.JWT_SECRET)
+        const decodedData= jwt.verify(AccessToken,process.env.ACCESS_TOKEN_SECRET)
 
         const User= await db.user.findUnique({
             where:{
@@ -23,7 +23,7 @@ const isLoggedIn=asyncHandler(async(req,_res,next)=>{
         })
 
         if(!User){
-            return next(new ApiError(400,"User not Found"))
+            return next(new ApiError(400,"Invalid Access Token "))
         }
 
         req.user=User
