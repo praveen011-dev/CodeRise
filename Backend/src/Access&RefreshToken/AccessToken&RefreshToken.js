@@ -20,6 +20,18 @@ const accessToken=async(id)=>{
 }
 
 
+const refreshToken=async(id)=>{
+    const User=await db.user.findUnique({
+        where:{
+            id
+        }
+    })
+    return jwt.sign({
+        id: User.id,           
+    },process.env.REFRESH_TOKEN_SECRET,
+    {expiresIn:process.env.REFRESH_TOKEN_EXPIRY})
+}
 
 
-export {accessToken}
+
+export {accessToken,refreshToken}

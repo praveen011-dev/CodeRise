@@ -7,7 +7,7 @@ import {ApiError} from "../utils/api.error.js"
 import {ApiResponse} from "../utils/api.response.js"
 import { generateTemporaryToken } from "../mail/generateTempToken.js";
 import { SendMail,emailVerificationMailGenContent } from "../mail/mail.js";
-import { accessToken } from "../Access&RefreshToken/AccessToken&RefreshToken.js";
+import { accessToken,refreshToken} from "../Access&RefreshToken/AccessToken&RefreshToken.js";
 
 dotenv.config();
 
@@ -142,19 +142,18 @@ const LoginUser=asyncHandler(async(req,res,next)=>{
         return next(new ApiError(400,"Password incorrect"))
     }
 
-    //generate JWT token
-
+    //generate tokens
 
     const AccessToken=await accessToken(User.id);
+    const RefreshToken=await refreshToken(User.id);
 
     const options={
         httpOnly:true,
         secure:true,
     }
-  
 
-    res.cookie("AcessToken",AccessToken,options)
-
+    res.cookie("AccessToken",AccessToken,options)
+    res.cookie("RefreshToken",RefreshToken,options)
 
         return res
         .status(200)
