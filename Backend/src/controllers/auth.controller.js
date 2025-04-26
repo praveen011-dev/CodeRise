@@ -38,7 +38,7 @@ const register=asyncHandler(async(req,res,next)=>{
     if (!newUser) {
         return next(new ApiError(400, "Something Wrong User not register"));
     }
-//create token
+    //create token
 
     const {hashedToken,unHashedToken,tokenExpiry}=generateTemporaryToken();
 
@@ -311,4 +311,44 @@ const GetProfile=asyncHandler((async(req,res,next)=>{
 }))
 
 
-export {register,VerifyUser,LoginUser,LogoutUser,ForgetPassword,ResetPassword,ChangePassword,GetProfile}
+const ResendEmailVerification=asyncHandler(async(req,res,next)=>{
+    const User= await db.user.findUnique({
+        where: {
+          id: req.user.id,
+          isVerified:false
+        }
+    })
+
+        if(!User){
+            return next(new ApiError(400,"Unauthorised Access or Email Veried Already!"))
+        }
+
+
+        const {hashedToken,unHashedToken,tokenExpiry}=generateTemporaryToken();
+
+        await db.user.update({
+            where:{
+                id:User.id
+            },
+            data:{
+                verificationToken:hashedToken,
+                verificationTokenExpiry:tokenExpiry
+            }
+        })
+    
+        await SendMail({
+            email: User.email,
+            subject: "Verify Your Email",
+            mailGenContent: emailVerificationMailGenContent(
+                User.username,
+            `${process.env.BASE_URL}/api/v1/users/verify/${unHashedToken}`),
+        });
+    
+        return res
+        .status(200)
+        .json(new ApiResponse(200,"Successfully Resend the link Check your Inbox"))
+
+
+})
+
+export {register,VerifyUser,LoginUser,LogoutUser,ForgetPassword,ResetPassword,ChangePassword,GetProfile,ResendEmailVerification}
