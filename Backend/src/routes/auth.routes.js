@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import {ForgetPassword, LoginUser, LogoutUser, register, VerifyUser,ResetPassword,ChangePassword,GetProfile,ResendEmailVerification} from "../controllers/auth.controller.js"
+import {ForgetPassword, LoginUser, LogoutUser, register, VerifyUser,ResetPassword,ChangePassword,GetProfile,ResendEmailVerification,RefreshAccesstoken} from "../controllers/auth.controller.js"
 
 import { validateLoginUser, validateRegisterUser,validateForgetPass,validateResetPass,validateChangeCurrPass } from "../middlewares/UserValidation.middleware.js";
 
@@ -25,6 +25,11 @@ router.route("/forget-pass")
 
 router.route("/reset-pass/:Incomingtoken")
 .post(validateResetPass,ResetPassword)
+
+
+router.route("/refresh-accessToken")
+.get(RefreshAccesstoken)
+
 
 //Secured Routes
 

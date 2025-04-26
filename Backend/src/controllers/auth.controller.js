@@ -3,6 +3,7 @@ import { db } from "../libs/db.js";
 import dotenv from "dotenv"
 import crypto from "crypto"
 import bcrypt from "bcrypt"
+import jwt from"jsonwebtoken"
 import {ApiError} from "../utils/api.error.js"
 import {ApiResponse} from "../utils/api.response.js"
 import { generateTemporaryToken } from "../mail/generateTempToken.js";
@@ -351,4 +352,57 @@ const ResendEmailVerification=asyncHandler(async(req,res,next)=>{
 
 })
 
-export {register,VerifyUser,LoginUser,LogoutUser,ForgetPassword,ResetPassword,ChangePassword,GetProfile,ResendEmailVerification}
+
+const RefreshAccesstoken=asyncHandler(async(req,res,next)=>{
+
+    const incomeRToken=req.cookies.RefreshToken || req.body.RefreshToken
+
+    if(!incomeRToken){
+        return next(new ApiError(400, "IncomingRToken is missing"));
+      }
+
+      const decodeRToken=jwt.verify(incomeRToken,process.env.REFRESH_TOKEN_SECRET)
+
+      const User=await db.user.findUnique({
+        where:{
+            id:decodeRToken.id
+        }
+      })
+
+      if(!User){
+        return next(new ApiError(400,"Invalid Refresh Token"))
+      }
+
+      if(incomeRToken !==User?.refreshToken){
+        return next(new ApiError(400, "Refresh Token is expired or used"));
+       }
+
+     
+
+      const options={
+        httpOnly:true,  
+        secure:true
+      }
+
+      const AccessToken=await accessToken(User.id);
+      const RefreshToken=await refreshToken(User.id);
+
+      res.cookie("AccessToken",AccessToken,options)
+      res.cookie("RefreshToken",RefreshToken,options)
+
+      await db.user.update({
+        where:{
+            id:User.id
+        },
+        data:{
+            refreshToken:RefreshToken
+        }
+    })
+      return res
+      .status(200)
+      .json(new ApiResponse(200, "Acess Token SuccessFully Refreshed"))
+})
+
+
+
+export {register,VerifyUser,LoginUser,LogoutUser,ForgetPassword,ResetPassword,ChangePassword,GetProfile,ResendEmailVerification,RefreshAccesstoken}
