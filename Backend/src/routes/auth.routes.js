@@ -1,7 +1,9 @@
 import { Router } from "express";
 
-import {ForgetPassword, LoginUser, LogoutUser, register, VerifyUser,ResetPassword} from "../controllers/auth.controller.js"
-import { validateLoginUser, validateRegisterUser,validateForgetPass,validateResetPass } from "../middlewares/UserValidation.middleware.js";
+import {ForgetPassword, LoginUser, LogoutUser, register, VerifyUser,ResetPassword,ChangePassword} from "../controllers/auth.controller.js"
+
+import { validateLoginUser, validateRegisterUser,validateForgetPass,validateResetPass,validateChangeCurrPass } from "../middlewares/UserValidation.middleware.js";
+
 import { isLoggedIn } from "../middlewares/auth.middleware.js";
 
 const router=Router();
@@ -26,7 +28,7 @@ router.route("/reset-pass/:Incomingtoken")
 
 //Secured Routes
 
-
-
+router.route("/change-pass")
+.post(validateChangeCurrPass,isLoggedIn,ChangePassword)
 
 export default router;

@@ -61,5 +61,14 @@ const ResetPassSchema=z.object({
     })
     
 
+const ChangeCurrPassSchema = z.object({
+password: z.string({
+        required_error: "Enter New password!",
+        invalid_type_error: "Password must be a string",
+}).nonempty("Password cannot be empty!"),
 
-export {RegisterUserSchema,LoginUserSchema,ForgetPassSchema,ResetPassSchema}
+});
+      
+
+
+export {RegisterUserSchema,LoginUserSchema,ForgetPassSchema,ResetPassSchema,ChangeCurrPassSchema}

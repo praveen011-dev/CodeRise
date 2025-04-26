@@ -6,7 +6,7 @@ import bcrypt from "bcrypt"
 import {ApiError} from "../utils/api.error.js"
 import {ApiResponse} from "../utils/api.response.js"
 import { generateTemporaryToken } from "../mail/generateTempToken.js";
-import { SendMail,emailVerificationMailGenContent } from "../mail/mail.js";
+import { SendMail,emailVerificationMailGenContent,forgetPasswordMailGenContent } from "../mail/mail.js";
 import { accessToken,refreshToken} from "../Access&RefreshToken/AccessToken&RefreshToken.js";
 
 dotenv.config();
@@ -209,7 +209,7 @@ const ForgetPassword=asyncHandler(async(req,res,next)=>{
     await SendMail({
         email: User.email,
         subject: "Reset Password",
-        mailGenContent: emailVerificationMailGenContent(
+        mailGenContent: forgetPasswordMailGenContent(
           User.username,
           `${process.env.BASE_URL}/api/v1/users/reset-pass/${unHashedToken}`
         ),
@@ -244,12 +244,14 @@ const ResetPassword=asyncHandler(async(req,res,next)=>{
         return next(new ApiError(400," Invalid Token Or Token Expired"))
     }
 
+    const hashedPassword=await bcrypt.hash(newPassword,10);
+
     const UpdateUser=await db.user.update({
         where:{
             id:User.id
         },
         data:{
-            password:newPassword,
+            password:hashedPassword,
             forgetPasswordToken:null,
             forgetPasswordTokenExpiry:null
         }
@@ -259,4 +261,29 @@ const ResetPassword=asyncHandler(async(req,res,next)=>{
     .status(200)
     .json(new ApiResponse(200,UpdateUser,"Password Reset SuccessFully"));
 })
-export {register,VerifyUser,LoginUser,LogoutUser,ForgetPassword,ResetPassword}
+
+
+const ChangePassword=asyncHandler((async(req,res,next)=>{
+
+    const {password:newPassword}=req.body
+
+    const hashedPassword=await bcrypt.hash(newPassword,10);
+
+    await db.user.update({
+        where:{
+            id:req.user.id
+        },
+        data:{
+            password:hashedPassword
+        }
+    })
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,"Password Change Successfully"))
+}))
+
+
+
+
+export {register,VerifyUser,LoginUser,LogoutUser,ForgetPassword,ResetPassword,ChangePassword}

@@ -1,4 +1,4 @@
-import { RegisterUserSchema,LoginUserSchema, ForgetPassSchema,ResetPassSchema} from "../validation/user.validation.js";
+import { RegisterUserSchema,LoginUserSchema, ForgetPassSchema,ResetPassSchema,ChangeCurrPassSchema} from "../validation/user.validation.js";
 import { ApiError } from "../utils/api.error.js";
 
 const validateRegisterUser=(req,_res,next)=>{
@@ -40,6 +40,15 @@ const validateResetPass=(req,_res,next)=>{
     }; 
 
 
+const validateChangeCurrPass=(req,_res,next)=>{
+    const result=ChangeCurrPassSchema.safeParse(req.body);
+    if(!result.success) {
+        return next(new ApiError(
+            400,"Validation failed",result.error.issues[0].message));
+                        }
+        next();
+    }; 
+    
         
 
-export {validateRegisterUser,validateLoginUser,validateForgetPass,validateResetPass}
+export {validateRegisterUser,validateLoginUser,validateForgetPass,validateResetPass,validateChangeCurrPass}
