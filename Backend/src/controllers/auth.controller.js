@@ -182,4 +182,40 @@ const LogoutUser=asyncHandler(async(_req,res,_next)=>{
 })
 
 
-export {register,VerifyUser,LoginUser,LogoutUser}
+const forgetPassword=asyncHandler(async(req,res,next)=>{
+    const {email}=req.body
+
+    const User=await db.user.findUnique({
+        where:{
+            email
+        }
+    })
+
+    const {hashedToken,unHashedToken,tokenExpiry}=generateTemporaryToken();
+
+    await db.user.update({
+        where:{
+            id:User.id
+        },
+        data:{
+            forgetPasswordToken:hashedToken,
+            forgetPasswordTokenExpiry:tokenExpiry
+        }
+    })
+    
+    await SendMail({
+        email: User.email,
+        subject: "Reset Password",
+        mailGenContent: emailVerificationMailGenContent(
+          User.username,
+          `${process.env.BASE_URL}/api/v1/users/reset-pass/${unHashedToken}`
+        ),
+      });
+    
+      return res
+      .status(200)
+      .json(new ApiResponse(200,"Check Your Inbox and reset your password "))
+    
+    })
+
+export {register,VerifyUser,LoginUser,LogoutUser,forgetPassword}

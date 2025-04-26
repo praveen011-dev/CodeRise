@@ -42,5 +42,15 @@ const LoginUserSchema=z.object({
 })
 
 
+const ForgetPassSchema=z.object({
+        email: z.string({
+                        required_error: "Email is required",
+                        invalid_type_error: "Email must be a string"
+                        })
+                .email("Must be a valid email"),
+    
+    })
+    
 
-export {RegisterUserSchema,LoginUserSchema}
+
+export {RegisterUserSchema,LoginUserSchema,ForgetPassSchema}
