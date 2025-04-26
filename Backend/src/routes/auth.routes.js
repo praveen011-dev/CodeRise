@@ -1,7 +1,7 @@
 import { Router } from "express";
 
-import {forgetPassword, LoginUser, LogoutUser, register, VerifyUser} from "../controllers/auth.controller.js"
-import { validateLoginUser, validateRegisterUser,validateForgetPass } from "../middlewares/UserValidation.middleware.js";
+import {ForgetPassword, LoginUser, LogoutUser, register, VerifyUser,ResetPassword} from "../controllers/auth.controller.js"
+import { validateLoginUser, validateRegisterUser,validateForgetPass,validateResetPass } from "../middlewares/UserValidation.middleware.js";
 import { isLoggedIn } from "../middlewares/auth.middleware.js";
 
 const router=Router();
@@ -19,7 +19,10 @@ router.route("/logout")
 .get(isLoggedIn,LogoutUser)
 
 router.route("/forget-pass")
-.post(validateForgetPass,forgetPassword)
+.post(validateForgetPass,ForgetPassword)
+
+router.route("/reset-pass/:Incomingtoken")
+.post(validateResetPass,ResetPassword)
 
 //Secured Routes
 

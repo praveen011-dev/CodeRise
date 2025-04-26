@@ -87,7 +87,6 @@ const VerifyUser=asyncHandler(async(req,res,next)=>{
         return next(new ApiError(400,"Token is missing"));
     }
 
-    console.log("hello");
     const hashedToken=crypto.createHash("sha256").update(Incomingtoken).digest("hex")
     console.log(hashedToken)
 
@@ -99,7 +98,7 @@ const VerifyUser=asyncHandler(async(req,res,next)=>{
     })   
 
     if(!User){
-        return next(new ApiError(400,"User not Found Or Token Expire"))
+        return next(new ApiError(400," Invalid Token Or Token Expired"))
     }
 
     const UpdateUser=await db.user.update({
@@ -108,8 +107,8 @@ const VerifyUser=asyncHandler(async(req,res,next)=>{
         },
         data:{
             isVerified:true,
-            verificationToken:undefined,
-            verificationTokenExpiry:undefined
+            verificationToken:null,
+            verificationTokenExpiry:null
         }
     })
 
@@ -182,7 +181,7 @@ const LogoutUser=asyncHandler(async(_req,res,_next)=>{
 })
 
 
-const forgetPassword=asyncHandler(async(req,res,next)=>{
+const ForgetPassword=asyncHandler(async(req,res,next)=>{
     const {email}=req.body
 
     const User=await db.user.findUnique({
@@ -190,6 +189,10 @@ const forgetPassword=asyncHandler(async(req,res,next)=>{
             email
         }
     })
+
+    if(!User){
+        return next(new ApiError(400,"User not found"));
+    }
 
     const {hashedToken,unHashedToken,tokenExpiry}=generateTemporaryToken();
 
@@ -218,4 +221,42 @@ const forgetPassword=asyncHandler(async(req,res,next)=>{
     
     })
 
-export {register,VerifyUser,LoginUser,LogoutUser,forgetPassword}
+
+const ResetPassword=asyncHandler(async(req,res,next)=>{
+
+    const {Incomingtoken}=req.params
+    const {password:newPassword}=req.body
+
+    if(!Incomingtoken){
+        return next(new ApiError(401,"Reset Password Token in Missing"));
+    }
+    
+    const hashedToken=crypto.createHash("sha256").update(Incomingtoken).digest("hex")
+
+    const User=await db.user.findFirst({
+        where:{
+            forgetPasswordToken:hashedToken,
+            forgetPasswordTokenExpiry:{gt:new Date()}
+        }
+    })   
+
+    if(!User){
+        return next(new ApiError(400," Invalid Token Or Token Expired"))
+    }
+
+    const UpdateUser=await db.user.update({
+        where:{
+            id:User.id
+        },
+        data:{
+            password:newPassword,
+            forgetPasswordToken:null,
+            forgetPasswordTokenExpiry:null
+        }
+    })
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,UpdateUser,"Password Reset SuccessFully"));
+})
+export {register,VerifyUser,LoginUser,LogoutUser,ForgetPassword,ResetPassword}

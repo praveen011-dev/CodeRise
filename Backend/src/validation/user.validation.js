@@ -50,7 +50,16 @@ const ForgetPassSchema=z.object({
                 .email("Must be a valid email"),
     
     })
+
+
+const ResetPassSchema=z.object({
+        password:z.string({
+                required_error: "Enter New password !",
+                invalid_type_error: "Password must be a string"
+                })
+    
+    })
     
 
 
-export {RegisterUserSchema,LoginUserSchema,ForgetPassSchema}
+export {RegisterUserSchema,LoginUserSchema,ForgetPassSchema,ResetPassSchema}
