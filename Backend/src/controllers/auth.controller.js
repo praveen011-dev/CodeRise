@@ -155,9 +155,18 @@ const LoginUser=asyncHandler(async(req,res,next)=>{
     res.cookie("AccessToken",AccessToken,options)
     res.cookie("RefreshToken",RefreshToken,options)
 
+    const UpdateUser=await db.user.update({
+        where:{
+            id:User.id
+        },
+        data:{
+            refreshToken:RefreshToken
+        }
+    })
+
         return res
         .status(200)
-        .json(new ApiResponse(200,"User Login SuccessFully"))
+        .json(new ApiResponse(200,UpdateUser,"User Login SuccessFully"))
 })
 
 
