@@ -40,39 +40,39 @@ const register=asyncHandler(async(req,res,next)=>{
     }
 //create token
 
-const {hashedToken,unHashedToken,tokenExpiry}=generateTemporaryToken();
+    const {hashedToken,unHashedToken,tokenExpiry}=generateTemporaryToken();
 
-const UpdateUser=await db.user.update({
-    where:{
-        id:newUser.id
-    },
-    data:{
-        verificationToken:hashedToken,
-        verificationTokenExpiry:tokenExpiry
-    }
-})
+    const UpdateUser=await db.user.update({
+        where:{
+            id:newUser.id
+        },
+        data:{
+            verificationToken:hashedToken,
+            verificationTokenExpiry:tokenExpiry
+        }
+    })
 
-await SendMail({
-    email: newUser.email,
-    subject: "Verify Your Email",
-    mailGenContent: emailVerificationMailGenContent(
-      newUser.username,
-      `${process.env.BASE_URL}/api/v1/users/verify/${unHashedToken}`,
-    ),
-  });
+    await SendMail({
+        email: newUser.email,
+        subject: "Verify Your Email",
+        mailGenContent: emailVerificationMailGenContent(
+        newUser.username,
+        `${process.env.BASE_URL}/api/v1/users/verify/${unHashedToken}`,
+        ),
+    });
 
-  return res
-  .status(200)
-  .json(new ApiResponse(200,
-            {
-                id:UpdateUser.id,
-                email:UpdateUser.email,
-                username:UpdateUser.username,
-                verificationToken:UpdateUser.verificationToken,
-                verificationTokenExpiry:UpdateUser.verificationTokenExpiry
-            },
-            "User Registered Successfully"
-            ))
+    return res
+    .status(200)
+    .json(new ApiResponse(200,
+                {
+                    id:UpdateUser.id,
+                    email:UpdateUser.email,
+                    username:UpdateUser.username,
+                    verificationToken:UpdateUser.verificationToken,
+                    verificationTokenExpiry:UpdateUser.verificationTokenExpiry
+                },
+                "User Registered Successfully"
+                ))
 
 
 
@@ -263,7 +263,7 @@ const ResetPassword=asyncHandler(async(req,res,next)=>{
 })
 
 
-const ChangePassword=asyncHandler((async(req,res,next)=>{
+const ChangePassword=asyncHandler((async(req,res,_next)=>{
 
     const {password:newPassword}=req.body
 
@@ -284,6 +284,31 @@ const ChangePassword=asyncHandler((async(req,res,next)=>{
 }))
 
 
+const GetProfile=asyncHandler((async(req,res,next)=>{
+
+    const User= await db.user.findUnique({
+        where: {
+          id: req.user.id,
+        },
+        select: {
+          id: true,
+          email: true,
+          username: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+      
+
+    if(!User){
+        return next(new ApiError(400,"Unauthorised Access"))
+    }
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,User,"User Profile Fetched Successfully"))
+
+}))
 
 
-export {register,VerifyUser,LoginUser,LogoutUser,ForgetPassword,ResetPassword,ChangePassword}
+export {register,VerifyUser,LoginUser,LogoutUser,ForgetPassword,ResetPassword,ChangePassword,GetProfile}

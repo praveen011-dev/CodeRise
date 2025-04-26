@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import {ForgetPassword, LoginUser, LogoutUser, register, VerifyUser,ResetPassword,ChangePassword} from "../controllers/auth.controller.js"
+import {ForgetPassword, LoginUser, LogoutUser, register, VerifyUser,ResetPassword,ChangePassword,GetProfile} from "../controllers/auth.controller.js"
 
 import { validateLoginUser, validateRegisterUser,validateForgetPass,validateResetPass,validateChangeCurrPass } from "../middlewares/UserValidation.middleware.js";
 
@@ -30,5 +30,9 @@ router.route("/reset-pass/:Incomingtoken")
 
 router.route("/change-pass")
 .post(validateChangeCurrPass,isLoggedIn,ChangePassword)
+
+router.route("/get-profile")
+.get(isLoggedIn,GetProfile)
+
 
 export default router;
