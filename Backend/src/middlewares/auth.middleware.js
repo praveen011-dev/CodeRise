@@ -9,6 +9,7 @@ dotenv.config();
 
 const isLoggedIn=asyncHandler(async(req,_res,next)=>{
         const {Logintoken}=req.cookies
+        console.log(Logintoken)
         if(!Logintoken){
             return next(new ApiError(400,"Login token is missing"))
         }

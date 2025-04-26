@@ -25,10 +25,17 @@ app.use("/api/v1/users",authRoutes);
 
 app.use((err, _req, res, _next) => {
     const statusCode = err.statusCode || 500;
+    let message=err.message || "Internal Server Error"
+
+    if (message.includes("Can't reach database server"))
+      {
+      message = "Please make sure your database server is running at localhost:5432.";
+      }
+
     res.status(statusCode).json({
       success: false,
       statusCode,
-      message: err.message || "Internal Server Error",
+      message,
       errors: err.errors || [],
       stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
     });

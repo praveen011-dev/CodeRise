@@ -151,7 +151,7 @@ const LoginUser=asyncHandler(async(req,res,next)=>{
     res.cookie("Logintoken",token, {
         httpOnly: true,      
         secure: true, 
-        maxAge: 24 * 60 * 60 * 1000})
+        maxAge: 60 * 60 * 1000})
 
 
         return res
@@ -163,7 +163,7 @@ const LoginUser=asyncHandler(async(req,res,next)=>{
 const LogoutUser=asyncHandler(async(_req,res,_next)=>{
     res.clearCookie("LoginToken", {
         httpOnly: true,  
-        secure: process.env.NODE_ENV !== "development"
+        secure:  process.env.NODE_ENV !== "development"
       });
 
       return res
