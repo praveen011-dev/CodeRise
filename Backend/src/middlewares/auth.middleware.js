@@ -32,4 +32,27 @@ const isLoggedIn=asyncHandler(async(req,_res,next)=>{
 })
 
 
-export {isLoggedIn}
+
+const isAdmin=asyncHandler(async(req,res,next)=>{
+
+    const userId=req.user.id 
+
+    const User=await db.user.findUnique({
+        where:{
+            id:userId
+        },
+        select:{
+            role:true
+        }
+    })
+
+    if(User.role !=="ADMIN"){
+        return next (new ApiError(403,"Access denied!- Admin only"))
+    }
+    next();
+})
+
+
+
+
+export {isLoggedIn,isAdmin}
