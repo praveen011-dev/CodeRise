@@ -8,7 +8,7 @@ import {ApiError} from "../utils/api.error.js"
 import {ApiResponse} from "../utils/api.response.js"
 import { generateTemporaryToken } from "../mail/generateTempToken.js";
 import { SendMail,emailVerificationMailGenContent,forgetPasswordMailGenContent } from "../mail/mail.js";
-import { accessToken,refreshToken} from "../Access&RefreshToken/AccessToken&RefreshToken.js";
+import { accessToken,refreshToken} from "../utils/AccessToken&RefreshToken.js";
 
 dotenv.config();
 
