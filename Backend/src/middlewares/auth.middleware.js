@@ -46,7 +46,7 @@ const isAdmin=asyncHandler(async(req,res,next)=>{
         }
     })
 
-    if(User.role !=="ADMIN"){
+    if(!User || User.role !=="ADMIN"){
         return next (new ApiError(403,"Access denied!- Admin only"))
     }
     next();
