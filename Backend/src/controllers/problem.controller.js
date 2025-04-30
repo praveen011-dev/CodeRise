@@ -13,8 +13,6 @@ const createProblem=asyncHandler(async(req,res,next)=>{
 
         const langaugeId= getJudge0LanguageId(language);
 
-        console.log(langaugeId)
-
         if(!langaugeId){
             return next (new ApiError(400,`Invalid Language ${language}`))
         }
@@ -28,7 +26,6 @@ const createProblem=asyncHandler(async(req,res,next)=>{
             }
         })
 
-        console.log(submissions);
         const submissionResults=await submitBatch(submissions)
 
         const Tokens=submissionResults.map((res)=>res.token);
@@ -68,6 +65,20 @@ const createProblem=asyncHandler(async(req,res,next)=>{
     })
 
 const getAllProblems=asyncHandler(async(req,res,next)=>{
+
+    const allproblems=await db.problem.findMany({
+        where:{
+            userId:req.user.id
+        }
+    });
+
+    if(!allproblems){
+        return next (new ApiError(400,"No problems found"));
+    }
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,allproblems,"Problems Found SuccessFully"));
 
 })
 
