@@ -83,7 +83,21 @@ const getAllProblems=asyncHandler(async(req,res,next)=>{
 })
 
 const getProblemById=asyncHandler(async(req,res,next)=>{
+    const {id}=req.params;
 
+    const problemById=await db.problem.findUnique({
+        where:{
+            id:id,
+            userId:req.user.id
+        }
+    })
+    if(!problemById){
+        return next(new ApiError(404,"Problem not found"));
+    }
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,problemById,"Problem Found Successfully"));
 })
 
 const updateProblem=asyncHandler(async(req,res,next)=>{
