@@ -5,9 +5,9 @@ dotenv.config();
 
 const getJudge0LanguageId=(language)=>{
     const LanguageMap={
-        "JAVA":62,
-        "JAVASCRIPT":63,
-        "PYTHON":70
+        JAVA:62,
+        JAVASCRIPT:63,
+        PYTHON:71
     }
     return LanguageMap[language.toUpperCase()]
 }
@@ -23,7 +23,7 @@ const sleep=(time)=> new Promise((resolve)=>{
 const submitBatch=async(submissions)=>{
     const {data}=await axios.post(`${process.env.JUDGE0_API_URL}/submissions/batch?base64_encoded=false`,{submissions});
 
-    console.log(`Submission Batch: ${data}`)
+    console.log("Submission Batch:", data)
     return data //[{token},{token},{token}]
 }
 
@@ -45,7 +45,7 @@ while(true)
         const results=data.submissions
 
         const isAllSubmitted=results.every(
-              (result)=>result.status!=="1" && result.status!=="2"
+              (result)=>result.status.id!== 1 && result.status.id!==2
         )
 
 

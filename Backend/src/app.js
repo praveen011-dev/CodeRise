@@ -19,7 +19,7 @@ import problemRoutes from "./routes/problem.routes.js"
 
 app.use("/api/v1/healthcheck",healthCheckRouter);
 app.use("/api/v1/users",authRoutes);
-app.use("api/v1/problems",problemRoutes);
+app.use("/api/v1/problems",problemRoutes);
 
 
 

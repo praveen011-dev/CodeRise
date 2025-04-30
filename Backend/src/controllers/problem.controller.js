@@ -1,6 +1,8 @@
-import { getJudge0LanguageId, pollBatchResults } from "../libs/judge0.lib.js";
+import { getJudge0LanguageId, pollBatchResults, submitBatch } from "../libs/judge0.lib.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/api.error.js";
+import {ApiResponse} from "../utils/api.response.js"
+import {db} from "../libs/db.js"
 
 const createProblem=asyncHandler(async(req,res,next)=>{
 
@@ -11,8 +13,10 @@ const createProblem=asyncHandler(async(req,res,next)=>{
 
         const langaugeId= getJudge0LanguageId(language);
 
+        console.log(langaugeId)
+
         if(!langaugeId){
-            return next (new ApiError(400,"Invalid Language"))
+            return next (new ApiError(400,`Invalid Language ${language}`))
         }
 
         const submissions=testcases.map(({input,output})=>{
@@ -24,6 +28,7 @@ const createProblem=asyncHandler(async(req,res,next)=>{
             }
         })
 
+        console.log(submissions);
         const submissionResults=await submitBatch(submissions)
 
         const Tokens=submissionResults.map((res)=>res.token);
@@ -32,8 +37,8 @@ const createProblem=asyncHandler(async(req,res,next)=>{
 
         for(let i=0;i<results.length;i++){
             const result = results[i];
-
-            if(result.status!=="3"){
+            console.log("Result-----",result)
+            if(result.status.id!==3){
                 return next(new ApiError(400,"Test case failed"));
             }
         }
@@ -49,8 +54,6 @@ const createProblem=asyncHandler(async(req,res,next)=>{
                 userId:req.user.id,
                 examples,
                 constraints,
-                hints,
-                editorial,
                 testcases,
                 codeSnippet,
                 refrenceSolution
