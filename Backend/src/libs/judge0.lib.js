@@ -13,6 +13,13 @@ const getJudge0LanguageId=(language)=>{
 }
 
 
+const sleep=(time)=> new Promise((resolve)=>{
+    setTimeout(resolve,time)
+})
+
+
+
+
 const submitBatch=async(submissions)=>{
     const {data}=await axios.post(`${process.env.JUDGE0_API_URL}/submissions/batch?base64_encoded=false`,{submissions});
 
@@ -21,8 +28,35 @@ const submitBatch=async(submissions)=>{
 }
 
 
-// on first submission we get tokens from judge0
+// on first submission we get array of tokens from judge0
 
 
 
-export {getJudge0LanguageId,submitBatch}
+const pollBatchResults=async(Tokens)=>{
+while(true)
+{
+    const {data}=await axios.get(`${process.env.JUDGE0_API_URL}/submissions/batch`,{
+        params:{
+            tokens:Tokens.join(","),
+            base64_encoded:false,
+        }
+    })
+        
+        const results=data.submissions
+
+        const isAllSubmitted=results.every(
+              (result)=>result.status!=="1" && result.status!=="2"
+        )
+
+
+        if(isAllSubmitted) return results
+        await sleep(1000);
+
+       
+    }
+}
+
+
+
+
+export {getJudge0LanguageId,submitBatch,pollBatchResults}

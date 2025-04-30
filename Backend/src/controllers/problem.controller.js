@@ -1,4 +1,4 @@
-import { getJudge0LanguageId } from "../libs/judge0.lib.js";
+import { getJudge0LanguageId, pollBatchResults } from "../libs/judge0.lib.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/api.error.js";
 
@@ -25,7 +25,43 @@ const createProblem=asyncHandler(async(req,res,next)=>{
         })
 
         const submissionResults=await submitBatch(submissions)
+
+        const Tokens=submissionResults.map((res)=>res.token);
+
+        const results=await pollBatchResults(Tokens);
+
+        for(let i=0;i<results.length;i++){
+            const result = results[i];
+
+            if(result.status!=="3"){
+                return next(new ApiError(400,"Test case failed"));
+            }
+        }
+
+        //save the problem to the database
+
+        const newProblem= await db.problem.create({
+            data:{
+                title,
+                description,
+                difficulty,
+                tags,
+                userId:req.user.id,
+                examples,
+                constraints,
+                hints,
+                editorial,
+                testcases,
+                codeSnippet,
+                refrenceSolution
+            } 
+        })
+ 
+        return res
+        .status(201)
+        .json(new ApiResponse(201,newProblem,"problem created successfully"));
     }
+
     })
 
 const getAllProblems=asyncHandler(async(req,res,next)=>{
