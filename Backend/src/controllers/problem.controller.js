@@ -101,6 +101,38 @@ const getProblemById=asyncHandler(async(req,res,next)=>{
 })
 
 const updateProblem=asyncHandler(async(req,res,next)=>{
+    const {id}=req.params
+
+    const {title,description,difficulty,tags,examples,constraints,testcases,codeSnippet,refrenceSolution}=req.body
+
+    const Problem = await prisma.problem.findUnique({
+        where: { id: problemId }
+      });
+
+    const updateProblem=await db.problem.update({
+        where:{
+            id,
+            userId:req.user.id
+        },
+        data:{
+            title: title ?? Problem.title,
+            description:description??Problem.description,
+            difficulty:difficulty??Problem.difficulty,
+            tags:tags??Problem.tags,
+            examples:examples??Problem.examples,
+            constraints:constraints??Problem.constraints,
+            testcases:testcases??Problem.testcases,
+            codeSnippet:codeSnippet??Problem.codeSnippet,
+            refrenceSolution:refrenceSolution??Problem.refrenceSolution
+        }
+    })
+
+    if(!updateProblem){
+        return next(new ApiError(404,"error while Updating Or Problem not found"));
+    }
+    return res
+    .status(200)
+    .json(new ApiResponse(200,updateProblem,"Problem Updated Successfully"));
 
 })
 
@@ -122,6 +154,8 @@ const deleteProblem=asyncHandler(async(req,res,next)=>{
     .json(new ApiResponse(200,"Problem Deleted Successfully"));
 
 })
+
+
 const getProblemSolvedByUser=asyncHandler(async(req,res,next)=>{
 
 })
