@@ -11,7 +11,7 @@ const createProblem=asyncHandler(async(req,res,next)=>{
     //loop through each refrence solution for different languaes 
     for(const [language,solutionCode] of Object.entries(refrenceSolution)){
 
-        const langaugeId= getJudge0LanguageId(language);
+        const languageId= getJudge0LanguageId(language);
 
         if(!langaugeId){
             return next (new ApiError(400,`Invalid Language ${language}`))
@@ -20,7 +20,7 @@ const createProblem=asyncHandler(async(req,res,next)=>{
         const submissions=testcases.map(({input,output})=>{
             return {
                 source_code:solutionCode,
-                language_id:langaugeId,
+                language_id:languageId,
                 stdin:input,
                 expected:output
             }
@@ -66,11 +66,7 @@ const createProblem=asyncHandler(async(req,res,next)=>{
 
 const getAllProblems=asyncHandler(async(req,res,next)=>{
 
-    const allproblems=await db.problem.findMany({
-        where:{
-            userId:req.user.id
-        }
-    });
+    const allproblems=await db.problem.findMany();
 
     if(!allproblems){
         return next (new ApiError(400,"No problems found"));
@@ -87,8 +83,7 @@ const getProblemById=asyncHandler(async(req,res,next)=>{
 
     const problemById=await db.problem.findUnique({
         where:{
-            id:id,
-            userId:req.user.id
+            id
         }
     })
     if(!problemById){
@@ -105,8 +100,39 @@ const updateProblem=asyncHandler(async(req,res,next)=>{
 
     const {title,description,difficulty,tags,examples,constraints,testcases,codeSnippet,refrenceSolution}=req.body
 
+    for(const [language,solutionCode] of Object.entries(refrenceSolution)){
+
+        const languageId = getJudge0LanguageId(language);
+
+        if(!langaugeId){
+            return next (new ApiError(400,`Invalid Language ${language}`))
+        }
+
+        const submissions=testcases.map(({input,output})=>{
+            return {
+                source_code:solutionCode,
+                language_id:languageId,
+                stdin:input,
+                expected:output
+            }
+        })
+
+        const submissionResults=await submitBatch(submissions)
+
+        const Tokens=submissionResults.map((res)=>res.token);
+
+        const results=await pollBatchResults(Tokens);
+
+        for(let i=0;i<results.length;i++){
+            const result = results[i];
+            console.log("Result-----",result)
+            if(result.status.id!==3){
+                return next(new ApiError(400,"Test case failed"));
+            }
+        }
+    }
     const Problem = await prisma.problem.findUnique({
-        where: { id: problemId }
+        where: { id }
       });
 
     const updateProblem=await db.problem.update({
@@ -135,6 +161,7 @@ const updateProblem=asyncHandler(async(req,res,next)=>{
     .json(new ApiResponse(200,updateProblem,"Problem Updated Successfully"));
 
 })
+
 
 const deleteProblem=asyncHandler(async(req,res,next)=>{
 
