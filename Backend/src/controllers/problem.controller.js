@@ -83,7 +83,7 @@ const createProblem=asyncHandler(async(req,res,next)=>{
                 return res
                 .status(201)
                 .json(new ApiResponse(201,newProblem,"problem created successfully"));
-            })
+})
 
 const getAllProblems=asyncHandler(async(req,res,next)=>{
 
@@ -122,10 +122,11 @@ const updateProblem=asyncHandler(async(req,res,next)=>{
     const {title,description,difficulty,tags,examples,constraints,testcases,codeSnippet,refrenceSolution}=req.body
 
     for(const [language,solutionCode] of Object.entries(refrenceSolution)){
-
+        try {
+            
         const languageId = getJudge0LanguageId(language);
 
-        if(!langaugeId){
+        if(!languageId){
             return next (new ApiError(400,`Invalid Language ${language}`))
         }
 
@@ -139,9 +140,7 @@ const updateProblem=asyncHandler(async(req,res,next)=>{
         })
 
         const submissionResults=await submitBatch(submissions)
-
         const Tokens=submissionResults.map((res)=>res.token);
-
         const results=await pollBatchResults(Tokens);
 
         for(let i=0;i<results.length;i++){
@@ -152,7 +151,12 @@ const updateProblem=asyncHandler(async(req,res,next)=>{
             }
         }
     }
-    const Problem = await prisma.problem.findUnique({
+         catch (error) {
+            return next(ApiError(500,"Error while updating a problem"));
+        }
+    }
+
+    const Problem = await db.problem.findUnique({
         where: { id }
       });
 
@@ -183,7 +187,6 @@ const updateProblem=asyncHandler(async(req,res,next)=>{
 
 })
 
-
 const deleteProblem=asyncHandler(async(req,res,next)=>{
 
     const {id}=req.params
@@ -202,7 +205,6 @@ const deleteProblem=asyncHandler(async(req,res,next)=>{
     .json(new ApiResponse(200,"Problem Deleted Successfully"));
 
 })
-
 
 const getProblemSolvedByUser=asyncHandler(async(req,res,next)=>{
 
