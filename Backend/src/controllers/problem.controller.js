@@ -119,6 +119,16 @@ const getProblemById=asyncHandler(async(req,res,next)=>{
 const updateProblem=asyncHandler(async(req,res,next)=>{
     const {id}=req.params
 
+    //validate problem
+    const Problem=await db.problem.findUnique({
+        where:{id}
+    })
+
+    if(!Problem){
+        return next(new ApiError(404,"Problem not found Or Invalid Problem Id"));
+    }
+
+    //update problem
     const {title,description,difficulty,tags,examples,constraints,testcases,codeSnippet,refrenceSolution}=req.body
 
     for(const [language,solutionCode] of Object.entries(refrenceSolution)){
@@ -155,10 +165,6 @@ const updateProblem=asyncHandler(async(req,res,next)=>{
             return next(ApiError(500,"Error while updating a problem"));
         }
     }
-
-    const Problem = await db.problem.findUnique({
-        where: { id }
-      });
 
     const updateProblem=await db.problem.update({
         where:{
