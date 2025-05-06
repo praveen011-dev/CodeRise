@@ -57,6 +57,13 @@ while(true)
 }
 
 
+const getLanguageName=(languageId)=>{
+    const LanguageMap={
+        62:"JAVA",
+        63:"JAVASCRIPT",
+        71:"PYTHON"
+    }
+    return LanguageMap[languageId]
+}
 
-
-export {getJudge0LanguageId,submitBatch,pollBatchResults}
+export {getJudge0LanguageId,submitBatch,pollBatchResults,getLanguageName}
