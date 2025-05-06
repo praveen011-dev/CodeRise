@@ -2,6 +2,7 @@ import { getLanguageName, pollBatchResults, submitBatch } from "../libs/judge0.l
 import { ApiError } from "../utils/api.error.js";
 import { ApiResponse } from "../utils/api.response.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import {db} from "../libs/db.js"
 
 const executeCode=asyncHandler(async(req,res,next)=>{
 
@@ -70,13 +71,77 @@ const executeCode=asyncHandler(async(req,res,next)=>{
         // console.log(`Matched : ${passed}`);
     })
 
-    console.log(detailedResults);
+    // console.log(detailedResults);
 
 
+    //Store Submission Summary
 
+    console.log(userId,problemId);
+
+
+    const submission = await db.submission.create({
+        data:{
+            userId,
+            problemId,
+            sourceCode:source_code,
+            language:getLanguageName(language_id),
+            stdin:stdin.join("\n"),
+            stdout:JSON.stringify(detailedResults.map((r)=>r.stdout)),
+            stderr:detailedResults.some((r)=>r.stderr) ? JSON.stringify(detailedResults.map((r)=>r.stderr)):null,
+            compileOutput:detailedResults.some((r)=>r.compileOutput) ? JSON.stringify(detailedResults.map((r)=>r.compileOutput)):null,
+            status:allPassed? "Accepted":"Wrong Answer",
+            memory:detailedResults.some((r)=>r.memory) ? JSON.stringify(detailedResults.map((r)=>r.memory)):null,
+            time:detailedResults.some((r)=>r.time) ? JSON.stringify(detailedResults.map((r)=>r.time)):null
+
+        }
+    })
+
+
+    // 7.If all passed= true mark problem as solved for the current user
+
+    if(allPassed){
+        await db.problemSolved.upsert({
+            where:{
+                userId_problemId:{
+                    userId,problemId
+                }
+            },
+            update:{},
+            create:{
+                userId,problemId
+            }
+        })
+    }
+
+    // 8. save individualt testcase Results using detailed Results
+
+    const testcaseResults=detailedResults.map((result)=>({
+        submissionId:submission.id,
+        testCase:result.testCase,
+        passed:result.passed,
+        stdout:result.stdout,
+        expected:expected,
+        stderr:result.stderr,
+        compileOutput:result.compile_output,
+        memory:result.memory,
+        time:result.time
+    }))
+
+    await db.testCaseResult.createMany({
+        data:testcaseResults
+    })
+
+    const submissionWithTestcase=await db.submission.findUnique({
+        where:{
+            id:submission.id
+        },
+        include:{
+            testCase:true
+        }
+    })
     return res
     .status(200)
-    .json(new ApiResponse(200,"code Executed"));
+    .json(new ApiResponse(200,"code Executed",submissionWithTestcase));
 })
 
 
