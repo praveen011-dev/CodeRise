@@ -6,7 +6,7 @@ import {db} from "../libs/db.js"
 
 const executeCode=asyncHandler(async(req,res,next)=>{
 
-    const {source_code,language_id,stdin, expected_outputs,problemId}=req.body;
+    const {source_code,language_id,stdin,expected_outputs,problemId}=req.body;
 
     const userId=req.user.id;
 
@@ -19,7 +19,7 @@ const executeCode=asyncHandler(async(req,res,next)=>{
     }
 
 
-    //2 prepare each test cases for judge0 batch submission
+    //2 prepare each testcases for judge0 batch submission
 
     const submissions =stdin.map((input)=>({
         source_code,
@@ -40,7 +40,7 @@ const executeCode=asyncHandler(async(req,res,next)=>{
     console.log("Results----------------")
     console.log(results);
 
-    //Analyze test Case Result
+    //5.Analyze test Case Result
 
     let allPassed=true;
     const detailedResults=results.map((result,i)=>{
@@ -67,17 +67,13 @@ const executeCode=asyncHandler(async(req,res,next)=>{
         // console.log(`Input ${stdin[i]}`);
         // console.log(`Expected Output for testcase ${expected_output}`);
         // console.log(`Actual Output ${stdout}`);
-
         // console.log(`Matched : ${passed}`);
+        // console.log(detailedResults);
+
     })
 
-    // console.log(detailedResults);
 
-
-    //Store Submission Summary
-
-    console.log(userId,problemId);
-
+    //6.Store Submission Summary
 
     const submission = await db.submission.create({
         data:{
@@ -120,9 +116,10 @@ const executeCode=asyncHandler(async(req,res,next)=>{
         testCase:result.testCase,
         passed:result.passed,
         stdout:result.stdout,
-        expected:expected,
+        expectedOutput:result.expectedOutput,
         stderr:result.stderr,
         compileOutput:result.compile_output,
+        status: result.status,
         memory:result.memory,
         time:result.time
     }))
@@ -136,7 +133,7 @@ const executeCode=asyncHandler(async(req,res,next)=>{
             id:submission.id
         },
         include:{
-            testCase:true
+            testcases:true
         }
     })
     return res
