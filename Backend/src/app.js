@@ -18,12 +18,14 @@ import authRoutes from "./routes/auth.routes.js"
 import problemRoutes from "./routes/problem.routes.js"
 import executeRoutes from "./routes/executeCode.routes.js"
 import submissionRoutes from "./routes/submission.routes.js"
+import playlistRoutes from "./routes/playlist.routes.js"
 
 app.use("/api/v1/healthcheck",healthCheckRouter);
 app.use("/api/v1/users",authRoutes);
 app.use("/api/v1/problems",problemRoutes);
 app.use("/api/v1/execute-code",executeRoutes);
 app.use("/api/v1/submission",submissionRoutes);
+app.use("/api/v1/playlist",playlistRoutes);
 
 
 
