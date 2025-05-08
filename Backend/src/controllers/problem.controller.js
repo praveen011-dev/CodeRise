@@ -214,6 +214,30 @@ const deleteProblem=asyncHandler(async(req,res,next)=>{
 
 const getProblemSolvedByUser=asyncHandler(async(req,res,next)=>{
 
+        const problems=await db.problem.findMany({
+            where:{
+                solvedBy:{
+                    some:{
+                        userId:req.user.id
+                    }
+                }
+            },
+            include:{
+                solvedBy:{
+                    where:{
+                        userId:req.user.id
+                    }
+                }
+            }
+        })
+
+        if(!problems){
+            return next(new ApiError(404,"No problems found"));
+        }
+
+        return res
+        .status(200)
+        .json(new ApiResponse(200,problems,"Problems Fetched SuccessFully"));
 })
 
 
