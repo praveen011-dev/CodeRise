@@ -1,7 +1,7 @@
 import { db } from "../libs/db.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/api.error.js";
-import ApiResponse from "../utils/api.response.js";  
+import {ApiResponse} from "../utils/api.response.js";  
 
 const getAllListDetails=asyncHandler(async(req,res,next)=>{
 
@@ -18,7 +18,7 @@ const getAllListDetails=asyncHandler(async(req,res,next)=>{
         }
     })
 
-    if(!playlist){
+    if(!playlist || playlist.length==0){
         return next(new ApiError(404,"No Playlist found"));
     }
     return res
@@ -26,7 +26,26 @@ const getAllListDetails=asyncHandler(async(req,res,next)=>{
     .json(new ApiResponse(200,playlist,"Playlist Found"));
 })
 
+const createPlaylist=asyncHandler(async(req,res,next)=>{   
 
+    const {name,description}=req.body;
+
+    const userId=req.user.id
+
+    const playlist=await db.playlist.create({
+        data:{
+            name,
+            description,
+            userId
+        }
+    })
+    if(!playlist){
+        return next(new ApiError(404,"Error while creating playlist"));
+    }
+    return res
+    .status(200)
+    .json(new ApiResponse(200,playlist,"Playlist created Successfully"));
+})
 
 const getPlaylistDetails=asyncHandler(async(req,res,next)=>{
     const {playlistId}=req.params;
@@ -53,30 +72,6 @@ const getPlaylistDetails=asyncHandler(async(req,res,next)=>{
     .json(new ApiResponse(200,playlist,"Playlist Found SuccessFully"));
 })
 
-
-
-const createPlaylist=asyncHandler(async(req,res,next)=>{   
-
-    const {name,description}=req.body;
-
-    const userId=req.user.id
-
-    const playlist=await db.playlist.create({
-        data:{
-            name,
-            description,
-            userId
-        }
-    })
-    if(!playlist){
-        return next(new ApiError(404,"Error while creating playlist"));
-    }
-    return res
-    .status(200)
-    .json(new ApiResponse(200,playlist,"Playlist created Successfully"));
-})
-
-
 const addProblemToPlaylist=asyncHandler(async(req,res,next)=>{
     
     const {playlistId}=req.params
@@ -88,11 +83,11 @@ const addProblemToPlaylist=asyncHandler(async(req,res,next)=>{
 
     //create Records 
 
-    const problemsinPlaylist=await db.problemsinPlaylist.createMany({
-        data:problemIds.map((problemId)=>{
-                playlistId,
-                problemId
-        })
+    const problemsinPlaylist=await db.problemInPlaylist.createMany({
+        data:problemIds.map((problemId)=>({
+            playListId:playlistId,
+            problemId
+        }))
     })
 
     if(!problemsinPlaylist){
@@ -103,7 +98,6 @@ const addProblemToPlaylist=asyncHandler(async(req,res,next)=>{
     .json(new ApiResponse(200,problemsinPlaylist,"Problems Added to playlist Successfully"));
 
 })
-
 
 const updatePlaylist=asyncHandler(async(req,res,next)=>{
     const {name,description}=req.body;
@@ -145,7 +139,6 @@ const deletePlaylist=asyncHandler(async(req,res,next)=>{
     .json(new ApiResponse(200,deletedPlaylist,"Playlist Deleted Successfully"));
 })
 
-
 const removeProblemFromPlaylist=asyncHandler(async(req,res,next)=>{
 
     const {playlistId}=req.params
@@ -155,9 +148,9 @@ const removeProblemFromPlaylist=asyncHandler(async(req,res,next)=>{
         return next(new ApiError(400,"Please provide valid problem ids"));
     }
 
-    const deleteProblemfromPlaylist=await db.problemsinPlaylist.deleteMany({
+    const deleteProblemfromPlaylist=await db.problemInPlaylist.deleteMany({
         where:{
-            playlistId,
+            playListId:playlistId,
             problemId:{
                 in:problemIds
             }
@@ -173,4 +166,12 @@ const removeProblemFromPlaylist=asyncHandler(async(req,res,next)=>{
 })
 
 
-export {getAllListDetails,getPlaylistDetails,createPlaylist,addProblemToPlaylist,deletePlaylist,removeProblemFromPlaylist,updatePlaylist}
+export {
+    getAllListDetails,
+    getPlaylistDetails,
+    createPlaylist,
+    addProblemToPlaylist,
+    deletePlaylist,
+    removeProblemFromPlaylist,
+    updatePlaylist
+}

@@ -37,8 +37,8 @@ const executeCode=asyncHandler(async(req,res,next)=>{
 
     const results =await pollBatchResults(tokens);
 
-    console.log("Results----------------")
-    console.log(results);
+    // console.log("Results----------------")
+    // console.log(results);
 
     //5.Analyze test Case Result
 
@@ -62,14 +62,6 @@ const executeCode=asyncHandler(async(req,res,next)=>{
             memory:result.memory?`${result.memory}KB`:undefined,
             time:result.time?`${result.time}s`:undefined
         }
-
-        // console.log(`Testcase #${i+1}`);
-        // console.log(`Input ${stdin[i]}`);
-        // console.log(`Expected Output for testcase ${expected_output}`);
-        // console.log(`Actual Output ${stdout}`);
-        // console.log(`Matched : ${passed}`);
-        // console.log(detailedResults);
-
     })
 
 
