@@ -2,9 +2,11 @@ import { Router } from "express";
 
 import {ForgetPassword, LoginUser, LogoutUser, register, VerifyUser,ResetPassword,ChangePassword,GetProfile,ResendEmailVerification,RefreshAccesstoken} from "../controllers/auth.controller.js"
 
-import { validateLoginUser, validateRegisterUser,validateForgetPass,validateResetPass,validateChangeCurrPass } from "../middlewares/UserValidation.middleware.js";
+import { validateLoginUser, validateRegisterUser,validateForgetPass,validateResetPass,validateChangeCurrPass } from "../middlewares/userValidation.middleware.js";
 
 import { isLoggedIn } from "../middlewares/auth.middleware.js";
+
+import { upload } from "../middlewares/multer.middleware.js";
 
 const router=Router();
 
