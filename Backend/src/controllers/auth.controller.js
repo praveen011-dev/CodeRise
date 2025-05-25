@@ -1,424 +1,421 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { db } from "../libs/db.js";
-import dotenv from "dotenv"
-import crypto from "crypto"
-import bcrypt from "bcrypt"
-import jwt from"jsonwebtoken"
-import {ApiError} from "../utils/api.error.js"
-import {ApiResponse} from "../utils/api.response.js"
+import dotenv from "dotenv";
+import crypto from "crypto";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { ApiError } from "../utils/api.error.js";
+import { ApiResponse } from "../utils/api.response.js";
 import { generateTemporaryToken } from "../mail/generateTempToken.js";
-import { SendMail,emailVerificationMailGenContent,forgetPasswordMailGenContent } from "../mail/mail.js";
-import { accessToken,refreshToken} from "../utils/AccessToken&RefreshToken.js";
+import {
+  SendMail,
+  emailVerificationMailGenContent,
+  forgetPasswordMailGenContent,
+} from "../mail/mail.js";
+import {
+  accessToken,
+  refreshToken,
+} from "../utils/AccessToken&RefreshToken.js";
 
 dotenv.config();
 
-const register=asyncHandler(async(req,res,next)=>{
+const register = asyncHandler(async (req, res, next) => {
+  const { username, email, password } = req.body;
 
-    const {username,email,password}=req.body
+  const existingUser = await db.user.findUnique({
+    where: {
+      email,
+    },
+  });
 
-    const existingUser=await db.user.findUnique({
-        where:{
-            email
-        }
-    })
+  if (existingUser) {
+    return next(new ApiError(400, "User Already Exist!"));
+  }
 
-    if(existingUser){
-        return next(new ApiError(400,"User Already Exist!"))
-    }
-    
-    const hashedPassword=await bcrypt.hash(password,10);
+  const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser=await db.user.create({
-        data:{
-            email,
-            username,
-            password:hashedPassword
-            }
-        })
+  const newUser = await db.user.create({
+    data: {
+      email,
+      username,
+      password: hashedPassword,
+    },
+  });
 
-    if (!newUser) {
-        return next(new ApiError(400, "Something Wrong User not register"));
-    }
-    //create token
+  if (!newUser) {
+    return next(new ApiError(400, "Something Wrong User not register"));
+  }
+  //create token
 
-    const {hashedToken,unHashedToken,tokenExpiry}=generateTemporaryToken();
+  const { hashedToken, unHashedToken, tokenExpiry } = generateTemporaryToken();
 
-    const UpdateUser=await db.user.update({
-        where:{
-            id:newUser.id
-        },
-        data:{
-            verificationToken:hashedToken,
-            verificationTokenExpiry:tokenExpiry
-        }
-    })
+  const UpdateUser = await db.user.update({
+    where: {
+      id: newUser.id,
+    },
+    data: {
+      verificationToken: hashedToken,
+      verificationTokenExpiry: tokenExpiry,
+    },
+  });
 
-    await SendMail({
-        email: newUser.email,
-        subject: "Verify Your Email",
-        mailGenContent: emailVerificationMailGenContent(
-        newUser.username,
-        `${process.env.BASE_URL}/api/v1/users/verify/${unHashedToken}`,
-        ),
-    });
+  await SendMail({
+    email: newUser.email,
+    subject: "Verify Your Email",
+    mailGenContent: emailVerificationMailGenContent(
+      newUser.username,
+      `${process.env.BASE_URL}/api/v1/users/verify/${unHashedToken}`,
+    ),
+  });
 
-    return res
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        id: UpdateUser.id,
+        email: UpdateUser.email,
+        username: UpdateUser.username,
+        verificationToken: UpdateUser.verificationToken,
+        verificationTokenExpiry: UpdateUser.verificationTokenExpiry,
+      },
+      "User Registered Successfully",
+    ),
+  );
+});
+
+const VerifyUser = asyncHandler(async (req, res, next) => {
+  const { Incomingtoken } = req.params;
+
+  if (!Incomingtoken) {
+    return next(new ApiError(400, "Token is missing"));
+  }
+
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(Incomingtoken)
+    .digest("hex");
+  console.log(hashedToken);
+
+  const User = await db.user.findFirst({
+    where: {
+      verificationToken: hashedToken,
+      verificationTokenExpiry: { gt: new Date() },
+    },
+  });
+
+  if (!User) {
+    return next(new ApiError(400, " Invalid Token Or Token Expired"));
+  }
+
+  const UpdateUser = await db.user.update({
+    where: {
+      id: User.id,
+    },
+    data: {
+      isVerified: true,
+      verificationToken: null,
+      verificationTokenExpiry: null,
+    },
+  });
+
+  return res
     .status(200)
-    .json(new ApiResponse(200,
-                {
-                    id:UpdateUser.id,
-                    email:UpdateUser.email,
-                    username:UpdateUser.username,
-                    verificationToken:UpdateUser.verificationToken,
-                    verificationTokenExpiry:UpdateUser.verificationTokenExpiry
-                },
-                "User Registered Successfully"
-                ))
+    .json(new ApiResponse(200, UpdateUser, "User Verified Successfully"));
+});
 
+const LoginUser = asyncHandler(async (req, res, next) => {
+  const { email, password } = req.body;
 
+  const User = await db.user.findUnique({
+    where: {
+      email,
+    },
+  });
 
-})
+  if (!User) {
+    return next(new ApiError(400, "User not found"));
+  }
 
+  const isPasswordCorrect = await bcrypt.compare(password, User.password);
 
-const VerifyUser=asyncHandler(async(req,res,next)=>{
+  if (!isPasswordCorrect) {
+    return next(new ApiError(400, "Password incorrect"));
+  }
 
-    const {Incomingtoken}=req.params
+  //generate tokens
 
-    if(!Incomingtoken){
-        return next(new ApiError(400,"Token is missing"));
-    }
+  const AccessToken = await accessToken(User.id);
+  const RefreshToken = await refreshToken(User.id);
 
-    const hashedToken=crypto.createHash("sha256").update(Incomingtoken).digest("hex")
-    console.log(hashedToken)
+  const options = {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none", // Add this for cross-origin cookies
+    path: "/", // Optional: often good to set path to root
+  };
 
-    const User=await db.user.findFirst({
-        where:{
-            verificationToken:hashedToken,
-            verificationTokenExpiry :{gt:new Date()}
-        }
-    })   
+  res.cookie("AccessToken", AccessToken, options);
+  res.cookie("RefreshToken", RefreshToken, options);
 
-    if(!User){
-        return next(new ApiError(400," Invalid Token Or Token Expired"))
-    }
+  await db.user.update({
+    where: {
+      id: User.id,
+    },
+    data: {
+      refreshToken: RefreshToken,
+    },
+  });
 
-    const UpdateUser=await db.user.update({
-        where:{
-            id:User.id
-        },
-        data:{
-            isVerified:true,
-            verificationToken:null,
-            verificationTokenExpiry:null
-        }
-    })
+  return res.status(200).json(new ApiResponse(200, "User Login SuccessFully"));
+});
 
-    return res
+const LogoutUser = asyncHandler(async (req, res, _next) => {
+  await db.user.update({
+    where: {
+      id: req.user.id,
+    },
+    data: {
+      refreshToken: null,
+    },
+  });
+
+  res.clearCookie("AccessToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV !== "development",
+  });
+
+  res.clearCookie("RefreshToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV !== "development",
+  });
+
+  return res.status(200).json(new ApiResponse(200, "User Logout Successfully"));
+});
+
+const ForgetPassword = asyncHandler(async (req, res, next) => {
+  const { email } = req.body;
+
+  const User = await db.user.findUnique({
+    where: {
+      email,
+    },
+  });
+
+  if (!User) {
+    return next(new ApiError(400, "User not found"));
+  }
+
+  const { hashedToken, unHashedToken, tokenExpiry } = generateTemporaryToken();
+
+  await db.user.update({
+    where: {
+      id: User.id,
+    },
+    data: {
+      forgetPasswordToken: hashedToken,
+      forgetPasswordTokenExpiry: tokenExpiry,
+    },
+  });
+
+  await SendMail({
+    email: User.email,
+    subject: "Reset Password",
+    mailGenContent: forgetPasswordMailGenContent(
+      User.username,
+      `${process.env.BASE_URL}/api/v1/users/reset-pass/${unHashedToken}`,
+    ),
+  });
+
+  return res
     .status(200)
-    .json(new ApiResponse(200,UpdateUser,"User Verified Successfully"));
+    .json(new ApiResponse(200, "Check Your Inbox and reset your password "));
+});
 
+const ResetPassword = asyncHandler(async (req, res, next) => {
+  const { Incomingtoken } = req.params;
+  const { password: newPassword } = req.body;
 
+  if (!Incomingtoken) {
+    return next(new ApiError(401, "Reset Password Token in Missing"));
+  }
 
-})
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(Incomingtoken)
+    .digest("hex");
 
+  const User = await db.user.findFirst({
+    where: {
+      forgetPasswordToken: hashedToken,
+      forgetPasswordTokenExpiry: { gt: new Date() },
+    },
+  });
 
-const LoginUser=asyncHandler(async(req,res,next)=>{
+  if (!User) {
+    return next(new ApiError(400, " Invalid Token Or Token Expired"));
+  }
 
-    const {email,password}=req.body
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    const User=await db.user.findUnique({
-        where:{
-            email
-        }
-    })
+  const UpdateUser = await db.user.update({
+    where: {
+      id: User.id,
+    },
+    data: {
+      password: hashedPassword,
+      forgetPasswordToken: null,
+      forgetPasswordTokenExpiry: null,
+    },
+  });
 
-    if(!User){
-        return next(new ApiError(400,"User not found"))
-    }
-
-    const isPasswordCorrect =await bcrypt.compare(password,User.password)
-
-    if(!isPasswordCorrect){
-        return next(new ApiError(400,"Password incorrect"))
-    }
-
-    //generate tokens
-
-    const AccessToken=await accessToken(User.id);
-    const RefreshToken=await refreshToken(User.id);
-
-    const options={
-        httpOnly:true,
-        secure:true,
-    }
-
-    res.cookie("AccessToken",AccessToken,options)
-    res.cookie("RefreshToken",RefreshToken,options)
-
-    await db.user.update({
-        where:{
-            id:User.id
-        },
-        data:{
-            refreshToken:RefreshToken
-        }
-    })
-
-        return res
-        .status(200)
-        .json(new ApiResponse(200,"User Login SuccessFully"))
-})
-
-
-const LogoutUser=asyncHandler(async(req,res,_next)=>{
-
-    await db.user.update({
-        where:{
-            id:req.user.id
-        },
-        data:{
-            refreshToken:null
-        }
-    })
-
-      res.clearCookie("AccessToken", {
-        httpOnly: true,  
-        secure:  process.env.NODE_ENV !== "development"
-      });
-
-      res.clearCookie("RefreshToken", {
-        httpOnly: true,  
-        secure:  process.env.NODE_ENV !== "development"
-      });
-
-
-      return res
-      .status(200)
-      .json(new ApiResponse(200,"User Logout Successfully"))
-})
-
-
-const ForgetPassword=asyncHandler(async(req,res,next)=>{
-    const {email}=req.body
-
-    const User=await db.user.findUnique({
-        where:{
-            email
-        }
-    })
-
-    if(!User){
-        return next(new ApiError(400,"User not found"));
-    }
-
-    const {hashedToken,unHashedToken,tokenExpiry}=generateTemporaryToken();
-
-    await db.user.update({
-        where:{
-            id:User.id
-        },
-        data:{
-            forgetPasswordToken:hashedToken,
-            forgetPasswordTokenExpiry:tokenExpiry
-        }
-    })
-    
-    await SendMail({
-        email: User.email,
-        subject: "Reset Password",
-        mailGenContent: forgetPasswordMailGenContent(
-          User.username,
-          `${process.env.BASE_URL}/api/v1/users/reset-pass/${unHashedToken}`
-        ),
-      });
-    
-      return res
-      .status(200)
-      .json(new ApiResponse(200,"Check Your Inbox and reset your password "))
-    
-    })
-
-
-const ResetPassword=asyncHandler(async(req,res,next)=>{
-
-    const {Incomingtoken}=req.params
-    const {password:newPassword}=req.body
-
-    if(!Incomingtoken){
-        return next(new ApiError(401,"Reset Password Token in Missing"));
-    }
-    
-    const hashedToken=crypto.createHash("sha256").update(Incomingtoken).digest("hex")
-
-    const User=await db.user.findFirst({
-        where:{
-            forgetPasswordToken:hashedToken,
-            forgetPasswordTokenExpiry:{gt:new Date()}
-        }
-    })   
-
-    if(!User){
-        return next(new ApiError(400," Invalid Token Or Token Expired"))
-    }
-
-    const hashedPassword=await bcrypt.hash(newPassword,10);
-
-    const UpdateUser=await db.user.update({
-        where:{
-            id:User.id
-        },
-        data:{
-            password:hashedPassword,
-            forgetPasswordToken:null,
-            forgetPasswordTokenExpiry:null
-        }
-    })
-
-    return res
+  return res
     .status(200)
-    .json(new ApiResponse(200,UpdateUser,"Password Reset SuccessFully"));
-})
+    .json(new ApiResponse(200, UpdateUser, "Password Reset SuccessFully"));
+});
 
+const ChangePassword = asyncHandler(async (req, res, _next) => {
+  const { password: newPassword } = req.body;
 
-const ChangePassword=asyncHandler((async(req,res,_next)=>{
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    const {password:newPassword}=req.body
+  await db.user.update({
+    where: {
+      id: req.user.id,
+    },
+    data: {
+      password: hashedPassword,
+    },
+  });
 
-    const hashedPassword=await bcrypt.hash(newPassword,10);
-
-    await db.user.update({
-        where:{
-            id:req.user.id
-        },
-        data:{
-            password:hashedPassword
-        }
-    })
-
-    return res
+  return res
     .status(200)
-    .json(new ApiResponse(200,"Password Change Successfully"))
-}))
+    .json(new ApiResponse(200, "Password Change Successfully"));
+});
 
+const GetProfile = asyncHandler(async (req, res, next) => {
+  const User = await db.user.findUnique({
+    where: {
+      id: req.user.id,
+    },
+    select: {
+      id: true,
+      email: true,
+      username: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
 
-const GetProfile=asyncHandler((async(req,res,next)=>{
+  if (!User) {
+    return next(new ApiError(400, "Unauthorised Access"));
+  }
 
-    const User= await db.user.findUnique({
-        where: {
-          id: req.user.id,
-        },
-        select: {
-          id: true,
-          email: true,
-          username: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-      });
-      
-
-    if(!User){
-        return next(new ApiError(400,"Unauthorised Access"))
-    }
-
-    return res
+  return res
     .status(200)
-    .json(new ApiResponse(200,User,"User Profile Fetched Successfully"))
+    .json(new ApiResponse(200, User, "User Profile Fetched Successfully"));
+});
 
-}))
+const ResendEmailVerification = asyncHandler(async (req, res, next) => {
+  const User = await db.user.findUnique({
+    where: {
+      id: req.user.id,
+      isVerified: false,
+    },
+  });
 
+  if (!User) {
+    return next(
+      new ApiError(400, "Unauthorised Access or Email Veried Already!"),
+    );
+  }
 
-const ResendEmailVerification=asyncHandler(async(req,res,next)=>{
-    const User= await db.user.findUnique({
-        where: {
-          id: req.user.id,
-          isVerified:false
-        }
-    })
+  const { hashedToken, unHashedToken, tokenExpiry } = generateTemporaryToken();
 
-        if(!User){
-            return next(new ApiError(400,"Unauthorised Access or Email Veried Already!"))
-        }
+  await db.user.update({
+    where: {
+      id: User.id,
+    },
+    data: {
+      verificationToken: hashedToken,
+      verificationTokenExpiry: tokenExpiry,
+    },
+  });
 
+  await SendMail({
+    email: User.email,
+    subject: "Verify Your Email",
+    mailGenContent: emailVerificationMailGenContent(
+      User.username,
+      `${process.env.BASE_URL}/api/v1/users/verify/${unHashedToken}`,
+    ),
+  });
 
-        const {hashedToken,unHashedToken,tokenExpiry}=generateTemporaryToken();
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, "Successfully Resend the link Check your Inbox"),
+    );
+});
 
-        await db.user.update({
-            where:{
-                id:User.id
-            },
-            data:{
-                verificationToken:hashedToken,
-                verificationTokenExpiry:tokenExpiry
-            }
-        })
-    
-        await SendMail({
-            email: User.email,
-            subject: "Verify Your Email",
-            mailGenContent: emailVerificationMailGenContent(
-                User.username,
-            `${process.env.BASE_URL}/api/v1/users/verify/${unHashedToken}`),
-        });
-    
-        return res
-        .status(200)
-        .json(new ApiResponse(200,"Successfully Resend the link Check your Inbox"))
+const RefreshAccesstoken = asyncHandler(async (req, res, next) => {
+  const incomeRToken = req.cookies.RefreshToken || req.body.RefreshToken;
 
+  if (!incomeRToken) {
+    return next(new ApiError(400, "IncomingRToken is missing"));
+  }
 
-})
+  const decodeRToken = jwt.verify(
+    incomeRToken,
+    process.env.REFRESH_TOKEN_SECRET,
+  );
 
+  const User = await db.user.findUnique({
+    where: {
+      id: decodeRToken.id,
+    },
+  });
 
-const RefreshAccesstoken=asyncHandler(async(req,res,next)=>{
+  if (!User) {
+    return next(new ApiError(400, "Invalid Refresh Token"));
+  }
 
-    const incomeRToken=req.cookies.RefreshToken || req.body.RefreshToken
+  if (incomeRToken !== User?.refreshToken) {
+    return next(new ApiError(400, "Refresh Token is expired or used"));
+  }
 
-    if(!incomeRToken){
-        return next(new ApiError(400, "IncomingRToken is missing"));
-      }
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
 
-      const decodeRToken=jwt.verify(incomeRToken,process.env.REFRESH_TOKEN_SECRET)
+  const AccessToken = await accessToken(User.id);
+  const RefreshToken = await refreshToken(User.id);
 
-      const User=await db.user.findUnique({
-        where:{
-            id:decodeRToken.id
-        }
-      })
+  res.cookie("AccessToken", AccessToken, options);
+  res.cookie("RefreshToken", RefreshToken, options);
 
-      if(!User){
-        return next(new ApiError(400,"Invalid Refresh Token"))
-      }
+  await db.user.update({
+    where: {
+      id: User.id,
+    },
+    data: {
+      refreshToken: RefreshToken,
+    },
+  });
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "Acess Token SuccessFully Refreshed"));
+});
 
-      if(incomeRToken !==User?.refreshToken){
-        return next(new ApiError(400, "Refresh Token is expired or used"));
-       }
-
-     
-
-      const options={
-        httpOnly:true,  
-        secure:true
-      }
-
-      const AccessToken=await accessToken(User.id);
-      const RefreshToken=await refreshToken(User.id);
-
-      res.cookie("AccessToken",AccessToken,options)
-      res.cookie("RefreshToken",RefreshToken,options)
-
-      await db.user.update({
-        where:{
-            id:User.id
-        },
-        data:{
-            refreshToken:RefreshToken
-        }
-    })
-      return res
-      .status(200)
-      .json(new ApiResponse(200, "Acess Token SuccessFully Refreshed"))
-})
-
-
-
-export {register,VerifyUser,LoginUser,LogoutUser,ForgetPassword,ResetPassword,ChangePassword,GetProfile,ResendEmailVerification,RefreshAccesstoken}
+export {
+  register,
+  VerifyUser,
+  LoginUser,
+  LogoutUser,
+  ForgetPassword,
+  ResetPassword,
+  ChangePassword,
+  GetProfile,
+  ResendEmailVerification,
+  RefreshAccesstoken,
+};
