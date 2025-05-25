@@ -4,6 +4,7 @@ import MainLayout from "../components/layout/MainLayout"; // Correct path to you
 import HomePage from "../pages/HomePage";
 import ProblemDetailPage from "../pages/ProblemDetailPage";
 import NotFoundPage from "../pages/NotFoundPage";
+import ProblemListPage from "@/pages/ProblemListPage";
 
 export const router = createBrowserRouter([
   {
@@ -18,6 +19,10 @@ export const router = createBrowserRouter([
       {
         path: "problems/:problemId",
         element: <ProblemDetailPage />,
+      },
+      {
+        path: "problems",
+        element: <ProblemListPage />,
       },
       // Add other pages that should use MainLayout here later
     ],
