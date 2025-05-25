@@ -11,7 +11,10 @@ import {
 
 const router = Router();
 
-router.route("/").post(isLoggedIn, isAdmin, createProblem).get(getAllProblems);
+router
+  .route("/")
+  .post(isLoggedIn, isAdmin, createProblem)
+  .get(isLoggedIn, getAllProblems);
 
 router.route("/get-problem/:id").get(isLoggedIn, getProblemById);
 
