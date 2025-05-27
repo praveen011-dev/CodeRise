@@ -5,6 +5,8 @@ import HomePage from "../pages/HomePage";
 import ProblemDetailPage from "../pages/ProblemDetailPage";
 import NotFoundPage from "../pages/NotFoundPage";
 import ProblemListPage from "@/pages/ProblemListPage";
+import LoginPage from "@/features/auth/pages/LoginPage";
+import SignupPage from "@/features/auth/pages/SignupPage";
 
 export const router = createBrowserRouter([
   {
@@ -23,6 +25,14 @@ export const router = createBrowserRouter([
       {
         path: "problems",
         element: <ProblemListPage />,
+      },
+      {
+        path: "/login",
+        element: <LoginPage />,
+      },
+      {
+        path: "/signup",
+        element: <SignupPage />,
       },
       // Add other pages that should use MainLayout here later
     ],
