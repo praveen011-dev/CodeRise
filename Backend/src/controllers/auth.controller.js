@@ -29,7 +29,12 @@ const register = asyncHandler(async (req, res, next) => {
   });
 
   if (existingUser) {
-    return next(new ApiError(400, "User Already Exist!"));
+    if (existingUser.email === email) {
+      return next(new ApiError(409, "User with this email already exists!")); // 409 Conflict is often used
+    }
+    if (existingUser.username === username) {
+      return next(new ApiError(409, "Username is already taken!"));
+    }
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -43,9 +48,14 @@ const register = asyncHandler(async (req, res, next) => {
   });
 
   if (!newUser) {
-    return next(new ApiError(400, "Something Wrong User not register"));
+    return next(
+      new ApiError(
+        400,
+        "Something went wrong while registering the user. Please try again.",
+      ),
+    );
   }
-  //create token
+  //create verification tokens
 
   const { hashedToken, unHashedToken, tokenExpiry } = generateTemporaryToken();
 
@@ -56,6 +66,13 @@ const register = asyncHandler(async (req, res, next) => {
     data: {
       verificationToken: hashedToken,
       verificationTokenExpiry: tokenExpiry,
+    },
+    // Select only the fields needed for the next steps and response
+    select: {
+      id: true,
+      email: true,
+      username: true,
+      isVerified: true, // Assuming you have an isVerified field
     },
   });
 
@@ -68,19 +85,47 @@ const register = asyncHandler(async (req, res, next) => {
     ),
   });
 
-  return res.status(200).json(
-    new ApiResponse(
-      200,
-      {
-        id: UpdateUser.id,
-        email: UpdateUser.email,
-        username: UpdateUser.username,
-        verificationToken: UpdateUser.verificationToken,
-        verificationTokenExpiry: UpdateUser.verificationTokenExpiry,
-      },
-      "User Registered Successfully",
-    ),
-  );
+  //generate JWT  Tokens For Auto Login
+
+  const AccessToken = await accessToken(UpdateUser.id);
+  const RefreshToken = await refreshToken(UpdateUser.id);
+
+  const cookieOptions = {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none", // Add this for cross-origin cookies
+    path: "/", // Optional: often good to set path to root
+  };
+
+  await db.user.update({
+    where: {
+      id: UpdateUser.id,
+    },
+    data: {
+      refreshToken: RefreshToken,
+    },
+  });
+
+  res.cookie("AccessToken", AccessToken, cookieOptions);
+  res.cookie("RefreshToken", RefreshToken, cookieOptions);
+
+  // Prepare user data to send back to frontend
+  const userDataForFrontend = {
+    id: UpdateUser.id,
+    email: UpdateUser.email,
+    username: UpdateUser.username,
+    isVerified: UpdateUser.isVerified || false,
+  };
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        userDataForFrontend,
+        "User registered and logged in successfully. Please check your email to verify your account.",
+      ),
+    );
 });
 
 const VerifyUser = asyncHandler(async (req, res, next) => {
