@@ -1,48 +1,56 @@
 import { Router } from "express";
 
-import {ForgetPassword, LoginUser, LogoutUser, register, VerifyUser,ResetPassword,ChangePassword,GetProfile,ResendEmailVerification,RefreshAccesstoken} from "../controllers/auth.controller.js"
+import {
+  ForgetPassword,
+  LoginUser,
+  LogoutUser,
+  register,
+  VerifyUser,
+  ResetPassword,
+  ChangePassword,
+  GetProfile,
+  ResendEmailVerification,
+  RefreshAccesstoken,
+} from "../controllers/auth.controller.js";
 
-import { validateLoginUser, validateRegisterUser,validateForgetPass,validateResetPass,validateChangeCurrPass } from "../middlewares/userValidation.middleware.js";
+import {
+  validateLoginUser,
+  validateRegisterUser,
+  validateForgetPass,
+  validateResetPass,
+  validateChangeCurrPass,
+} from "../middlewares/userValidation.middleware.js";
 
 import { isLoggedIn } from "../middlewares/auth.middleware.js";
 
 import { upload } from "../middlewares/multer.middleware.js";
 
-const router=Router();
+const router = Router();
 
-router.route("/register")
-.post(validateRegisterUser,register)
+router.route("/register").post(validateRegisterUser, register);
 
-router.route("/verify/:Incomingtoken")
-.get(VerifyUser)
+router.route("/verify/:Incomingtoken").get(VerifyUser);
 
-router.route("/login")
-.get(validateLoginUser,LoginUser)
+router.route("/login").post(validateLoginUser, LoginUser);
 
-router.route("/logout")
-.get(isLoggedIn,LogoutUser)
+router.route("/logout").get(isLoggedIn, LogoutUser);
 
-router.route("/forget-pass")
-.post(validateForgetPass,ForgetPassword)
+router.route("/forget-pass").post(validateForgetPass, ForgetPassword);
 
-router.route("/reset-pass/:Incomingtoken")
-.post(validateResetPass,ResetPassword)
+router
+  .route("/reset-pass/:Incomingtoken")
+  .post(validateResetPass, ResetPassword);
 
-
-router.route("/refresh-accessToken")
-.get(RefreshAccesstoken)
-
+router.route("/refresh-accessToken").get(RefreshAccesstoken);
 
 //Secured Routes
 
-router.route("/change-pass")
-.post(validateChangeCurrPass,isLoggedIn,ChangePassword)
+router
+  .route("/change-pass")
+  .post(validateChangeCurrPass, isLoggedIn, ChangePassword);
 
-router.route("/get-profile")
-.get(isLoggedIn,GetProfile)
+router.route("/profile").get(isLoggedIn, GetProfile);
 
-router.route("/resend-email-verify")
-.post(isLoggedIn,ResendEmailVerification)
-
+router.route("/resend-email-verify").post(isLoggedIn, ResendEmailVerification);
 
 export default router;
