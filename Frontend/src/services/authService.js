@@ -5,7 +5,7 @@ export const loginUser = async (credentials) => {
 
   try {
     const response = await fetch(loginEndpoint, {
-      method: "GET",
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
@@ -74,6 +74,23 @@ export const logoutUser = async () => {
     return data; // Or data.message
   } catch (error) {
     console.error("Error in logoutUser service:", error);
+    throw error;
+  }
+};
+
+export const getCurrentUser = async () => {
+  const profileEndpoint = `${API_BASE_URL}/profile`;
+  try {
+    const response = await fetch(profileEndpoint, {
+      credentials: "include",
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || "No active session");
+    }
+    return data.data;
+  } catch (error) {
+    console.log("getCurrentUser check:", error.message); // Or handle more gracefully
     throw error;
   }
 };

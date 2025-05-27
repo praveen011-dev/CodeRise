@@ -1,7 +1,7 @@
 // src/features/auth/pages/SignupPage.jsx
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import useAuthStore from "../../../store/authStore"; // Adjust path as needed
+import useAuthStore from "../../../store/authStore";
 
 // Assuming you might use Shadcn/UI components later:
 // import { Button } from "@/components/ui/button";

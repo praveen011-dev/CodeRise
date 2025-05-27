@@ -1,5 +1,10 @@
 import { create } from "zustand";
-import { loginUser, logoutUser, registerUser } from "@/services/authService";
+import {
+  loginUser,
+  logoutUser,
+  registerUser,
+  getCurrentUser,
+} from "@/services/authService";
 
 // Create the store
 const useAuthStore = create((set) => ({
@@ -14,6 +19,7 @@ const useAuthStore = create((set) => ({
     set({ isLoading: true, error: null });
     try {
       const userData = await loginUser(credentials); // This makes the API call
+
       set({
         user: userData,
         isLoggedIn: true,
@@ -88,8 +94,22 @@ const useAuthStore = create((set) => ({
       return { success: false, error: errorMessage };
     }
   },
+
   clearError: () => {
     set({ error: null }); // This action sets the 'error' state back to null
+  },
+
+  checkAuthStatus: async () => {
+    // Don't set isLoading to true here unless you want a global app loader
+    // as this runs on app load.
+    // set({ isLoading: true });
+    try {
+      const userData = await getCurrentUser(); // Call the service
+      set({ user: userData, isLoggedIn: true, isLoading: false, error: null });
+    } catch (error) {
+      // This is expected if the user is not logged in (no valid cookies)
+      set({ user: null, isLoggedIn: false, isLoading: false, error: null });
+    }
   },
 }));
 

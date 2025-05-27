@@ -28,7 +28,7 @@ function LoginPage() {
     e.preventDefault();
     clearAuthError(); // Clear previous errors before a new attempt
 
-    console.log("Login form submitted with:", { email, password });
+    // console.log("Login form submitted with:", { email, password });
     const result = await loginAction({ email, password });
 
     if (result.success) {
