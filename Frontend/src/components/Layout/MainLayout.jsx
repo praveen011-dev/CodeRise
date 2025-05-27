@@ -1,22 +1,52 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
-import Footer from "./footer";
 import Navbar from "./navbar";
+import Footer from "./footer";
+import useAuthStore from "../../store/authStore";
 
 function MainLayout() {
+  // get the action from the auth store
+  const checkAuthStatus = useAuthStore((state) => state.checkAuthStatus);
+
+  // local state to track session verification
+  const [isVerifyingSession, setIsVerifyingSession] = useState(true);
+
+  useEffect(() => {
+    // This function runs once when MainLayout first loads
+    const initializeAuth = async () => {
+      try {
+        // ask the store to check the auth status
+        await checkAuthStatus();
+      } catch (error) {
+        console.log(
+          "Initial session check completed (no active session or error)."
+        );
+      } finally {
+        // wheather we got an error or not, we are done
+        setIsVerifyingSession(false);
+      }
+    };
+    initializeAuth();
+  }, [checkAuthStatus]); // run when checkAuthStatus changes
+
+  // show loading indicator while session is being verified
+  if (isVerifyingSession) {
+    return (
+      <div className="flex justify-center items-center min-h-screen text-xl">
+        Loading Application...
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      {" "}
-      {/* Main site background */}
+    <div>
       <Navbar />
-      <main className="flex-grow container mx-auto py-6 px-4">
-        {" "}
-        {/* Content area */}
-        <Outlet />{" "}
-        {/* This is where React Router will render the current page */}
+      <main>
+        <Outlet />
       </main>
       <Footer />
     </div>
   );
 }
+
 export default MainLayout;
