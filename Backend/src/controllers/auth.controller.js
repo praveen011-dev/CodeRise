@@ -211,7 +211,17 @@ const LoginUser = asyncHandler(async (req, res, next) => {
     },
   });
 
-  return res.status(200).json(new ApiResponse(200, "User Login SuccessFully"));
+  // Prepare user data to send back to frontend
+  const userDataForFrontend = {
+    id: User.id,
+    email: User.email,
+    username: User.username,
+    isVerified: User.isVerified || false,
+  };
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, userDataForFrontend, "User Login SuccessFully"));
 });
 
 const LogoutUser = asyncHandler(async (req, res, _next) => {
