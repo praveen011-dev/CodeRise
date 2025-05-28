@@ -1,0 +1,34 @@
+{
+  "title": "Check Palindrome",
+  "description": "Check if the given string is a palindrome (same forwards and backwards).",
+  "difficulty": "MEDIUM",
+  "tags": ["strings", "two pointers"],
+  "examples": {
+    "PYTHON": {
+      "input": "racecar",
+      "output": "true",
+      "explanation": "'racecar' is a palindrome."
+    },
+    "JAVASCRIPT": {
+      "input": "hello",
+      "output": "false",
+      "explanation": "'hello' is not a palindrome."
+    }
+  },
+  "constraints": "1 ≤ string length ≤ 10^5",
+  "testcases": [
+    { "input": "madam", "output": "true" },
+    { "input": "world", "output": "false" },
+    { "input": "a", "output": "true" }
+  ],
+  "codeSnippet": {
+    "PYTHON": "def is_palindrome(s):\n    return s == s[::-1]\n\nimport sys\ns = sys.stdin.read().strip()\nprint(str(is_palindrome(s)).lower())",
+    "JAVASCRIPT": "const fs = require('fs');\nconst s = fs.readFileSync(0, 'utf-8').trim();\nconsole.log((s === s.split('').reverse().join('')).toString());",
+    "JAVA": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.next();\n        String reversed = new StringBuilder(s).reverse().toString();\n        System.out.println(String.valueOf(s.equals(reversed)));\n    }\n}"
+  },
+  "refrenceSolution": {
+    "PYTHON": "import sys\ns = sys.stdin.read().strip()\nprint(str(s == s[::-1]).lower())",
+    "JAVASCRIPT": "const fs = require('fs');\nconst s = fs.readFileSync(0, 'utf-8').trim();\nconsole.log((s === s.split('').reverse().join('')).toString());",
+    "JAVA": "import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.next();\n        System.out.println(String.valueOf(s.equals(new StringBuilder(s).reverse().toString())));\n    }\n}"
+  }
+}

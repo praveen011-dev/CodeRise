@@ -37,10 +37,7 @@ app.use((err, _req, res, _next) => {
   const statusCode = err.statusCode || 500;
   let message = err.message || "Internal Server Error";
 
-  if (message.includes("Can't reach database server")) {
-    message =
-      "Please make sure your database server is running at localhost:5432.";
-  }
+  console.log(err);
 
   res.status(statusCode).json({
     success: false,

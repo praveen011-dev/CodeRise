@@ -16,7 +16,7 @@ router
   .post(isLoggedIn, isAdmin, createProblem)
   .get(isLoggedIn, getAllProblems);
 
-router.route("/get-problem/:id").get(isLoggedIn, getProblemById);
+router.route("/:id").get(isLoggedIn, getProblemById);
 
 router.route("/update-problem/:id").put(isLoggedIn, isAdmin, updateProblem);
 
