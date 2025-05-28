@@ -49,8 +49,7 @@ router
   .route("/change-pass")
   .post(validateChangeCurrPass, isLoggedIn, ChangePassword);
 
-router.route("/get-profile")
-.get(isLoggedIn,GetProfile)
+router.route("/profile").get(isLoggedIn, GetProfile);
 
 router.route("/resend-email-verify").post(isLoggedIn, ResendEmailVerification);
 
