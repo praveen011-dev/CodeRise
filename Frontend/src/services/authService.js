@@ -1,7 +1,7 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const loginUser = async (credentials) => {
-  const loginEndpoint = `${API_BASE_URL}/login`;
+  const loginEndpoint = `${API_BASE_URL}/users/login`;
 
   try {
     const response = await fetch(loginEndpoint, {
@@ -28,7 +28,7 @@ export const loginUser = async (credentials) => {
 };
 
 export const registerUser = async (userData) => {
-  const registerEndpoint = `${API_BASE_URL}/register`;
+  const registerEndpoint = `${API_BASE_URL}/users/register`;
 
   try {
     const response = await fetch(registerEndpoint, {
@@ -56,7 +56,7 @@ export const registerUser = async (userData) => {
 };
 
 export const logoutUser = async () => {
-  const logoutEndpoint = `${API_BASE_URL}/logout`;
+  const logoutEndpoint = `${API_BASE_URL}/users/logout`;
 
   try {
     const response = await fetch(logoutEndpoint, {
@@ -79,7 +79,7 @@ export const logoutUser = async () => {
 };
 
 export const getCurrentUser = async () => {
-  const profileEndpoint = `${API_BASE_URL}/profile`;
+  const profileEndpoint = `${API_BASE_URL}/users/profile`;
   try {
     const response = await fetch(profileEndpoint, {
       credentials: "include",

@@ -35,7 +35,10 @@ function Navbar() {
           CodeRise
         </Link>
         <div className="flex items-center space-x-4">
-          <Link to="/" className="hover:text-slate-300">
+          <Link
+            to="/problems"
+            className="hover:text-slate-300 transition-colors duration-200"
+          >
             Problems
           </Link>
           {isLoggedIn && user ? (
