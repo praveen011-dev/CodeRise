@@ -58,7 +58,13 @@ const createProblem = asyncHandler(async (req, res, next) => {
         }
       }
     } catch (error) {
-      return next(new ApiError(500, "Error while creating a problem"));
+      console.error(`Judge0 Submission Error for language ${language}:`, error);
+      return next(
+        new ApiError(
+          500,
+          `Judge0 Error for language ${language}: ${error.message}`,
+        ),
+      );
     }
   }
   //save the problem to the database

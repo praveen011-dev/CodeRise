@@ -1,0 +1,29 @@
+{
+  "title": "Check Even or Odd",
+  "description": "Given a number, determine if it's even or odd.",
+  "difficulty": "EASY",
+  "tags": ["math", "conditions", "modulo"],
+  "examples": {
+    "PYTHON": {
+      "input": "4",
+      "output": "Even",
+      "explanation": "4 is divisible by 2."
+    }
+  },
+  "constraints": "-10^9 ≤ n ≤ 10^9",
+  "testcases": [
+    { "input": "3", "output": "Odd" },
+    { "input": "0", "output": "Even" },
+    { "input": "-2", "output": "Even" }
+  ],
+  "codeSnippet": {
+    "JAVASCRIPT": "const input = parseInt(require('fs').readFileSync(0, 'utf-8'));\nconsole.log(input % 2 === 0 ? 'Even' : 'Odd');",
+    "PYTHON": "import sys\nn = int(sys.stdin.read())\nprint('Even' if n % 2 == 0 else 'Odd')",
+    "JAVA": "import java.util.Scanner;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n        System.out.println(n % 2 == 0 ? \"Even\" : \"Odd\");\n    }\n}"
+  },
+  "refrenceSolution": {
+    "JAVASCRIPT": "const input = parseInt(require('fs').readFileSync(0, 'utf-8'));\nconsole.log(input % 2 === 0 ? 'Even' : 'Odd');",
+    "PYTHON": "import sys\nn = int(sys.stdin.read())\nprint('Even' if n % 2 == 0 else 'Odd')",
+    "JAVA": "import java.util.Scanner;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n        System.out.println(n % 2 == 0 ? \"Even\" : \"Odd\");\n    }\n}"
+  }
+}

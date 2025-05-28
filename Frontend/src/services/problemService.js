@@ -31,7 +31,9 @@ export const fetchProblemById = async (problemId) => {
 
   try {
     // Assumes backend route is '/problems/:id'
-    const response = await fetch(`${API_BASE_URL}/problems/${problemId}`);
+    const response = await fetch(`${API_BASE_URL}/problems/${problemId}`, {
+      credentials: "include", // Ensures browser sends cookies
+    });
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
       throw new Error(

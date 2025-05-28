@@ -1,0 +1,36 @@
+{
+  "title": "Longest Substring Without Repeating Characters",
+  "description": "Given a string s, find the length of the longest substring without repeating characters.",
+  "difficulty": "HARD",
+  "tags": ["strings", "hashmap", "sliding window", "two pointers"],
+  "examples": {
+    "PYTHON": {
+      "input": "abcabcbb",
+      "output": "3",
+      "explanation": "The answer is 'abc', with length 3."
+    },
+    "JAVASCRIPT": {
+      "input": "bbbbb",
+      "output": "1",
+      "explanation": "The answer is 'b', with length 1."
+    }
+  },
+  "constraints": "1 ≤ |s| ≤ 10^5",
+  "testcases": [
+    { "input": "abcabcbb", "output": "3" },
+    { "input": "bbbbb", "output": "1" },
+    { "input": "pwwkew", "output": "3" },
+    { "input": "dvdf", "output": "3" },
+    { "input": "aab", "output": "2" }
+  ],
+  "codeSnippet": {
+    "PYTHON": "def length_of_longest_substring(s):\n    # Implement logic here\n    pass\n\nimport sys\ns = sys.stdin.read().strip()\nprint(length_of_longest_substring(s))",
+    "JAVASCRIPT": "const fs = require('fs');\nconst s = fs.readFileSync(0, 'utf-8').trim();\n\nfunction lengthOfLongestSubstring(s) {\n    // Implement logic here\n}\n\nconsole.log(lengthOfLongestSubstring(s));",
+    "JAVA": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine();\n        System.out.println(lengthOfLongestSubstring(s));\n    }\n\n    public static int lengthOfLongestSubstring(String s) {\n        // Implement logic here\n        return 0;\n    }\n}"
+  },
+  "refrenceSolution": {
+    "PYTHON": "import sys\ns = sys.stdin.read().strip()\nchar_set = set()\nleft = max_len = 0\nfor right in range(len(s)):\n    while s[right] in char_set:\n        char_set.remove(s[left])\n        left += 1\n    char_set.add(s[right])\n    max_len = max(max_len, right - left + 1)\nprint(max_len)",
+    "JAVASCRIPT": "const fs = require('fs');\nconst s = fs.readFileSync(0, 'utf-8').trim();\nlet set = new Set();\nlet left = 0, maxLen = 0;\nfor (let right = 0; right < s.length; right++) {\n    while (set.has(s[right])) {\n        set.delete(s[left++]);\n    }\n    set.add(s[right]);\n    maxLen = Math.max(maxLen, right - left + 1);\n}\nconsole.log(maxLen);",
+    "JAVA": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.nextLine();\n        Set<Character> set = new HashSet<>();\n        int left = 0, maxLen = 0;\n        for (int right = 0; right < s.length(); right++) {\n            while (set.contains(s.charAt(right))) {\n                set.remove(s.charAt(left++));\n            }\n            set.add(s.charAt(right));\n            maxLen = Math.max(maxLen, right - left + 1);\n        }\n        System.out.println(maxLen);\n    }\n}"
+  }
+}
