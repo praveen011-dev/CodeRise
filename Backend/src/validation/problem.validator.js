@@ -117,5 +117,5 @@ export const updateProblemSchema = z.object({
     .array(z.string().min(1, "Each company tag must be a non-empty string."))
     .optional(),
   isDemo: z.boolean().optional(),
-  demoSolution: languageCodeMapSchema,
+  demoSolution: languageCodeMapSchema.optional(),
 });
