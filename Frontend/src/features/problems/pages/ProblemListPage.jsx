@@ -1,7 +1,7 @@
 // src/pages/ProblemListPage.jsx
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { fetchAllProblems } from "../services/problemService"; // Adjust path if your service file is elsewhere
+import { fetchAllProblems } from "../../../services/problemService"; // Adjust path if your service file is elsewhere
 
 // If you want to use Shadcn/UI components like Card, import them here:
 // import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
