@@ -57,10 +57,15 @@ model Problem {
   constraints String
   hints       String?
   editorail   String?
+  category    String? // e.g., "Array", "Graph", "DP"
+  companyTags String[] // e.g., ["Google", "Amazon"]
 
   testcases        Json //[{"input":"1","output":"1"},{"input":"2","output":"2"}]
   codeSnippet      Json
   refrenceSolution Json
+
+  isDemo       Boolean?
+  demoSolution Json?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

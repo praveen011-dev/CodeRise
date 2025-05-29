@@ -8,17 +8,23 @@ import {
   getProblemSolvedByUser,
   updateProblem,
 } from "../controllers/problem.controller.js";
+import {
+  validateCreateProblem,
+  validateUpdateProblem,
+} from "../middlewares/problemValidation.middleware.js";
 
 const router = Router();
 
 router
   .route("/")
-  .post(isLoggedIn, isAdmin, createProblem)
+  .post(isLoggedIn, isAdmin, validateCreateProblem, createProblem)
   .get(isLoggedIn, getAllProblems);
 
 router.route("/:id").get(isLoggedIn, getProblemById);
 
-router.route("/update-problem/:id").put(isLoggedIn, isAdmin, updateProblem);
+router
+  .route("/update-problem/:id")
+  .put(isLoggedIn, isAdmin, validateUpdateProblem, updateProblem);
 
 router.route("/delete-problem/:id").delete(isLoggedIn, isAdmin, deleteProblem);
 

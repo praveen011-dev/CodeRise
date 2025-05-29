@@ -1,13 +1,12 @@
-import express from "express"
+import express from "express";
 
-import { Router } from "express"
+import { Router } from "express";
 
-import { executeCode } from "../controllers/executeCode.controller.js"
-import {isLoggedIn } from "../middlewares/auth.middleware.js";
+import { executeCode } from "../controllers/executeCode.controller.js";
+import { isLoggedIn } from "../middlewares/auth.middleware.js";
 
-const router=Router();
+const router = Router();
 
-router.route("/")
-.post(isLoggedIn,executeCode)
+router.route("/").post(isLoggedIn, executeCode);
 
-export default router
+export default router;

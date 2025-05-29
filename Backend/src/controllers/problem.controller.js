@@ -19,6 +19,12 @@ const createProblem = asyncHandler(async (req, res, next) => {
     testcases,
     codeSnippet,
     refrenceSolution,
+    hints,
+    editorail, // Note: Common spelling is "editorial"
+    category,
+    companyTags, // Should be an array of strings: ["company1", "company2"]
+    isDemo,
+    demoSolution,
   } = req.body;
 
   if (req.user.role !== "ADMIN") {
@@ -81,6 +87,12 @@ const createProblem = asyncHandler(async (req, res, next) => {
       testcases,
       codeSnippet,
       refrenceSolution,
+      hints,
+      editorail,
+      category,
+      companyTags,
+      isDemo,
+      demoSolution,
     },
   });
 
@@ -104,6 +116,10 @@ const getAllProblems = asyncHandler(async (req, res, next) => {
 const getProblemById = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
+  if (!id) {
+    return next(new ApiError(400, "Invalid Problem Id or Problem Id missing"));
+  }
+
   const problemById = await db.problem.findUnique({
     where: {
       id,
@@ -121,12 +137,15 @@ const getProblemById = asyncHandler(async (req, res, next) => {
 const updateProblem = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
+  if (!id) {
+    return next(new ApiError(400, "Problem Id missing"));
+  }
   //validate problem
-  const Problem = await db.problem.findUnique({
+  const existingProblem = await db.problem.findUnique({
     where: { id },
   });
 
-  if (!Problem) {
+  if (!existingProblem) {
     return next(new ApiError(404, "Problem not found Or Invalid Problem Id"));
   }
 
@@ -141,6 +160,12 @@ const updateProblem = asyncHandler(async (req, res, next) => {
     testcases,
     codeSnippet,
     refrenceSolution,
+    hints,
+    editorail,
+    category,
+    companyTags,
+    isDemo,
+    demoSolution,
   } = req.body;
 
   for (const [language, solutionCode] of Object.entries(refrenceSolution)) {
@@ -182,15 +207,21 @@ const updateProblem = asyncHandler(async (req, res, next) => {
       userId: req.user.id,
     },
     data: {
-      title: title ?? Problem.title,
-      description: description ?? Problem.description,
-      difficulty: difficulty ?? Problem.difficulty,
-      tags: tags ?? Problem.tags,
-      examples: examples ?? Problem.examples,
-      constraints: constraints ?? Problem.constraints,
-      testcases: testcases ?? Problem.testcases,
-      codeSnippet: codeSnippet ?? Problem.codeSnippet,
-      refrenceSolution: refrenceSolution ?? Problem.refrenceSolution,
+      title: title ?? existingProblem.title,
+      description: description ?? existingProblem.description,
+      difficulty: difficulty ?? existingProblem.difficulty,
+      tags: tags ?? existingProblem.tags,
+      examples: examples ?? existingProblem.examples,
+      constraints: constraints ?? existingProblem.constraints,
+      testcases: testcases ?? existingProblem.testcases,
+      codeSnippet: codeSnippet ?? existingProblem.codeSnippet,
+      refrenceSolution: refrenceSolution ?? existingProblem.refrenceSolution,
+      hints: hints ?? existingProblem.hints,
+      editorail: editorail ?? existingProblem.editorail,
+      category: category ?? existingProblem.category,
+      companyTags: companyTags ?? existingProblem.companyTags,
+      isDemo: isDemo ?? existingProblem.isDemo,
+      demoSolution: demoSolution ?? existingProblem.demoSolution,
     },
   });
 
