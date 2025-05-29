@@ -2,9 +2,9 @@
 import { createBrowserRouter } from "react-router-dom";
 import MainLayout from "../components/layout/MainLayout";
 import HomePage from "../pages/HomePage";
-import ProblemDetailPage from "../pages/ProblemDetailPage";
+import ProblemDetailPage from "@/features/problems/pages/ProblemDetailPage";
 import NotFoundPage from "../pages/NotFoundPage";
-import ProblemListPage from "@/pages/ProblemListPage";
+import ProblemListPage from "@/features/problems/pages/ProblemListPage";
 import LoginPage from "@/features/auth/pages/LoginPage";
 import SignupPage from "@/features/auth/pages/SignupPage";
 import ProtectedRoute from "./ProtectedRoute";
