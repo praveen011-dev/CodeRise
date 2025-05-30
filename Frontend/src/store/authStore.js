@@ -46,11 +46,6 @@ const useAuthStore = create((set) => ({
     try {
       const newRegisteredUserData = await registerUser(userData); // This makes the API call
 
-      // - If registration and auto-login by backend were successful:
-      //    - The backend has set HttpOnly cookies.
-      //    - 'newRegisteredUserData' contains the user details.
-      //    - Update the store to reflect the new logged-in state.
-
       set({
         user: newRegisteredUserData, // Store the user data
         isLoggedIn: true, // Set isLoggedIn to true
@@ -100,14 +95,10 @@ const useAuthStore = create((set) => ({
   },
 
   checkAuthStatus: async () => {
-    // Don't set isLoading to true here unless you want a global app loader
-    // as this runs on app load.
-    // set({ isLoading: true });
     try {
-      const userData = await getCurrentUser(); // Call the service
+      const userData = await getCurrentUser();
       set({ user: userData, isLoggedIn: true, isLoading: false, error: null });
     } catch (error) {
-      // This is expected if the user is not logged in (no valid cookies)
       set({ user: null, isLoggedIn: false, isLoading: false, error: null });
     }
   },
