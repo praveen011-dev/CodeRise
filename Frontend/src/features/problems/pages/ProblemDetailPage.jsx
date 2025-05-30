@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Editor from "@monaco-editor/react";
 import { fetchProblemById } from "../../../services/problemService";
-import { submitSolution } from "../../../services/executionService";
+import { submitSolution } from "../../../services/executeService";
 import { Button } from "@/components/ui/button";
 
 // This map helps convert language names (from your backend/UI) to Judge0 language IDs
