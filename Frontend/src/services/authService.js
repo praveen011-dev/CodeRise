@@ -1,96 +1,21 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import apiClient from "../lib/apiClient.js";
 
+// Login user: calls POST /users/login
 export const loginUser = async (credentials) => {
-  const loginEndpoint = `${API_BASE_URL}/users/login`;
-
-  try {
-    const response = await fetch(loginEndpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(credentials),
-      credentials: "include",
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        data.message || `Login failed. Status: ${response.status}`
-      );
-    }
-    return data.data; // This should be the user object
-  } catch (error) {
-    console.error("Error in loginUser service:", error);
-    throw error;
-  }
+  return apiClient("/users/login", "POST", credentials);
 };
 
+// Register user: calls POST /users/register
 export const registerUser = async (userData) => {
-  const registerEndpoint = `${API_BASE_URL}/users/register`;
-
-  try {
-    const response = await fetch(registerEndpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(userData),
-      credentials: "include",
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        data.message || `Registration failed. Status: ${response.status}`
-      );
-    }
-
-    return data.data;
-  } catch (error) {
-    console.error("Error in registerUser service:", error);
-    throw error;
-  }
+  return apiClient("/users/register", "POST", userData);
 };
 
+// Logout user: calls POST /users/logout (ensure method is correct for your backend)
 export const logoutUser = async () => {
-  const logoutEndpoint = `${API_BASE_URL}/users/logout`;
-
-  try {
-    const response = await fetch(logoutEndpoint, {
-      method: "GET",
-      credentials: "include",
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        data.message || `Logout failed. Status: ${response.status}`
-      );
-    }
-    return data; // Or data.message
-  } catch (error) {
-    console.error("Error in logoutUser service:", error);
-    throw error;
-  }
+  return apiClient("/users/logout", "POST"); // no body needed
 };
 
+// Get current user details: calls GET /users/profile
 export const getCurrentUser = async () => {
-  const profileEndpoint = `${API_BASE_URL}/users/profile`;
-  try {
-    const response = await fetch(profileEndpoint, {
-      credentials: "include",
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || "No active session");
-    }
-    return data.data;
-  } catch (error) {
-    console.log("getCurrentUser check:", error.message); // Or handle more gracefully
-    throw error;
-  }
+  return apiClient("/users/profile", "GET"); // Or your specific 'me' endpoint
 };
