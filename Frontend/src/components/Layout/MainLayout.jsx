@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import Navbar from "./navbar";
 import Footer from "./footer";
 import useAuthStore from "../../store/authStore";
+import { Toaster } from "@/components/ui/sonner";
 
 function MainLayout() {
   // get the action from the auth store
@@ -45,8 +46,8 @@ function MainLayout() {
         <Outlet />
       </main>
       <Footer />
+      <Toaster position="top-right" richColors />
     </div>
   );
 }
-
 export default MainLayout;

@@ -1,10 +1,15 @@
-// src/features/auth/components/LoginForm.jsx
 import React, { useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginSchema } from "../schemas/Login.schema.js"; // Import login schema
 import useAuthStore from "../../../store/authStore"; // Import auth store
+import { toast } from "sonner";
+
+// Import Shadcn/UI components
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 function LoginForm() {
   const {
@@ -30,76 +35,75 @@ function LoginForm() {
     clearAuthError(); // Clear previous auth errors on mount
   }, [clearAuthError]);
 
-  // Form submission logic
+  // Function to call when the form is submitted and valid
   const onSubmit = async (data) => {
-    clearAuthError(); // Clear previous errors
+    clearAuthError(); // Clear previous API errors
     const result = await loginAction({
       email: data.email,
       password: data.password,
     });
-    if (result.success) {
-      console.log("LoginForm: Login successful, navigating to home.");
+    if (result.success && result.user) {
+      toast.success("Login Successful!", {
+        // Display success toast
+        description: `Welcome back, ${
+          result.user.username || result.user.email || "User"
+        }!`,
+      });
       reset(); // Reset form on successful login
       navigate("/"); // Redirect to homepage
     } else {
-      console.log("LoginForm: Login failed.", authError);
+      toast.error("Login Failed", {
+        // Display error toast
+        description: result.error || "Invalid credentials or server error.",
+      });
+      console.log("LoginForm: Login failed.", result.error);
     }
   };
 
   return (
-    <div className="h-screen grid lg:grid-cols-2">
-      {/* Decorative Panel (Optional, can be different from signup) */}
-      <div className="bg-gradient-to-r from-slate-900 via-emerald-700 to-green-600 hidden lg:flex items-center justify-center">
-        <div className="text-center text-white p-10">
-          <h1 className="text-4xl font-bold mb-4">CodeRise Login</h1>
-          <p className="text-xl">
-            Access your account and continue your projects.
-          </p>
-        </div>
-      </div>
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-2xl">
+    <div className="flex items-center justify-center min-h-screen bg-slate-100 p-4">
+      {/* You can wrap this with <Card> for Shadcn styling if you add it */}
+      <div className="w-full max-w-md p-6 md:p-8 space-y-6 bg-white rounded-xl shadow-2xl">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-slate-900">Welcome Back!</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-800">
+            Welcome Back!
+          </h2>
           <p className="mt-2 text-sm text-slate-600">
             Sign in to continue your journey.
           </p>
         </div>
 
-        {/* Display global auth errors (e.g., from API) */}
-        {authError && (
-          <div
-            className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
-            role="alert"
-          >
-            <strong className="font-bold">Error: </strong>
-            <span className="block sm:inline">{authError}</span>
-          </div>
-        )}
+        {/* Display global auth error from store (e.g., network error before Zod kicks in on backend) */}
+        {/* Toasts are usually preferred for success/validation messages from submit */}
+        {authError &&
+          !isLoading && ( // Show if not loading and there's an error from a previous attempt
+            <div
+              className="bg-red-50 border-l-4 border-red-400 text-red-700 p-3 mb-4 text-sm"
+              role="alert"
+            >
+              <p>{authError}</p>
+            </div>
+          )}
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="space-y-6"
+          className="space-y-5"
           noValidate
         >
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-slate-700"
-            >
-              Email Address
-            </label>
-            <input
+            <Label htmlFor="email">Email Address / Username</Label>
+            <Input
               id="email"
-              type="email"
+              type="email" // Or "text" if you allow username and schema reflects it
               autoComplete="email"
-              {...register("email")} // Register email input
+              {...register("email")} // Register with react-hook-form
               disabled={isLoading}
-              className={`mt-1 block w-full px-4 py-3 border ${
-                errors.email ? "border-red-500" : "border-slate-300"
-              } rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-slate-50`}
+              className={`mt-3 ${
+                errors.email ? "border-red-500 focus:ring-red-500" : ""
+              }`}
               placeholder="you@example.com"
             />
-            {errors.email && ( // Display email validation error
+            {errors.email && ( // Display client-side validation error from Zod
               <p className="mt-1 text-xs text-red-600">
                 {errors.email.message}
               </p>
@@ -107,51 +111,35 @@ function LoginForm() {
           </div>
 
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-slate-700"
-            >
-              Password
-            </label>
-            <input
+            <Label htmlFor="password">Password</Label>
+            <Input
               id="password"
               type="password"
               autoComplete="current-password"
-              {...register("password")} // Register password input
+              {...register("password")} // Register with react-hook-form
               disabled={isLoading}
-              className={`mt-1 block w-full px-4 py-3 border ${
-                errors.password ? "border-red-500" : "border-slate-300"
-              } rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-slate-50`}
+              className={`mt-3 ${
+                errors.password ? "border-red-500 focus:ring-red-500" : ""
+              }`}
               placeholder="••••••••"
             />
-            {errors.password && ( // Display password validation error
+            {errors.password && ( // Display client-side validation error from Zod
               <p className="mt-1 text-xs text-red-600">
                 {errors.password.message}
               </p>
             )}
           </div>
 
-          {/* Optional: Add a "Forgot password?" link here */}
-          {/* <div className="text-sm text-right">
-          <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
-            Forgot password?
-          </a>
-        </div> */}
-
           <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-70"
-            >
+            <Button type="submit" disabled={isLoading} className="w-full">
               {isLoading ? "Signing In..." : "Sign In"}
-            </button>
+            </Button>
           </div>
         </form>
-        <p className="mt-8 text-sm text-center text-slate-600">
+        <p className="mt-6 text-sm text-center text-slate-600">
           Don't have an account?{" "}
           <Link
-            to="/signup" // Link to your signup page
+            to="/signup"
             className="font-medium text-blue-600 hover:text-blue-500 hover:underline"
           >
             Sign up
