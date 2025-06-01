@@ -115,6 +115,7 @@ const register = asyncHandler(async (req, res, next) => {
     email: UpdateUser.email,
     username: UpdateUser.username,
     isVerified: UpdateUser.isVerified || false,
+    role: UpdateUser.role,
   };
 
   return res
@@ -217,6 +218,7 @@ const LoginUser = asyncHandler(async (req, res, next) => {
     email: User.email,
     username: User.username,
     isVerified: User.isVerified || false,
+    role: User.role,
   };
 
   return res
@@ -358,6 +360,7 @@ const GetProfile = asyncHandler(async (req, res, next) => {
       username: true,
       createdAt: true,
       updatedAt: true,
+      role:true,
     },
   });
 
