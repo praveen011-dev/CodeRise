@@ -1,4 +1,3 @@
-// src/router/index.jsx
 import { createBrowserRouter } from "react-router-dom";
 import MainLayout from "../components/layout/MainLayout";
 import HomePage from "../pages/HomePage";
@@ -8,13 +7,16 @@ import ProblemListPage from "@/features/problems/pages/ProblemListPage";
 import LoginPage from "@/features/auth/pages/LoginPage";
 import SignupPage from "@/features/auth/pages/SignupPage";
 import ProtectedRoute from "./ProtectedRoute";
+import AddProblemPage from "@/features/problems/pages/AddProblemPage";
 
 export const router = createBrowserRouter([
   {
-    path: "/",
-    element: <MainLayout />,
+    path: "/", // Matches the homepage URL
+    element: <MainLayout />, // So, render MainLayout
     errorElement: <NotFoundPage />,
     children: [
+      /* all childeren pages like hompage,login,singup,ProtectedRoute group
+                 will be rendered *inside* MainLayout's <Outlet />*/
       {
         index: true,
         element: <HomePage />,
@@ -38,6 +40,13 @@ export const router = createBrowserRouter([
             path: "problems",
             element: <ProblemListPage />,
           },
+        ],
+      },
+      {
+        element: <ProtectedRoute allowedRoles={["ADMIN"]} />, // Pass the allowed roles
+        children: [
+          { path: "admin/add-problem", element: <AddProblemPage /> },
+          // Add other admin-only routes here
         ],
       },
 
