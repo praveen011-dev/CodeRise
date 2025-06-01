@@ -33,7 +33,7 @@ router.route("/verify/:Incomingtoken").get(VerifyUser);
 
 router.route("/login").post(validateLoginUser, LoginUser);
 
-router.route("/logout").get(isLoggedIn, LogoutUser);
+router.route("/logout").post(isLoggedIn, LogoutUser);
 
 router.route("/forget-pass").post(validateForgetPass, ForgetPassword);
 
