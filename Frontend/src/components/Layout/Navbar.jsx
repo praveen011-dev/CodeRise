@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CircleUserRound } from "lucide-react";
+import { CircleUserRound } from "lucide-react"; // Import the icon
 
 function Navbar() {
   const { isLoggedIn, user, logout } = useAuthStore();
@@ -22,6 +22,17 @@ function Navbar() {
 
   const handleProfileNavigate = () => {
     navigate("/profile");
+  };
+
+  const handleAddProblemNavigate = () => {
+    navigate("/admin/add-problem"); // Example route for adding a problem
+  };
+
+  // Helper to display user name and role
+  const displayUserWithRole = () => {
+    if (!user) return "Account";
+    const name = user.username || user.email || "User";
+    return user.role ? `${name} (${user.role.toUpperCase()})` : name;
   };
 
   return (
@@ -45,17 +56,17 @@ function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center space-x-2 hover:text-slate-300 focus:outline-none transition-colors duration-200">
-                  <CircleUserRound className="h-6 w-6" />{" "}
-                  {/* Icon added here */}
+                  <CircleUserRound className="h-6 w-6" />
                   <span className="hidden sm:inline">
+                    {/* Display username/email*/}
                     {user.username || user.email || "Account"}
-                  </span>{" "}
-                  {/* Username/email, hidden on very small screens */}
+                  </span>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-48 mr-2 md:mr-0" align="end">
                 <DropdownMenuLabel>
-                  {user.username || user.email || "My Account"}
+                  {/* {user.username || user.email || "My Account"} */}
+                  {displayUserWithRole()}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -64,6 +75,15 @@ function Navbar() {
                 >
                   My Profile
                 </DropdownMenuItem>
+                {/* Conditionally render "Add Problem" for ADMIN users */}
+                {user.role === "ADMIN" && (
+                  <DropdownMenuItem
+                    onClick={handleAddProblemNavigate}
+                    className="cursor-pointer"
+                  >
+                    Add Problem
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleLogout}
