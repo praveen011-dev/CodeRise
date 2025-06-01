@@ -236,15 +236,18 @@ const LogoutUser = asyncHandler(async (req, res, _next) => {
     },
   });
 
-  res.clearCookie("AccessToken", {
+  const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV !== "development",
-  });
+    sameSite: "none",
+    path: "/",
+  };
 
-  res.clearCookie("RefreshToken", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV !== "development",
-  });
+  // Clear the AccessToken cookie
+  res.clearCookie("AccessToken", cookieOptions);
+
+  // Clear the RefreshToken cookie
+  res.clearCookie("RefreshToken", cookieOptions);
 
   return res.status(200).json(new ApiResponse(200, "User Logout Successfully"));
 });
@@ -360,7 +363,7 @@ const GetProfile = asyncHandler(async (req, res, next) => {
       username: true,
       createdAt: true,
       updatedAt: true,
-      role:true,
+      role: true,
     },
   });
 
