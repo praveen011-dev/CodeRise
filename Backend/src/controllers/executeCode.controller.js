@@ -141,7 +141,13 @@ const executeCode = asyncHandler(async (req, res, next) => {
   });
   return res
     .status(200)
-    .json(new ApiResponse(200, "code Executed", submissionWithTestcase));
+    .json(
+      new ApiResponse(
+        200,
+        submissionWithTestcase,
+        "Code executed successfully",
+      ),
+    );
 });
 
 export { executeCode };
