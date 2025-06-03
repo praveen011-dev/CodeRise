@@ -28,7 +28,7 @@ app.use("/api/v1/healthcheck", healthCheckRouter);
 app.use("/api/v1/users", authRoutes);
 app.use("/api/v1/problems", problemRoutes);
 app.use("/api/v1/execute-code", executeRoutes);
-app.use("/api/v1/submission", submissionRoutes);
+app.use("/api/v1/submissions", submissionRoutes);
 app.use("/api/v1/playlist", playlistRoutes);
 
 // Global express error handler

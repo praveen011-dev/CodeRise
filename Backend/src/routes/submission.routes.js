@@ -8,14 +8,14 @@ import {
 
 const router = Router();
 
-router.route("/get-all-submissions").get(isLoggedIn, getAllSubmission);
+router.route("/get-submissions").get(isLoggedIn, getAllSubmission);
 
 router
-  .route("/get-submission/:problemlId")
+  .route("/get-submissions/:problemId")
   .get(isLoggedIn, getSubmissionForProblem);
 
 router
-  .route("/get-submission-count/:problemId")
+  .route("/get-submissions-count/:problemId")
   .get(isLoggedIn, getSubmissionCountForProblem);
 
 export default router;
