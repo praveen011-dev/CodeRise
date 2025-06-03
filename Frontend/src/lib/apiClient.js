@@ -27,6 +27,7 @@ async function apiClient(
     const response = await fetch(url, options);
     const responseData = await response.json().catch(() => ({
       // Try to get JSON data from response
+
       message: `Server returned non-JSON response. Status: ${response.status}`,
     }));
 

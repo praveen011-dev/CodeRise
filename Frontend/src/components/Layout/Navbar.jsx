@@ -46,7 +46,7 @@ function Navbar() {
         </Link>
         <div className="flex items-center space-x-6">
           <Link
-            to="/"
+            to="/problems"
             className="hover:text-slate-300 transition-colors duration-200"
           >
             Problems
