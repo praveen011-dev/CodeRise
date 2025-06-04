@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
-import Navbar from "./navbar";
+import Navbar from "./Navbar";
 import Footer from "./footer";
 import useAuthStore from "../../store/authStore";
 import { Toaster } from "@/components/ui/sonner";
