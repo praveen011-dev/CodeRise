@@ -2,10 +2,12 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useProblemStore } from "../../../store/useProblemStore"; // Adjust path if needed
 import useAuthStore from "../../../store/authStore"; // Adjust path if needed
+import CreatePlaylistDialog from "../../playlists/components/CreatePlaylistDialog";
+import AddToPlaylistDialog from "../../playlists/components/AddToPlaylistDialog";
 
 // Shadcn/UI Components
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -16,13 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
+
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -33,15 +29,7 @@ import {
 } from "@/components/ui/select";
 
 // Lucide Icons
-import {
-  Edit3,
-  Trash2,
-  ListPlus,
-  PlusCircle,
-  Search,
-  Filter,
-  MoreHorizontal,
-} from "lucide-react";
+import { Edit3, Trash2, ListPlus, PlusCircle, Search } from "lucide-react";
 import { toast } from "sonner";
 
 function AllProblems() {
@@ -58,6 +46,17 @@ function AllProblems() {
   const [searchTerm, setSearchTerm] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState("All");
   const [tagFilter, setTagFilter] = useState("All");
+
+  // Add state to control the dialog for adding to playlist
+  const [isAddToPlaylistDialogOpen, setIsAddToPlaylistDialogOpen] =
+    useState(false);
+  const [selectedProblemForPlaylist, setSelectedProblemForPlaylist] =
+    useState(null);
+
+  const openAddToPlaylistDialog = (problem) => {
+    setSelectedProblemForPlaylist(problem);
+    setIsAddToPlaylistDialogOpen(true);
+  };
 
   useEffect(() => {
     getAllProblems();
@@ -78,12 +77,6 @@ function AllProblems() {
         onClick: () => console.log("Confirmed delete:", problemId),
       },
       cancel: { label: "Cancel", onClick: () => toast.dismiss() },
-    });
-  };
-
-  const handleSaveToPlaylist = (problemId) => {
-    toast.info(`Save to playlist for problem ID: ${problemId}`, {
-      description: "This functionality is not yet implemented.",
     });
   };
 
@@ -144,6 +137,13 @@ function AllProblems() {
             <PlusCircle size={18} /> Add New Problem
           </Button>
         )}
+
+        {/* create playlist dialog */}
+        <CreatePlaylistDialog
+          onPlaylistCreated={(newPlaylist) => {
+            console.log("Playlist created from ProblemListPage:", newPlaylist);
+          }}
+        />
       </div>
 
       <Card className="mb-6 shadow-sm dark:bg-slate-800">
@@ -184,6 +184,7 @@ function AllProblems() {
         </CardContent>
       </Card>
 
+      {/* Problems Table Card */}
       <Card className="shadow-sm dark:bg-slate-800">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
@@ -273,48 +274,47 @@ function AllProblems() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right px-3">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                            >
-                              <MoreHorizontal className="h-4 w-4" />
-                              <span className="sr-only">Actions</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => handleSaveToPlaylist(problem.id)}
-                              className="gap-2 cursor-pointer"
-                            >
-                              <ListPlus size={14} />
+                        <div className="flex items-center justify-end space-x-1 sm:space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-1.5 text-xs h-8"
+                            title="Save to Playlist"
+                            onClick={() => openAddToPlaylistDialog(problem)}
+                          >
+                            <ListPlus size={14} />
+                            <span className="hidden sm:inline">
                               Save to Playlist
-                            </DropdownMenuItem>
-                            {user?.role === "ADMIN" && (
-                              <>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                  onClick={() => handleEditProblem(problem.id)}
-                                  className="gap-2 cursor-pointer"
-                                >
-                                  <Edit3 size={14} />
-                                  Edit Problem
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    handleDeleteProblem(problem.id)
-                                  }
-                                  className="gap-2 text-red-600 focus:text-red-600 cursor-pointer"
-                                >
-                                  <Trash2 size={14} />
-                                  Delete Problem
-                                </DropdownMenuItem>
-                              </>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                            </span>
+                            <span className="sm:hidden">Save</span>
+                          </Button>
+                          {/* "Edit" and "Delete" Buttons - Conditionally rendered for ADMIN */}
+                          {user?.role === "ADMIN" && (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() => handleEditProblem(problem.id)}
+                                title="Edit Problem"
+                              >
+                                <Edit3 className="h-4 w-4 text-yellow-600 dark:text-yellow-500" />
+                                <span className="sr-only">Edit Problem</span>
+                              </Button>
+
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() => handleDeleteProblem(problem.id)}
+                                title="Delete Problem"
+                              >
+                                <Trash2 className="h-4 w-4 text-red-600 dark:text-red-500" />
+                                <span className="sr-only">Delete Problem</span>
+                              </Button>
+                            </>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -333,6 +333,22 @@ function AllProblems() {
           </div>
         </CardContent>
       </Card>
+      {/* --- RENDER AddToPlaylistDialog CONDITIONALLY --- */}
+      {selectedProblemForPlaylist && (
+        <AddToPlaylistDialog
+          problemId={selectedProblemForPlaylist.id}
+          problemTitle={selectedProblemForPlaylist.title}
+          isOpen={isAddToPlaylistDialogOpen}
+          setIsOpen={setIsAddToPlaylistDialogOpen} // Pass the setter to control visibility
+          onPlaylistCreated={(newPlaylistWithProblem) => {
+            // Optional callback
+            console.log(
+              "Playlist action completed via dialog:",
+              newPlaylistWithProblem
+            );
+          }}
+        />
+      )}
     </div>
   );
 }
