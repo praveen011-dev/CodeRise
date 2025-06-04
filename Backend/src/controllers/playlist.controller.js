@@ -9,18 +9,27 @@ const getAllListDetails = asyncHandler(async (req, res, next) => {
       userId: req.user.id,
     },
     include: {
-      problems: {
-        include: {
-          problem: true,
-        },
+      _count: {
+        select: { problems: true },
       },
     },
   });
 
+  // Transform the data to add a simple problemCount property
+  const playlistsWithCount = playlist.map((p) => ({
+    id: p.id,
+    name: p.name,
+    description: p.description,
+    createdAt: p.createdAt,
+    problemCount: p._count.problems,
+  }));
+
   if (!playlist || playlist.length == 0) {
     return next(new ApiError(404, "No Playlist found"));
   }
-  return res.status(200).json(new ApiResponse(200, playlist, "Playlist Found"));
+  return res
+    .status(200)
+    .json(new ApiResponse(200, playlistsWithCount, "Playlist Found"));
 });
 
 const createPlaylist = asyncHandler(async (req, res, next) => {

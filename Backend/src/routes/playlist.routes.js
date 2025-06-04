@@ -15,11 +15,11 @@ const router = Router();
 
 router.route("/").get(isLoggedIn, getAllListDetails);
 
-router.route("/create-playlist").post(isLoggedIn, createPlaylist);
+router.route("/").post(isLoggedIn, createPlaylist);
 
 router.route("/:playlistId").get(isLoggedIn, getPlaylistDetails);
 
-router.route("/:playlistId/add-problem").post(isLoggedIn, addProblemToPlaylist);
+router.route("/:playlistId").post(isLoggedIn, addProblemToPlaylist);
 
 router.route("/:playlistId").put(isLoggedIn, updatePlaylist);
 
