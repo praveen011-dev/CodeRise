@@ -19,7 +19,7 @@ import {
   validateForgetPass,
   validateResetPass,
   validateChangeCurrPass,
-} from "../middlewares/userValidation.middleware.js";
+} from "../middlewares/UserValidation.middleware.js";
 
 import { isLoggedIn } from "../middlewares/auth.middleware.js";
 
