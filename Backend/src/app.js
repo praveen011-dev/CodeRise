@@ -23,6 +23,7 @@ import problemRoutes from "./routes/problem.routes.js";
 import executeRoutes from "./routes/executeCode.routes.js";
 import submissionRoutes from "./routes/submission.routes.js";
 import playlistRoutes from "./routes/playlist.routes.js";
+import userRoutes from "./routes/user.routes.js";
 
 app.use("/api/v1/healthcheck", healthCheckRouter);
 app.use("/api/v1/users", authRoutes);
@@ -30,6 +31,7 @@ app.use("/api/v1/problems", problemRoutes);
 app.use("/api/v1/execute-code", executeRoutes);
 app.use("/api/v1/submissions", submissionRoutes);
 app.use("/api/v1/playlist", playlistRoutes);
+app.use("/api/v1/users", userRoutes);
 
 // Global express error handler
 
