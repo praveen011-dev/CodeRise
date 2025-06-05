@@ -16,8 +16,65 @@ import {
   accessToken,
   refreshToken,
 } from "../utils/AccessToken&RefreshToken.js";
+import { cloudinary } from "../utils/cloudinary.js";
 
 dotenv.config();
+
+const updateProfilePicture = asyncHandler(async (req, res, next) => {
+  const userId = req.user.id;
+
+  if (!req.file) {
+    return next(new ApiError(400, "No image file uploaded."));
+  }
+
+  const newProfilePictureUrl = req.file.path;
+
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: { image: true },
+  });
+
+  if (user?.image) {
+    // Extract public_id from Cloudinary URL:
+    // e.g., "https://res.cloudinary.com/your_cloud_name/image/upload/v12345/CodeRise_Avatars/abc123def456.jpg"
+    // We need "CodeRise_Avatars/abc123def456"
+    const publicIdWithFolder = user.image
+      .split("/")
+      .slice(-2) // Take last two parts (folder name, filename with extension)
+      .join("/") // Join back to "folder/filename.ext"
+      .split(".")[0]; // Remove extension to get public_id
+
+    // Cloudinary expects the full public ID (including folder)
+    await cloudinary.uploader.destroy(publicIdWithFolder);
+  }
+
+  const updatedUser = await db.user.update({
+    where: { id: userId },
+    data: { image: newProfilePictureUrl },
+    select: {
+      id: true,
+      username: true,
+      email: true,
+      image: true, // Crucial: return the new URL
+      role: true,
+      isVerified: true,
+    },
+  });
+
+  if (!updatedUser) {
+    return next(new ApiError(500, "Failed to update profile picture."));
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        updatedUser,
+        "Profile picture updated successfully.",
+      ),
+    );
+});
 
 const register = asyncHandler(async (req, res, next) => {
   const { username, email, password } = req.body;
@@ -116,6 +173,7 @@ const register = asyncHandler(async (req, res, next) => {
     username: UpdateUser.username,
     isVerified: UpdateUser.isVerified || false,
     role: UpdateUser.role,
+    image: UpdateUser.image || null, // ADD THIS LINE
   };
 
   return res
@@ -173,8 +231,15 @@ const LoginUser = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
 
   const User = await db.user.findUnique({
-    where: {
-      email,
+    where: { email },
+    select: {
+      id: true,
+      username: true,
+      email: true,
+      password: true,
+      isVerified: true,
+      role: true,
+      image: true, // ADD THIS HERE
     },
   });
 
@@ -219,6 +284,7 @@ const LoginUser = asyncHandler(async (req, res, next) => {
     username: User.username,
     isVerified: User.isVerified || false,
     role: User.role,
+    image: User.image || null,
   };
 
   return res
@@ -236,18 +302,15 @@ const LogoutUser = asyncHandler(async (req, res, _next) => {
     },
   });
 
-  const cookieOptions = {
+  res.clearCookie("AccessToken", {
     httpOnly: true,
     secure: process.env.NODE_ENV !== "development",
-    sameSite: "none",
-    path: "/",
-  };
+  });
 
-  // Clear the AccessToken cookie
-  res.clearCookie("AccessToken", cookieOptions);
-
-  // Clear the RefreshToken cookie
-  res.clearCookie("RefreshToken", cookieOptions);
+  res.clearCookie("RefreshToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV !== "development",
+  });
 
   return res.status(200).json(new ApiResponse(200, "User Logout Successfully"));
 });
@@ -361,9 +424,10 @@ const GetProfile = asyncHandler(async (req, res, next) => {
       id: true,
       email: true,
       username: true,
+      role: true,
+      image: true,
       createdAt: true,
       updatedAt: true,
-      role: true,
     },
   });
 
@@ -479,4 +543,5 @@ export {
   GetProfile,
   ResendEmailVerification,
   RefreshAccesstoken,
+  updateProfilePicture,
 };

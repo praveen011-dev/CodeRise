@@ -1,18 +1,17 @@
 import multer from "multer";
+import { storage } from "../utils/cloudinary.js";
 
-const storage = multer.diskStorage({
-  destination: function (_req, _file, cb) {
-    cb(null, `./public/images`);
-  },
-  filename: function (_req, file, cb) {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  },
-});
-
-// Middleware responsible to read form data and upload the File object to the mentioned path
 export const upload = multer({
-  storage,
+  storage: storage,
   limits: {
-    fileSize: 1 * 1000 * 1000,
+    fileSize: 5 * 1024 * 1024,
+  },
+  fileFilter: (_req, file, cb) => {
+    // Basic file type validation
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only image files are allowed!"), false);
+    }
   },
 });

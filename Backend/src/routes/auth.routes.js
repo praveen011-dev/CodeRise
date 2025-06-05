@@ -11,6 +11,7 @@ import {
   GetProfile,
   ResendEmailVerification,
   RefreshAccesstoken,
+  updateProfilePicture,
 } from "../controllers/auth.controller.js";
 
 import {
@@ -19,7 +20,7 @@ import {
   validateForgetPass,
   validateResetPass,
   validateChangeCurrPass,
-} from "../middlewares/UserValidation.middleware.js";
+} from "../middlewares/userValidation.middleware.js";
 
 import { isLoggedIn } from "../middlewares/auth.middleware.js";
 
@@ -42,6 +43,10 @@ router
   .post(validateResetPass, ResetPassword);
 
 router.route("/refresh-accessToken").get(RefreshAccesstoken);
+
+router
+  .route("/profile/avatar")
+  .post(isLoggedIn, upload.single("avatar"), updateProfilePicture); // 'avatar' is the field name for the file in the frontend FormData
 
 //Secured Routes
 
