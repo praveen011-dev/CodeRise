@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CircleUserRound } from "lucide-react"; // Import the icon
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ThemeToggle from "../ThemeToggle/ThemeToggle";
 
 function Navbar() {
@@ -36,6 +36,26 @@ function Navbar() {
     return user.role ? `${name} (${user.role.toUpperCase()})` : name;
   };
 
+  // Helper function: To generate avatar content (image or initials)
+  const getAvatarContent = () => {
+    if (user?.image) {
+      return (
+        <AvatarImage src={user.image} alt={`${user.username}'s profile`} />
+      );
+    } else if (user?.username) {
+      const nameParts = user.username.split(" ");
+      let initials = "";
+      if (nameParts.length > 0) {
+        initials += nameParts[0][0]; // First letter of first word
+        if (nameParts.length > 1) {
+          initials += nameParts[nameParts.length - 1][0]; // First letter of last word
+        }
+      }
+      return <AvatarFallback>{initials.toUpperCase()}</AvatarFallback>;
+    }
+    return <AvatarFallback>USR</AvatarFallback>; // Fallback if no user or username
+  };
+
   return (
     <header className="bg-gradient-to-l from-green-600 via-slate-900 to-black text-white p-4 shadow-lg">
       <nav className="container mx-auto flex justify-between items-center">
@@ -58,7 +78,10 @@ function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center space-x-2 hover:text-slate-300 focus:outline-none transition-colors duration-200">
-                  <CircleUserRound className="h-6 w-6" />
+                  <Avatar className="h-8 w-8 border-2 border-primary-foreground">
+                    {/* Avatar for the trigger */}
+                    {getAvatarContent()}
+                  </Avatar>
                   <span className="hidden sm:inline">
                     {/* Display username/email*/}
                     {user.username || user.email || "Account"}
