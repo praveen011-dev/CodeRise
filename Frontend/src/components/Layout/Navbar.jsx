@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { CircleUserRound } from "lucide-react"; // Import the icon
+import ThemeToggle from "../ThemeToggle/ThemeToggle";
 
 function Navbar() {
   const { isLoggedIn, user, logout } = useAuthStore();
@@ -44,6 +45,7 @@ function Navbar() {
         >
           CodeRise
         </Link>
+        <ThemeToggle />
         <div className="flex items-center space-x-6">
           <Link
             to="/problems"
