@@ -16,6 +16,8 @@ import { getLanguageIdByName } from "../../../lib/languageUtils"; // Converts la
 
 // Shadcn/UI Components
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+
 import {
   Card,
   CardContent,
@@ -70,6 +72,7 @@ function ProblemDetailPage() {
     problem,
     isLoading: isProblemLoading,
     error: problemError,
+    clearProblem,
   } = useProblemStore();
 
   // Destructure state and actions from useSubmissionStore
@@ -104,43 +107,71 @@ function ProblemDetailPage() {
 
   useEffect(() => {
     if (problemId) {
+      // 1. Clear current problem state immediately before fetching a new one
+
       // Only run if problemId is available
+      clearProblem(); // <--- This call should happen immediately
       getProblemById(problemId); // Action from useProblemStore to fetch problem data
       getSubmissionCountForProblem(problemId); // Action from useSubmissionStore
       clearExecutionState?.(); // Action from useExecutionStore to clear old run/submit results
     }
+    // 2. Cleanup function: Clear problem state when component unmounts
+    return () => {
+      console.log(
+        "ProblemDetailPage: Component unmounting or problemId changing, clearing problem state in cleanup."
+      );
+      clearProblem();
+      clearExecutionState?.();
+    };
   }, [
     problemId,
     getProblemById,
     getSubmissionCountForProblem,
     clearExecutionState,
+    clearProblem,
   ]);
 
   // Effect 2: Set initial code snippet in editor when 'problem' data is loaded or 'selectedLanguageKey' changes
-
+  // *** MODIFIED LOGIC HERE FOR DEMO VS REGULAR PROBLEM CODE ***
   useEffect(() => {
-    if (problem?.codeSnippet) {
-      // If problem data and code snippets exist
-      const snippet = problem.codeSnippet?.[selectedLanguageKey];
-      if (snippet !== undefined) {
-        // If snippet for current language exists
-        setUserCode(snippet);
-      } else {
-        // Fallback: if no snippet for current language, try the first available one
+    if (problem) {
+      let codeToLoad = "";
+
+      // Prioritize demoSolution if it's a demo problem and has code for the selected language
+      if (
+        problem.isDemo &&
+        problem.demoSolution &&
+        problem.demoSolution[selectedLanguageKey]
+      ) {
+        codeToLoad = problem.demoSolution[selectedLanguageKey];
+      }
+      // Otherwise, load the regular codeSnippet
+      else if (
+        problem.codeSnippet &&
+        problem.codeSnippet[selectedLanguageKey]
+      ) {
+        codeToLoad = problem.codeSnippet[selectedLanguageKey];
+      }
+      // Fallback: If the selected language doesn't have a snippet, try the first available language
+      else if (
+        problem.codeSnippet &&
+        Object.keys(problem.codeSnippet).length > 0
+      ) {
         const firstAvailableLang = Object.keys(problem.codeSnippet)[0];
-        if (firstAvailableLang) {
-          if (selectedLanguageKey !== firstAvailableLang) {
-            setSelectedLanguageKey(firstAvailableLang);
-          }
-          setUserCode(problem.codeSnippet[firstAvailableLang] || "");
+        if (selectedLanguageKey !== firstAvailableLang) {
+          // If the current selected language has no snippet, but another one does,
+          // change the selected language to load that snippet.
+          setSelectedLanguageKey(firstAvailableLang);
+          return; // Exit this effect
         } else {
-          setUserCode("");
+          // If the first available language is already selected but its snippet is empty/undefined
+          codeToLoad = problem.codeSnippet[firstAvailableLang] || "";
         }
       }
-    } else if (problem) {
-      setUserCode("");
+
+      setUserCode(codeToLoad);
     }
-  }, [problem, selectedLanguageKey]);
+  }, [problem, selectedLanguageKey]); // Dependencies remain the same
 
   // Effect 3: Fetch past submissions if the "Submissions" tab is clicked
 
@@ -291,7 +322,7 @@ function ProblemDetailPage() {
   );
   // --- Conditional Rendering for Loading/Error States for the Page ---
 
-  if (isProblemLoading) {
+  if (isProblemLoading || (problem === null && problemId)) {
     // From useProblemStore
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-4rem)]">
@@ -333,10 +364,18 @@ function ProblemDetailPage() {
             </Link>
             <ChevronRight className="w-4 h-4 text-slate-400 dark:text-slate-600 shrink-0" />
             <h1
-              className="text-md font-semibold truncate"
+              className="text-md font-semibold truncate flex items-center gap-2"
               title={problem.title}
             >
               {problem.title}
+              {problem.isDemo && ( // <--- DEMO BADGE ON DETAIL PAGE TOP BAR
+                <Badge
+                  variant="outline"
+                  className="bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700 text-[0.6rem] px-1 py-0.5 ml-1"
+                >
+                  DEMO
+                </Badge>
+              )}
             </h1>
             {/* Difficulty Badge */}
             <span

@@ -32,7 +32,8 @@ export const useProblemStore = create((set) => ({
     try {
       const problemData = await fetchProblemById(id); // Uses service
       set({ problem: problemData, isProblemLoading: false });
-      toast.success("Problem loaded!");
+      return problemData;
+      // toast.success("Problem loaded!");
     } catch (error) {
       console.error("Error getting problem by ID:", error);
       toast.error("Failed to load problem", { description: error.message });
@@ -57,4 +58,9 @@ export const useProblemStore = create((set) => ({
   // Add an error state to the store if you want to display it beyond toasts
   error: null,
   isLoadingSolved: false, // Example specific loading state
+
+  // NEW ACTION: Clear the currently loaded problem
+  clearProblem: () => {
+    set({ problem: null, error: null, isLoading: false }); // <--- THIS IS CRUCIAL
+  },
 }));

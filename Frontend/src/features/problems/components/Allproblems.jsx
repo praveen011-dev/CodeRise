@@ -7,7 +7,7 @@ import AddToPlaylistDialog from "../../playlists/components/AddToPlaylistDialog"
 
 // Shadcn/UI Components
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -80,6 +80,12 @@ function AllProblems() {
     });
   };
 
+  const handleSaveToPlaylist = (problemId) => {
+    toast.info(`Save to playlist for problem ID: ${problemId}`, {
+      description: "This functionality is not yet implemented.",
+    });
+  };
+
   const filteredAndSortedProblems = useMemo(() => {
     return problems
       .filter(
@@ -141,7 +147,12 @@ function AllProblems() {
         {/* create playlist dialog */}
         <CreatePlaylistDialog
           onPlaylistCreated={(newPlaylist) => {
+            // This is an optional callback if you want to do something after a playlist is created,
+            // like refresh a list of playlists if you display one on this page.
             console.log("Playlist created from ProblemListPage:", newPlaylist);
+            // toast.success(`Playlist "${newPlaylist.name}" created!`);
+            // Example: maybe refetch user's playlists if you have a store for that
+            // useUserPlaylistsStore.getState().fetchPlaylists();
           }}
         />
       </div>
@@ -222,7 +233,19 @@ function AllProblems() {
                           className="hover:underline text-blue-600 dark:text-blue-400"
                           title={problem.title}
                         >
-                          {problem.title || "Untitled Problem"}
+                          <div className="flex items-center gap-2">
+                            {" "}
+                            {/* Added flex container */}
+                            {problem.title || "Untitled Problem"}
+                            {problem.isDemo && (
+                              <Badge
+                                variant="outline" // Use outline variant from Shadcn
+                                className="bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700 text-[0.6rem] px-1 py-0.5"
+                              >
+                                DEMO
+                              </Badge>
+                            )}
+                          </div>
                         </Link>
                       </TableCell>
                       <TableCell className="px-3 hidden lg:table-cell">
@@ -275,6 +298,10 @@ function AllProblems() {
                       </TableCell>
                       <TableCell className="text-right px-3">
                         <div className="flex items-center justify-end space-x-1 sm:space-x-2">
+                          {" "}
+                          {/* Adjusted spacing */}
+                          {/* "Save to Playlist" Button - Triggers the dialog */}
+                          {/* The AddToPlaylistDialog component itself will be rendered elsewhere, controlled by state */}
                           <Button
                             variant="outline"
                             size="sm"
@@ -346,6 +373,8 @@ function AllProblems() {
               "Playlist action completed via dialog:",
               newPlaylistWithProblem
             );
+            // Potentially refresh global playlist state if needed
+            // useUserPlaylistsStore.getState().getUserPlaylists();
           }}
         />
       )}

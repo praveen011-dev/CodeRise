@@ -57,7 +57,7 @@ function Navbar() {
   };
 
   return (
-    <header className="bg-gradient-to-l from-green-600 via-slate-900 to-black text-white p-4 shadow-lg">
+    <header className="bg-gradient-to-tr from-[#2B0A22] via-[#1A0B1D] to-[#050505] text-white p-4 shadow-lg border-b border-[#ff4d91]/20">
       <nav className="container mx-auto flex justify-between items-center">
         <Link
           to="/"
