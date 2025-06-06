@@ -149,11 +149,11 @@ const getUserSubmissions = asyncHandler(async (req, res, next) => {
       language: true,
       status: true, // Accepted, Wrong Answer, etc.
       createdAt: true,
-      sourceCode:true,
-      stdin:true,
-      stdout:true,
-      compileOutput:true,
-      memory:true,
+      sourceCode: true,
+      stdin: true,
+      stdout: true,
+      compileOutput: true,
+      memory: true,
       problem: {
         // Include related problem details
         select: {
