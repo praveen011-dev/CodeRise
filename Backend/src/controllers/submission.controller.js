@@ -1,7 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { db } from "../libs/db.js";
-import { ApiError } from "../utils/api.error.js";
 import { ApiResponse } from "../utils/api.response.js";
+import { ApiError } from "../utils/api.error.js";
 
 const getAllSubmission = asyncHandler(async (req, res, next) => {
   const userId = req.user.id;
@@ -29,6 +29,12 @@ const getSubmissionForProblem = asyncHandler(async (req, res, next) => {
       userId,
       problemId,
     },
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      testcases: true,
+    },
   });
 
   if (!submission) {
@@ -41,9 +47,12 @@ const getSubmissionForProblem = asyncHandler(async (req, res, next) => {
 
 const getSubmissionCountForProblem = asyncHandler(async (req, res, next) => {
   const problemId = req.params.problemId;
+  const userId = req.user.id;
+
   const submission = await db.submission.count({
     where: {
       problemId,
+      userId,
     },
   });
 

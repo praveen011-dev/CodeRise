@@ -7,6 +7,6 @@ import { isLoggedIn } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.route("/").post(isLoggedIn, executeCode);
+router.post("/", isLoggedIn, executeCode);
 
 export default router;

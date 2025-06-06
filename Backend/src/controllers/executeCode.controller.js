@@ -9,12 +9,16 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { db } from "../libs/db.js";
 
 const executeCode = asyncHandler(async (req, res, next) => {
-  const { source_code, language_id, stdin, expected_outputs, problemId } =
-    req.body;
+  const {
+    source_code,
+    language_id,
+    stdin,
+    expected_outputs,
+    problemId,
+    isSubmit = false,
+  } = req.body;
 
   const userId = req.user.id;
-
-  //validate test cases
 
   if (
     !Array.isArray(stdin) ||
@@ -22,10 +26,8 @@ const executeCode = asyncHandler(async (req, res, next) => {
     !Array.isArray(expected_outputs) ||
     expected_outputs.length !== stdin.length
   ) {
-    return next(new ApiError(400, "Invalid Or missing Test cases"));
+    return next(new ApiError(400, "Invalid or missing test cases"));
   }
-
-  //2 prepare each testcases for judge0 batch submission
 
   const submissions = stdin.map((input) => ({
     source_code,
@@ -33,19 +35,9 @@ const executeCode = asyncHandler(async (req, res, next) => {
     stdin: input,
   }));
 
-  //3. Send this batch of submission to judge0
-
   const submitResponse = await submitBatch(submissions);
   const tokens = submitResponse.map((res) => res.token);
-
-  //4. poll judge0 for results of all submitted test cases
-
   const results = await pollBatchResults(tokens);
-
-  // console.log("Results----------------")
-  // console.log(results);
-
-  //5.Analyze test Case Result
 
   let allPassed = true;
   const detailedResults = results.map((result, i) => {
@@ -55,46 +47,70 @@ const executeCode = asyncHandler(async (req, res, next) => {
 
     if (!passed) allPassed = false;
 
+    // --- CRITICAL MODIFICATION START ---
+    let effectiveStatus = result.status.description;
+
+    // If the test case did NOT pass based on output comparison,
+    // and Judge0's reported status is "Accepted", override it to "Wrong Answer".
+    // This handles the contradiction you're seeing.
+    if (!passed && effectiveStatus === "Accepted") {
+      effectiveStatus = "Wrong Answer";
+    }
+    // --- CRITICAL MODIFICATION END ---
+
     return {
       testCase: i + 1,
-      passed,
+      passed, // This boolean is the source of truth for "did it pass functionally?"
       stdout,
       expectedOutput: expected_output,
       compileOutput: result.compile_output || null,
       stderr: result.stderr || null,
-      status: result.status.description,
+      status: effectiveStatus, // Use the potentially overridden status here
       memory: result.memory ? `${result.memory}KB` : undefined,
       time: result.time ? `${result.time}s` : undefined,
     };
   });
 
-  //6.Store Submission Summary
+  // Determine overall status for 'Run Code'
+  let overallRunStatus = "Accepted";
+  if (!allPassed) {
+    const firstFailingTest = detailedResults.find((tc) => !tc.passed);
+    overallRunStatus = firstFailingTest ? firstFailingTest.status : "Failed";
+  }
 
+  if (!isSubmit) {
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          allPassed,
+          testcases: detailedResults.map((dr) => ({
+            status: dr.status,
+            passed: dr.passed,
+            stdout: dr.stdout,
+            expectedOutput: dr.expectedOutput,
+            time: dr.time,
+            memory: dr.memory,
+            compileOutput: dr.compileOutput,
+            stderr: dr.stderr,
+          })),
+          status: overallRunStatus,
+        },
+        "Run complete",
+      ),
+    );
+  }
+
+  // --- Rest of the code for submission (isSubmit = true) ---
   const submission = await db.submission.create({
     data: {
       userId,
       problemId,
       sourceCode: source_code,
       language: getLanguageName(language_id),
-      stdin: stdin.join("\n"),
-      stdout: JSON.stringify(detailedResults.map((r) => r.stdout)),
-      stderr: detailedResults.some((r) => r.stderr)
-        ? JSON.stringify(detailedResults.map((r) => r.stderr))
-        : null,
-      compileOutput: detailedResults.some((r) => r.compileOutput)
-        ? JSON.stringify(detailedResults.map((r) => r.compileOutput))
-        : null,
-      status: allPassed ? "Accepted" : "Wrong Answer",
-      memory: detailedResults.some((r) => r.memory)
-        ? JSON.stringify(detailedResults.map((r) => r.memory))
-        : null,
-      time: detailedResults.some((r) => r.time)
-        ? JSON.stringify(detailedResults.map((r) => r.time))
-        : null,
+      status: allPassed ? "Accepted" : "Wrong Answer", // This will now use the logic where if any test failed, overall will be "Wrong Answer"
     },
   });
-
-  // 7.If all passed= true mark problem as solved for the current user
 
   if (allPassed) {
     await db.problemSolved.upsert({
@@ -112,26 +128,25 @@ const executeCode = asyncHandler(async (req, res, next) => {
     });
   }
 
-  // 8. save individualt testcase Results using detailed Results
-
-  const testcaseResults = detailedResults.map((result) => ({
+  const testcaseResultsToCreate = detailedResults.map((result) => ({
     submissionId: submission.id,
     testCase: result.testCase,
     passed: result.passed,
     stdout: result.stdout,
     expectedOutput: result.expectedOutput,
     stderr: result.stderr,
-    compileOutput: result.compile_output,
-    status: result.status,
+    compileOutput: result.compileOutput,
+    status: result.status, // Store the effective status
     memory: result.memory,
     time: result.time,
   }));
 
   await db.testCaseResult.createMany({
-    data: testcaseResults,
+    data: testcaseResultsToCreate,
+    skipDuplicates: true,
   });
 
-  const submissionWithTestcase = await db.submission.findUnique({
+  const submissionWithTestcases = await db.submission.findUnique({
     where: {
       id: submission.id,
     },
@@ -139,15 +154,10 @@ const executeCode = asyncHandler(async (req, res, next) => {
       testcases: true,
     },
   });
+
   return res
     .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        submissionWithTestcase,
-        "Code executed successfully",
-      ),
-    );
+    .json(new ApiResponse(200, submissionWithTestcases, "Solution submitted"));
 });
 
 export { executeCode };
