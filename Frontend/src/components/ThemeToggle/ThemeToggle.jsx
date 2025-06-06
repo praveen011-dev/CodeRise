@@ -1,37 +1,40 @@
-import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Moon, Sun } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Sun, Moon } from "lucide-react"; // Make sure lucide-react is installed: npm install lucide-react
 
-const ThemeToggle = () => {
-  const [isDark, setIsDark] = useState(() =>
-    document.documentElement.classList.contains("dark")
+// Assuming you have Shadcn's Button component available.
+// If not, you'll need to install it: npx shadcn-ui@latest add button
+import { Button } from "@/components/ui/button";
+
+export default function ThemeToggle() {
+  const [theme, setTheme] = useState(
+    () => localStorage.getItem("theme") || "light"
   );
 
+  useEffect(() => {
+    // This part is crucial for setting the 'dark' class on the HTML element
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
   const toggleTheme = () => {
-    const html = document.documentElement;
-    const newTheme = isDark ? "light" : "dark";
-    html.classList.toggle("dark");
-    localStorage.setItem("theme", newTheme);
-    setIsDark(!isDark);
+    setTheme(theme === "light" ? "dark" : "light");
   };
 
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark") {
-      document.documentElement.classList.add("dark");
-      setIsDark(true);
-    } else {
-      document.documentElement.classList.remove("dark");
-      setIsDark(false);
-    }
-  }, []);
-
   return (
-    <Button variant="ghost" size="icon" onClick={toggleTheme}>
-      {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+    // Replaced the custom slider button with a Shadcn-style icon button
+    <Button
+      variant="ghost" // Makes the button transparent/minimal
+      size="icon" // Makes it a square icon button
+      onClick={toggleTheme}
+      className="h-9 w-9" // Adjust size slightly if needed (h-8 w-8 or h-10 w-10)
+      aria-label="Toggle theme" // Accessibility improvement
+    >
+      {/* Sun icon for light mode */}
+      <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-foreground" />
+      {/* Moon icon for dark mode */}
+      <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-foreground" />
+      {/* sr-only for accessibility, screen readers will read this */}
       <span className="sr-only">Toggle theme</span>
     </Button>
   );
-};
-
-export default ThemeToggle;
+}

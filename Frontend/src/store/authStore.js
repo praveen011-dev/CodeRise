@@ -46,11 +46,11 @@ const useAuthStore = create((set) => ({
   signup: async (userData) => {
     set({ isLoading: true, error: null });
     try {
-      const newRegisteredUserData = await registerUser(userData);
+      const newRegisteredUserData = await registerUser(userData); // This makes the API call
 
       set({
-        user: newRegisteredUserData,
-        isLoggedIn: true,
+        user: newRegisteredUserData, // Store the user data
+        isLoggedIn: true, // Set isLoggedIn to true
         isLoading: false,
         error: null,
       });
@@ -64,10 +64,10 @@ const useAuthStore = create((set) => ({
       const errorMessage =
         apiError.message || "Failed to register. Please try again.";
       set({
-        user: null,
+        user: null, // Ensure user state is cleared/null on error
         isLoggedIn: false,
         isLoading: false,
-        error: errorMessage,
+        error: errorMessage, // Set the error message in the store
       });
       return { success: false, error: errorMessage };
     }
@@ -76,7 +76,7 @@ const useAuthStore = create((set) => ({
   logout: async () => {
     set({ isLoading: true, error: null });
     try {
-      await logoutUser();
+      await logoutUser(); // Call backend to clear HttpOnly cookies
       set({ user: null, isLoggedIn: false, isLoading: false, error: null });
       return { success: true };
     } catch (apiError) {
@@ -93,7 +93,7 @@ const useAuthStore = create((set) => ({
   },
 
   clearError: () => {
-    set({ error: null });
+    set({ error: null }); // This action sets the 'error' state back to null
   },
 
   checkAuthStatus: async () => {

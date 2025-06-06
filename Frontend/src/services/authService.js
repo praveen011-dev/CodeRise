@@ -57,3 +57,20 @@ export const fetchUserSolvedProblemsList = async (userId) => {
 export const fetchUserPlaylistsList = async (userId) => {
   return apiClient(`/users/${userId}/playlists`, "GET");
 };
+
+// NEW SERVICE FUNCTION: To fetch the total count of all problems on the platform
+// CORRECTED SERVICE FUNCTION: fetchTotalProblemsCount
+export const fetchTotalProblemsCount = async () => {
+  const response = await apiClient("/problems/count", "GET");
+  // The 'response' from apiClient is already the 'data' part of your ApiResponse.
+  // So, it's directly { count: 26 }.
+  if (response && typeof response.count === "number") {
+    return { count: response.count }; // Return an object { count: number }
+  }
+  // Fallback if the structure is still not as expected (e.g., if 'count' is missing)
+  console.error(
+    "fetchTotalProblemsCount: Unexpected API response structure. Expected { count: number }",
+    response
+  );
+  return { count: 0 };
+};

@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useProblemStore } from "../../../store/useProblemStore"; // Adjust path if needed
-import useAuthStore from "../../../store/authStore"; // Adjust path if needed
+import { useProblemStore } from "../../../store/useProblemStore";
+import useAuthStore from "../../../store/authStore";
 import CreatePlaylistDialog from "../../playlists/components/CreatePlaylistDialog";
 import AddToPlaylistDialog from "../../playlists/components/AddToPlaylistDialog";
 
 // Shadcn/UI Components
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card"; // CardHeader might not be used but kept for completeness
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -47,7 +47,6 @@ function AllProblems() {
   const [difficultyFilter, setDifficultyFilter] = useState("All");
   const [tagFilter, setTagFilter] = useState("All");
 
-  // Add state to control the dialog for adding to playlist
   const [isAddToPlaylistDialogOpen, setIsAddToPlaylistDialogOpen] =
     useState(false);
   const [selectedProblemForPlaylist, setSelectedProblemForPlaylist] =
@@ -62,7 +61,6 @@ function AllProblems() {
     getAllProblems();
   }, [getAllProblems, user]);
 
-  // Placeholder Action Handlers
   const handleEditProblem = (problemId) => {
     toast.info(`Edit action for problem ID: ${problemId}`, {
       description: "This functionality is not yet implemented.",
@@ -88,9 +86,7 @@ function AllProblems() {
 
   const filteredAndSortedProblems = useMemo(() => {
     return problems
-      .filter(
-        (p) => p.title?.toLowerCase().includes(searchTerm.toLowerCase()) // Added optional chaining for title
-      )
+      .filter((p) => p.title?.toLowerCase().includes(searchTerm.toLowerCase()))
       .filter(
         (p) =>
           difficultyFilter === "All" ||
@@ -116,14 +112,14 @@ function AllProblems() {
 
   if (isProblemsLoading && problems.length === 0) {
     return (
-      <div className="container mx-auto p-8 text-center text-lg">
+      <div className="container mx-auto p-8 text-center text-lg text-foreground">
         Loading problems...
       </div>
     );
   }
   if (problemsError) {
     return (
-      <div className="container mx-auto p-8 text-center text-red-500 text-lg">
+      <div className="container mx-auto p-8 text-center text-red-500 text-lg text-destructive">
         Error loading problems: {problemsError}
       </div>
     );
@@ -132,7 +128,8 @@ function AllProblems() {
   return (
     <div className="container mx-auto py-6 px-4 md:px-6">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-slate-100">
+        {/* Adjusted header text color */}
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
           Problem Set
         </h1>
         {user?.role === "ADMIN" && (
@@ -144,33 +141,36 @@ function AllProblems() {
           </Button>
         )}
 
-        {/* create playlist dialog */}
         <CreatePlaylistDialog
           onPlaylistCreated={(newPlaylist) => {
-            // This is an optional callback if you want to do something after a playlist is created,
-            // like refresh a list of playlists if you display one on this page.
             console.log("Playlist created from ProblemListPage:", newPlaylist);
-            // toast.success(`Playlist "${newPlaylist.name}" created!`);
-            // Example: maybe refetch user's playlists if you have a store for that
-            // useUserPlaylistsStore.getState().fetchPlaylists();
           }}
         />
       </div>
 
-      <Card className="mb-6 shadow-sm dark:bg-slate-800">
+      {/* SEARCH/FILTER CARD - APPLYING NEW STYLES HERE */}
+      <Card
+        className="
+          mb-6 shadow-xl relative z-10
+          bg-card/70 border border-border/50
+          backdrop-blur-md transition-colors duration-500
+        "
+      >
         <CardContent className="p-4 flex flex-col md:flex-row gap-3 items-center">
           <div className="relative flex-grow w-full md:max-w-sm">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Search by problem title..."
-              className="pl-8 w-full bg-white dark:bg-slate-700 dark:text-slate-50"
+              // Adjusted Input background and text color
+              className="pl-8 w-full bg-input/80 text-foreground"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+          {/* Adjusted Select background and text color */}
           <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
-            <SelectTrigger className="w-full md:w-[180px] bg-white dark:bg-slate-700 dark:text-slate-50">
+            <SelectTrigger className="w-full md:w-[180px] bg-input/80 text-foreground">
               <SelectValue placeholder="Difficulty" />
             </SelectTrigger>
             <SelectContent>
@@ -180,8 +180,9 @@ function AllProblems() {
               <SelectItem value="HARD">Hard</SelectItem>
             </SelectContent>
           </Select>
+          {/* Adjusted Select background and text color */}
           <Select value={tagFilter} onValueChange={setTagFilter}>
-            <SelectTrigger className="w-full md:w-[180px] bg-white dark:bg-slate-700 dark:text-slate-50">
+            <SelectTrigger className="w-full md:w-[180px] bg-input/80 text-foreground">
               <SelectValue placeholder="Tag" />
             </SelectTrigger>
             <SelectContent>
@@ -195,22 +196,35 @@ function AllProblems() {
         </CardContent>
       </Card>
 
-      {/* Problems Table Card */}
-      <Card className="shadow-sm dark:bg-slate-800">
+      {/* PROBLEMS TABLE CARD - APPLYING NEW STYLES HERE */}
+      <Card
+        className="
+          shadow-xl relative z-10
+          bg-card/70 border border-border/50
+          backdrop-blur-md transition-colors duration-500
+        "
+      >
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="dark:border-slate-700">
-                  <TableHead className="w-[60px] px-3 hidden sm:table-cell">
+                {/* Adjusted TableRow border */}
+                <TableRow className="border-border/50">
+                  <TableHead className="w-[60px] px-3 hidden sm:table-cell text-foreground/80">
                     Solved
                   </TableHead>
-                  <TableHead className="px-3">Title</TableHead>
-                  <TableHead className="px-3 hidden lg:table-cell">
+                  <TableHead className="px-3 text-foreground/80">
+                    Title
+                  </TableHead>
+                  <TableHead className="px-3 hidden lg:table-cell text-foreground/80">
                     Tags
                   </TableHead>
-                  <TableHead className="px-3">Difficulty</TableHead>
-                  <TableHead className="text-right px-3">Actions</TableHead>
+                  <TableHead className="px-3 text-foreground/80">
+                    Difficulty
+                  </TableHead>
+                  <TableHead className="text-right px-3 text-foreground/80">
+                    Actions
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -218,9 +232,10 @@ function AllProblems() {
                   filteredAndSortedProblems.map((problem) => (
                     <TableRow
                       key={problem.id}
-                      className="dark:border-slate-700 hover:bg-slate-50/50 dark:hover:bg-slate-700/50"
+                      // Adjusted TableRow border and hover
+                      className="border-border/50 hover:bg-accent/30"
                     >
-                      <TableCell className="px-3 hidden sm:table-cell">
+                      <TableCell className="px-3 hidden sm:table-cell text-foreground">
                         <Checkbox
                           id={`solved-${problem.id}`}
                           checked={solvedProblemIds.has(problem.id)}
@@ -230,17 +245,17 @@ function AllProblems() {
                       <TableCell className="font-medium px-3 max-w-[200px] sm:max-w-xs truncate">
                         <Link
                           to={`/problems/${problem.id}`}
-                          className="hover:underline text-blue-600 dark:text-blue-400"
+                          // Adjusted link color for theme
+                          className="hover:underline text-primary"
                           title={problem.title}
                         >
                           <div className="flex items-center gap-2">
-                            {" "}
-                            {/* Added flex container */}
                             {problem.title || "Untitled Problem"}
                             {problem.isDemo && (
                               <Badge
-                                variant="outline" // Use outline variant from Shadcn
-                                className="bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700 text-[0.6rem] px-1 py-0.5"
+                                variant="outline"
+                                // Adjusted Badge colors for theme blending
+                                className="bg-blue-100/80 text-blue-700/80 border-blue-200/80 dark:bg-blue-900/80 dark:text-blue-300/80 dark:border-blue-700/80 text-[0.6rem] px-1 py-0.5"
                               >
                                 DEMO
                               </Badge>
@@ -254,7 +269,7 @@ function AllProblems() {
                             <Badge
                               key={index}
                               variant="secondary"
-                              className="text-xs"
+                              className="text-xs" // Secondary variant should handle theme colors already
                             >
                               {tag}
                             </Badge>
@@ -265,7 +280,8 @@ function AllProblems() {
                               <Badge
                                 key={`company-${index}`}
                                 variant="outline"
-                                className="text-xs border-blue-500/50 text-blue-600 dark:border-blue-400/50 dark:text-blue-400"
+                                // Adjusted Badge colors for theme blending
+                                className="text-xs border-blue-500/50 text-blue-600/80 dark:border-blue-400/50 dark:text-blue-400/80"
                               >
                                 {tag}
                               </Badge>
@@ -283,14 +299,15 @@ function AllProblems() {
                               ? "destructive"
                               : "outline"
                           }
+                          // Adjusted Badge colors for theme blending
                           className={
                             problem.difficulty === "EASY"
-                              ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-300 dark:border-green-700"
+                              ? "bg-green-100/80 text-green-700/80 border-green-200/80 dark:bg-green-900/80 dark:text-green-300/80 dark:border-green-700/80"
                               : problem.difficulty === "MEDIUM"
-                              ? "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-300 dark:border-yellow-700"
+                              ? "bg-yellow-100/80 text-yellow-700/80 border-yellow-200/80 dark:bg-yellow-900/80 dark:text-yellow-300/80 dark:border-yellow-700/80"
                               : problem.difficulty === "HARD"
-                              ? "bg-red-100 text-red-700 border-red-200 dark:bg-red-900 dark:text-red-300 dark:border-red-700"
-                              : "dark:border-slate-600"
+                              ? "bg-red-100/80 text-red-700/80 border-red-200/80 dark:bg-red-900/80 dark:text-red-300/80 dark:border-red-700/80"
+                              : "dark:border-slate-600/80" // Fallback for unknown difficulty
                           }
                         >
                           {problem.difficulty || "N/A"}
@@ -298,10 +315,6 @@ function AllProblems() {
                       </TableCell>
                       <TableCell className="text-right px-3">
                         <div className="flex items-center justify-end space-x-1 sm:space-x-2">
-                          {" "}
-                          {/* Adjusted spacing */}
-                          {/* "Save to Playlist" Button - Triggers the dialog */}
-                          {/* The AddToPlaylistDialog component itself will be rendered elsewhere, controlled by state */}
                           <Button
                             variant="outline"
                             size="sm"
@@ -315,7 +328,6 @@ function AllProblems() {
                             </span>
                             <span className="sm:hidden">Save</span>
                           </Button>
-                          {/* "Edit" and "Delete" Buttons - Conditionally rendered for ADMIN */}
                           {user?.role === "ADMIN" && (
                             <>
                               <Button
@@ -325,7 +337,8 @@ function AllProblems() {
                                 onClick={() => handleEditProblem(problem.id)}
                                 title="Edit Problem"
                               >
-                                <Edit3 className="h-4 w-4 text-yellow-600 dark:text-yellow-500" />
+                                {/* Adjusted icon colors for theme */}
+                                <Edit3 className="h-4 w-4 text-yellow-600/80 dark:text-yellow-500/80" />
                                 <span className="sr-only">Edit Problem</span>
                               </Button>
 
@@ -336,7 +349,8 @@ function AllProblems() {
                                 onClick={() => handleDeleteProblem(problem.id)}
                                 title="Delete Problem"
                               >
-                                <Trash2 className="h-4 w-4 text-red-600 dark:text-red-500" />
+                                {/* Adjusted icon colors for theme */}
+                                <Trash2 className="h-4 w-4 text-red-600/80 dark:text-red-500/80" />
                                 <span className="sr-only">Delete Problem</span>
                               </Button>
                             </>
@@ -349,7 +363,7 @@ function AllProblems() {
                   <TableRow>
                     <TableCell
                       colSpan={5}
-                      className="text-center h-24 text-slate-500 dark:text-slate-400"
+                      className="text-center h-24 text-muted-foreground"
                     >
                       No problems found.
                     </TableCell>
@@ -360,21 +374,17 @@ function AllProblems() {
           </div>
         </CardContent>
       </Card>
-      {/* --- RENDER AddToPlaylistDialog CONDITIONALLY --- */}
       {selectedProblemForPlaylist && (
         <AddToPlaylistDialog
           problemId={selectedProblemForPlaylist.id}
           problemTitle={selectedProblemForPlaylist.title}
           isOpen={isAddToPlaylistDialogOpen}
-          setIsOpen={setIsAddToPlaylistDialogOpen} // Pass the setter to control visibility
+          setIsOpen={setIsAddToPlaylistDialogOpen}
           onPlaylistCreated={(newPlaylistWithProblem) => {
-            // Optional callback
             console.log(
               "Playlist action completed via dialog:",
               newPlaylistWithProblem
             );
-            // Potentially refresh global playlist state if needed
-            // useUserPlaylistsStore.getState().getUserPlaylists();
           }}
         />
       )}

@@ -1,59 +1,67 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react"; // Import useState
 import { useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoginSchema } from "../schemas/Login.schema.js"; // Import login schema
-import useAuthStore from "../../../store/authStore"; // Import auth store
+import { LoginSchema } from "../schemas/Login.schema.js";
+import useAuthStore from "../../../store/authStore";
 import { toast } from "sonner";
 
 // Import Shadcn/UI components
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
+// Import Lucide Icons for eye toggle
+import { Eye, EyeOff } from "lucide-react";
 
 function LoginForm() {
   const {
-    register, // RHF register function
-    handleSubmit, // RHF submit handler
-    formState: { errors, isSubmitting: isRHFSubmitting }, // Form errors and RHF submitting state
-    reset, // RHF reset function
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting: isRHFSubmitting },
+    reset,
   } = useForm({
-    resolver: zodResolver(LoginSchema), // Use Zod for login validation
+    resolver: zodResolver(LoginSchema),
   });
 
-  // Auth store hooks
   const loginAction = useAuthStore((state) => state.login);
   const isLoadingFromStore = useAuthStore((state) => state.isLoading);
   const authError = useAuthStore((state) => state.error);
   const clearAuthError = useAuthStore((state) => state.clearError);
   const navigate = useNavigate();
 
-  // Combine loading states
   const isLoading = isRHFSubmitting || isLoadingFromStore;
 
+  // State for password visibility
+  const [showPassword, setShowPassword] = useState(false);
+
   useEffect(() => {
-    clearAuthError(); // Clear previous auth errors on mount
+    clearAuthError();
   }, [clearAuthError]);
 
-  // Function to call when the form is submitted and valid
   const onSubmit = async (data) => {
-    clearAuthError(); // Clear previous API errors
+    clearAuthError();
     const result = await loginAction({
       email: data.email,
       password: data.password,
     });
     if (result.success && result.user) {
       toast.success("Login Successful!", {
-        // Display success toast
         description: `Welcome back, ${
           result.user.username || result.user.email || "User"
         }!`,
       });
-      reset(); // Reset form on successful login
-      navigate("/"); // Redirect to homepage
+      reset();
+      navigate("/");
     } else {
       toast.error("Login Failed", {
-        // Display error toast
         description: result.error || "Invalid credentials or server error.",
       });
       console.log("LoginForm: Login failed.", result.error);
@@ -61,91 +69,131 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-slate-100 p-4">
-      {/* You can wrap this with <Card> for Shadcn styling if you add it */}
-      <div className="w-full max-w-md p-6 md:p-8 space-y-6 bg-white rounded-xl shadow-2xl">
-        <div className="text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-slate-800">
+    <div className="flex items-center justify-center min-h-screen p-4">
+      <Card
+        className="
+          w-full max-w-md p-6 md:p-8 space-y-6 rounded-xl shadow-2xl relative z-10
+          bg-card/70 border border-border/50
+          backdrop-blur-md transition-colors duration-500
+        "
+      >
+        <CardHeader className="text-center p-0 pb-4">
+          <CardTitle className="text-2xl md:text-3xl font-bold text-foreground">
             Welcome Back!
-          </h2>
-          <p className="mt-2 text-sm text-slate-600">
+          </CardTitle>
+          <CardDescription className="mt-2 text-sm text-muted-foreground">
             Sign in to continue your journey.
-          </p>
-        </div>
+          </CardDescription>
+        </CardHeader>
 
-        {/* Display global auth error from store (e.g., network error before Zod kicks in on backend) */}
-        {/* Toasts are usually preferred for success/validation messages from submit */}
-        {authError &&
-          !isLoading && ( // Show if not loading and there's an error from a previous attempt
-            <div
-              className="bg-red-50 border-l-4 border-red-400 text-red-700 p-3 mb-4 text-sm"
-              role="alert"
-            >
-              <p>{authError}</p>
-            </div>
-          )}
-
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-5"
-          noValidate
-        >
-          <div>
-            <Label htmlFor="email">Email Address / Username</Label>
-            <Input
-              id="email"
-              type="email" // Or "text" if you allow username and schema reflects it
-              autoComplete="email"
-              {...register("email")} // Register with react-hook-form
-              disabled={isLoading}
-              className={`mt-3 ${
-                errors.email ? "border-red-500 focus:ring-red-500" : ""
-              }`}
-              placeholder="you@example.com"
-            />
-            {errors.email && ( // Display client-side validation error from Zod
-              <p className="mt-1 text-xs text-red-600">
-                {errors.email.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              {...register("password")} // Register with react-hook-form
-              disabled={isLoading}
-              className={`mt-3 ${
-                errors.password ? "border-red-500 focus:ring-red-500" : ""
-              }`}
-              placeholder="••••••••"
-            />
-            {errors.password && ( // Display client-side validation error from Zod
-              <p className="mt-1 text-xs text-red-600">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <Button type="submit" disabled={isLoading} className="w-full">
-              {isLoading ? "Signing In..." : "Sign In"}
-            </Button>
-          </div>
-        </form>
-        <p className="mt-6 text-sm text-center text-slate-600">
-          Don't have an account?{" "}
-          <Link
-            to="/signup"
-            className="font-medium text-blue-600 hover:text-blue-500 hover:underline"
+        {authError && !isLoading && (
+          <div
+            className="bg-destructive/10 border-l-4 border-destructive text-destructive-foreground p-3 mb-4 text-sm"
+            role="alert"
           >
-            Sign up
-          </Link>
-        </p>
-      </div>
+            <p>{authError}</p>
+          </div>
+        )}
+
+        <CardContent className="p-0">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-5"
+            noValidate
+          >
+            <div>
+              <Label htmlFor="email">Email Address / Username</Label>
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                {...register("email")}
+                disabled={isLoading}
+                className={`mt-3 bg-input/80 text-foreground ${
+                  errors.email
+                    ? "border-destructive focus:ring-destructive"
+                    : ""
+                }`}
+                placeholder="you@example.com"
+              />
+              {errors.email && (
+                <p className="mt-1 text-xs text-destructive">
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
+
+            {/* Password Field - Added show/hide toggle */}
+            <div>
+              <Label htmlFor="password">Password</Label>
+              <div className="relative">
+                {" "}
+                {/* Make this div relative for icon positioning */}
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  {...register("password")}
+                  disabled={isLoading}
+                  className={`mt-3 bg-input/80 text-foreground pr-10 ${
+                    /* Add pr-10 for icon space */
+                    errors.password
+                      ? "border-destructive focus:ring-destructive"
+                      : ""
+                  }`}
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button" // Important: type="button" to prevent form submission
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  disabled={isLoading}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                  <span className="sr-only">
+                    {showPassword ? "Hide password" : "Show password"}
+                  </span>
+                </button>
+              </div>
+              <p className="mt-1 text-xs text-destructive">
+                {errors.password && (
+                  <p className="mt-1 text-xs text-destructive">
+                    {errors.password.message}
+                  </p>
+                )}
+                {/* Error message container for password - Keep it consistent to prevent jumps */}
+                <p
+                  className={`text-xs text-destructive min-h-[1.25rem] ${
+                    errors.password ? "opacity-100" : "opacity-0"
+                  }`}
+                >
+                  {errors.password?.message || "placeholder text for spacing"}
+                </p>
+              </p>
+            </div>
+
+            <div>
+              <Button type="submit" disabled={isLoading} className="w-full">
+                {isLoading ? "Signing In..." : "Sign In"}
+              </Button>
+            </div>
+          </form>
+
+          <p className="mt-6 text-sm text-center text-muted-foreground">
+            Don't have an account?
+            <Link
+              to="/signup"
+              className="font-medium text-primary hover:text-primary/80 hover:underline"
+            >
+              Sign up
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }

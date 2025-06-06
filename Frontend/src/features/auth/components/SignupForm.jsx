@@ -1,214 +1,277 @@
-// src/features/auth/pages/SignupPage.js
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react"; // Import useState
 import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../../../store/authStore";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SignUpSchema } from "../schemas/Signup.schema.js";
+import { toast } from "sonner";
 
-// Assuming you might use Shadcn/UI components later:
-// import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input";
-// import { Label } from "@/components/ui/label";
+// Import Shadcn/UI components
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+
+// Import Lucide Icons for eye toggle
+import { Eye, EyeOff } from "lucide-react";
 
 function SignupForm() {
   const {
     register,
-    handleSubmit, // RHF's submit handler
-    formState: { errors, isSubmitting: isRHFSubmitting }, // Form errors and submitting state from RHF
-    reset, // Optional: function to reset form fields
+    handleSubmit,
+    formState: { errors, isSubmitting: isRHFSubmitting },
+    reset,
   } = useForm({
-    resolver: zodResolver(SignUpSchema), // Use Zod for validation
+    resolver: zodResolver(SignUpSchema),
   });
 
-  //   const [username, setUsername] = useState("");
-  //   const [email, setEmail] = useState("");
-  //   const [password, setPassword] = useState("");
-  //   const [confirmPassword, setConfirmPassword] = useState("");
-  //   const [formError, setFormError] = useState(null); // for showing form errors.
-
-  // Get what you need from the auth store - for now, mainly for consistency or future use
   const signupAction = useAuthStore((state) => state.signup);
   const isLoadingFromStore = useAuthStore((state) => state.isLoading);
   const authError = useAuthStore((state) => state.error);
   const clearAuthError = useAuthStore((state) => state.clearError);
   const navigate = useNavigate();
 
-  // Combine RHF's submitting state with store's loading state
   const isLoading = isRHFSubmitting || isLoadingFromStore;
 
+  // State for password visibility
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   useEffect(() => {
-    clearAuthError(); // Clear auth store errors on mount
+    clearAuthError();
   }, [clearAuthError]);
 
-  // Submission handler for RHF
   const onSubmit = async (data) => {
-    clearAuthError(); // Clear previous auth store errors
-
+    clearAuthError();
     const userData = {
-      // Prepare data for signup action
       username: data.username,
       email: data.email,
       password: data.password,
     };
 
-    const result = await signupAction(userData); // Call signup action
+    const result = await signupAction(userData);
     if (result.success) {
+      toast.success("Account Created!", {
+        description: "Welcome! Please log in to continue.",
+      });
       console.log("SignupPage: Signup successful, navigating to login.");
-      reset(); // Optional: reset form fields after successful submission
-      navigate("/"); // Redirect after successful signup
+      reset();
+      navigate("/login");
     } else {
-      // Auth error is set in the authStore by signupAction
-      // It will be displayed by the {authError && ...} block in the JSX
+      toast.error("Signup Failed", {
+        description: result.error || "An unexpected error occurred.",
+      });
       console.log("SignupPage: Signup failed. Auth store error:", authError);
     }
   };
 
   return (
-    <div className="h-screen grid lg:grid-cols-2">
-      <div className="flex items-center justify-center min-h-screen bg-slate-100 p-4">
-        <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-2xl">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-slate-900">
-              Create Account
-            </h2>
-            <p className="mt-2 text-sm text-slate-600">
-              Join us and start your coding journey!
-            </p>
-          </div>
+    <div className="flex flex-col min-h-screen">
+      <div className="flex-grow grid lg:grid-cols-2 py-8 md:py-16">
+        <div className="flex items-center justify-center p-4">
+          <Card
+            className="
+              w-full max-w-md p-6 md:p-8 space-y-6 rounded-xl shadow-2xl relative z-10
+              bg-card/70 border border-border/50
+              backdrop-blur-md transition-colors duration-500
+            "
+          >
+            <CardHeader className="text-center p-0 pb-4">
+              <CardTitle className="text-2xl md:text-3xl font-bold text-foreground">
+                Create Account
+              </CardTitle>
+              <CardDescription className="mt-2 text-sm text-muted-foreground">
+                Join us and start your coding journey!
+              </CardDescription>
+            </CardHeader>
 
-          {/* Display global auth errors (e.g., from API if connected) */}
+            {authError && (
+              <div
+                className="bg-destructive/10 border-l-4 border-destructive text-destructive-foreground p-3 mb-4 text-sm"
+                role="alert"
+              >
+                <p>{authError}</p>
+              </div>
+            )}
 
-          {authError && (
-            <div
-              className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-              role="alert"
-            >
-              <strong className="font-bold">Error: </strong>
-              <span className="block sm:inline">{authError}</span>
-            </div>
-          )}
+            <CardContent className="p-0">
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="space-y-4"
+                noValidate
+              >
+                {/* Username Field */}
+                <div>
+                  <Label htmlFor="username">Username</Label>
+                  <Input
+                    id="username"
+                    type="text"
+                    autoComplete="username"
+                    {...register("username")}
+                    disabled={isLoading}
+                    className={`mt-1 bg-input/80 text-foreground ${
+                      errors.username
+                        ? "border-destructive focus:ring-destructive"
+                        : ""
+                    }`}
+                    placeholder="Choose a username"
+                  />
+                  <p
+                    className={`text-xs text-destructive min-h-[1.25rem] mt-1 ${
+                      errors.username ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    {errors.username?.message || "placeholder text for spacing"}
+                  </p>
+                </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {" "}
-            {/* Reduced space-y slightly */}
-            <div>
-              <label
-                htmlFor="username"
-                className="block text-sm font-medium text-slate-700"
-              >
-                Username
-              </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                autoComplete="username"
-                {...register("username")} // Register input
-                disabled={isLoading}
-                className="mt-1 block w-full px-4 py-3 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-slate-50"
-                placeholder="Choose a username"
-              />
-              {errors.username && ( // Display field-specific error
-                <p className="mt-1 text-xs text-red-600">
-                  {errors.username.message}
-                </p>
-              )}
-            </div>
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-slate-700"
-              >
-                Email Address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                {...register("email")} // Register input
-                disabled={isLoading}
-                className="mt-1 block w-full px-4 py-3 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-slate-50"
-                placeholder="you@example.com"
-              />
-              {errors.email && ( // Display field-specific error
-                <p className="mt-1 text-xs text-red-600">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-slate-700"
-              >
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                {...register("password")} // Register input
-                disabled={isLoading}
-                className="mt-1 block w-full px-4 py-3 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-slate-50"
-                placeholder="••••••••"
-              />
-              {errors.password && ( // Display field-specific error
-                <p className="mt-1 text-xs text-red-600">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
-            <div>
-              <label
-                htmlFor="confirmPassword"
-                className="block text-sm font-medium text-slate-700"
-              >
-                Confirm Password
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                {...register("confirmPassword")} // Register input
-                disabled={isLoading}
-                className="mt-1 block w-full px-4 py-3 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-slate-50"
-                placeholder="••••••••"
-              />
-              {errors.confirmPassword && (
-                <p className="mt-1 text-xs text-red-600">
-                  {errors.confirmPassword.message}
-                </p>
-              )}
-            </div>
-            <div>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-70"
-              >
-                {isLoading ? "Creating Account..." : "Create Account"}
-              </button>
-            </div>
-          </form>
-          <p className="mt-6 text-sm text-center text-slate-600">
-            Already have an account?{" "}
-            <Link
-              to="/login"
-              className="font-medium text-blue-600 hover:text-blue-500 hover:underline"
-            >
-              Sign in
-            </Link>
-          </p>
+                {/* Email Field */}
+                <div>
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    {...register("email")}
+                    disabled={isLoading}
+                    className={`mt-1 bg-input/80 text-foreground ${
+                      errors.email
+                        ? "border-destructive focus:ring-destructive"
+                        : ""
+                    }`}
+                    placeholder="you@example.com"
+                  />
+                  <p
+                    className={`text-xs text-destructive min-h-[1.25rem] mt-1 ${
+                      errors.email ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    {errors.email?.message || "placeholder text for spacing"}
+                  </p>
+                </div>
+
+                {/* Password Field - Added show/hide toggle */}
+                <div>
+                  <Label htmlFor="password">Password</Label>
+                  <div className="relative">
+                    {/* Make this div relative for icon positioning */}
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                      {...register("password")}
+                      disabled={isLoading}
+                      className={`mt-1 bg-input/80 text-foreground pr-10 ${
+                        /* Add pr-10 for icon space */
+                        errors.password
+                          ? "border-destructive focus:ring-destructive"
+                          : ""
+                      }`}
+                      placeholder="••••••••"
+                    />
+                    <button
+                      type="button" // Important: type="button" to prevent form submission
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      disabled={isLoading}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
+                      <span className="sr-only">
+                        {showPassword ? "Hide password" : "Show password"}
+                      </span>
+                    </button>
+                  </div>
+                  <p
+                    className={`text-xs text-destructive min-h-[1.25rem] mt-1 ${
+                      errors.password ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    {errors.password?.message || "placeholder text for spacing"}
+                  </p>
+                </div>
+
+                {/* Confirm Password Field - Added show/hide toggle */}
+                <div>
+                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <div className="relative">
+                    {/* Make this div relative for icon positioning */}
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                      {...register("confirmPassword")}
+                      disabled={isLoading}
+                      className={`mt-1 bg-input/80 text-foreground pr-10 ${
+                        /* Add pr-10 for icon space */
+                        errors.confirmPassword
+                          ? "border-destructive focus:ring-destructive"
+                          : ""
+                      }`}
+                      placeholder="••••••••"
+                    />
+                    <button
+                      type="button" // Important: type="button"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      disabled={isLoading}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
+                      <span className="sr-only">
+                        {showConfirmPassword
+                          ? "Hide confirm password"
+                          : "Show confirm password"}
+                      </span>
+                    </button>
+                  </div>
+                  <p
+                    className={`text-xs text-destructive min-h-[1.25rem] mt-1 ${
+                      errors.confirmPassword ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    {errors.confirmPassword?.message ||
+                      "placeholder text for spacing"}
+                  </p>
+                </div>
+
+                <div>
+                  <Button type="submit" disabled={isLoading} className="w-full">
+                    {isLoading ? "Creating Account..." : "Create Account"}
+                  </Button>
+                </div>
+              </form>
+              <p className="mt-6 text-sm text-center text-muted-foreground">
+                Already have an account?{" "}
+                <Link
+                  to="/login"
+                  className="font-medium text-primary hover:text-primary/80 hover:underline"
+                >
+                  Sign in
+                </Link>
+              </p>
+            </CardContent>
+          </Card>
         </div>
-      </div>
-      <div className="bg-gradient-to-r from-green-600 via-slate-900 to-black   hidden lg:flex items-center justify-center">
-        <div className="text-center text-white p-10">
-          <h1 className="text-4xl font-bold mb-4">Welcome to CodeRise!</h1>
-          <p className="text-xl">Start building amazing projects today.</p>
+        <div className="hidden lg:flex items-center justify-center p-10 text-center">
+          <div className="text-foreground">
+            <h1 className="text-4xl font-bold mb-4">Welcome to CodeRise!</h1>
+            <p className="text-xl">Start building amazing projects today.</p>
+          </div>
         </div>
       </div>
     </div>

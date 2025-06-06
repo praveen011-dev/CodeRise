@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { createProblemFormSchema } from "../schemas/Problem.schema.js";
-import { createProblem as createProblemService } from "../../../services/problemService"; //
+import { createProblem as createProblemService } from "../../../services/problemService";
 
 // Shadcn/UI Components
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Checkbox } from "@/components/ui/checkbox"; // For isDemo
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Lucide Icons
 import {
@@ -44,13 +44,7 @@ import {
 } from "lucide-react";
 import Editor from "@monaco-editor/react";
 
-// Keep your sample data definitions (sampledpData, sampleStringProblem)
-// or import them from a separate file if you prefer.
-// For this example, I'll assume they are defined in this file or imported.
-// const sampledpData = { /* ... as you provided ... */ };
-// const sampleStringProblem = { /* ... as you provided, ensure field names match new Zod schema ... */ };
-
-const LANGUAGES = ["JAVASCRIPT", "PYTHON", "JAVA"]; // For iterating editor sections
+const LANGUAGES = ["JAVASCRIPT", "PYTHON", "JAVA"];
 
 function CreateProblemForm() {
   const [sampleType, setSampleType] = useState("DP");
@@ -63,11 +57,10 @@ function CreateProblemForm() {
     reset,
     setValue,
     watch,
-    formState: { errors, isSubmitting }, // isSubmitting from RHF
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(createProblemFormSchema),
     defaultValues: {
-      // Ensure these defaults match the (potentially renamed) Zod schema fields
       title: "",
       description: "",
       difficulty: "EASY",
@@ -84,7 +77,7 @@ function CreateProblemForm() {
         JAVA: { input: "", output: "", explanation: "" },
       },
       codeSnippet: {
-        JAVASCRIPT: "function solution(args) {\n  // Write your code here\n}",
+        JAVASCRIPT: "function solution(args) {\n // Write your code here\n}",
         PYTHON: "def solution(args):\n    # Write your code here\n    pass",
         JAVA: "public class Solution {\n    public static void main(String[] args) {\n        // Write your code here\n    }\n}",
       },
@@ -103,7 +96,7 @@ function CreateProblemForm() {
     append: appendTestCase,
     remove: removeTestCase,
     replace: replaceTestCases,
-  } = useFieldArray({ control, name: "testcases" }); // Use 'testcases' (lowercase)
+  } = useFieldArray({ control, name: "testcases" });
 
   const {
     fields: tagFields,
@@ -119,7 +112,7 @@ function CreateProblemForm() {
         description: response?.message || "Successfully added the new problem.",
       });
       reset();
-      navigate("/problems"); // Or to the new problem's page, or problem list
+      navigate("/problems");
     } catch (error) {
       toast.error("Failed to Create Problem", {
         description: error?.message || "An unknown error occurred.",
@@ -129,11 +122,6 @@ function CreateProblemForm() {
   };
 
   const loadSampleData = () => {
-    // Ensure sampledpData and sampleStringProblem use the corrected field names
-    // (e.g., testcases, codeSnippet, refrenceSolution, editorail)
-    // const sampleDataToLoad = sampleType === "DP" ? sampledpData : sampleStringProblem;
-    // reset(sampleDataToLoad);
-    // For field arrays like tags and testcases, you might need to use replaceTags and replaceTestCases
     toast.info(
       "Load sample data functionality needs to be reviewed with updated field names."
     );
@@ -141,29 +129,39 @@ function CreateProblemForm() {
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl">
-      {" "}
-      {/* Adjusted max-width */}
-      <Card className="overflow-hidden">
-        {" "}
-        {/* Add overflow-hidden if content might break out */}
-        <CardHeader className="bg-slate-50 dark:bg-slate-800 border-b">
-          <CardTitle className="text-2xl md:text-3xl flex items-center gap-2 text-slate-800 dark:text-slate-100">
-            <FileText className="w-7 h-7 text-blue-600" />
+      <Card
+        className="
+          overflow-hidden shadow-xl relative z-10
+          bg-card/70 border border-border/50
+          backdrop-blur-md transition-colors duration-500
+        "
+      >
+        <CardHeader
+          className="
+            bg-background/50 border-b border-border/50
+            transition-colors duration-500
+          "
+        >
+          <CardTitle className="text-2xl md:text-3xl flex items-center gap-2 text-foreground">
+            <FileText className="w-7 h-7 text-primary" />{" "}
+            {/* Uses theme primary color */}
             Create New Problem
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-muted-foreground">
             Fill in the details below to add a new programming problem.
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-6 space-y-8">
-          {/* Sample Data Buttons - using Shadcn Buttons */}
+        <CardContent className="p-6 space-y-8 text-foreground">
+          {/* Sample Data Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 items-start">
-            <div className="flex border rounded-md">
+            <div className="flex border border-border rounded-md overflow-hidden">
+              {" "}
+              {/* Border for the group */}
               <Button
                 type="button"
                 variant={sampleType === "DP" ? "default" : "outline"}
                 onClick={() => setSampleType("DP")}
-                className="rounded-r-none border-r"
+                className="rounded-r-none border-r border-border/50" // Apply border consistent with theme
               >
                 DP Sample
               </Button>
@@ -185,45 +183,65 @@ function CreateProblemForm() {
               <Download className="w-4 h-4" /> Load Sample
             </Button>
           </div>
-          <Separator />
-
+          <Separator className="bg-border/50" /> {/* Theme-aware separator */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Basic Information */}
             <div className="space-y-4">
               <div>
-                <Label htmlFor="title" className="font-semibold">
+                <Label
+                  htmlFor="title"
+                  className="font-semibold text-foreground"
+                >
                   Title
                 </Label>
                 <Input
                   id="title"
                   {...register("title")}
                   placeholder="e.g., Two Sum"
-                  className="mt-1"
+                  className="mt-1 bg-input/80 text-foreground"
                 />
                 {errors.title && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {errors.title.message}
+                  <p className="text-destructive text-sm min-h-[1.25rem] mt-1">
+                    {" "}
+                    {/* Fixed error message height */}
+                    {errors.title.message || "placeholder"}
+                  </p>
+                )}
+                {!errors.title && ( // Invisible placeholder for stability
+                  <p className="text-destructive text-sm min-h-[1.25rem] mt-1 opacity-0">
+                    placeholder
                   </p>
                 )}
               </div>
               <div>
-                <Label htmlFor="description" className="font-semibold">
+                <Label
+                  htmlFor="description"
+                  className="font-semibold text-foreground"
+                >
                   Description (Markdown supported)
                 </Label>
                 <Textarea
                   id="description"
                   {...register("description")}
                   placeholder="Detailed problem description..."
-                  className="mt-1 min-h-[150px]"
+                  className="mt-1 min-h-[150px] bg-input/80 text-foreground"
                 />
                 {errors.description && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {errors.description.message}
+                  <p className="text-destructive text-sm min-h-[1.25rem] mt-1">
+                    {errors.description.message || "placeholder"}
+                  </p>
+                )}
+                {!errors.description && (
+                  <p className="text-destructive text-sm min-h-[1.25rem] mt-1 opacity-0">
+                    placeholder
                   </p>
                 )}
               </div>
               <div>
-                <Label htmlFor="difficulty" className="font-semibold">
+                <Label
+                  htmlFor="difficulty"
+                  className="font-semibold text-foreground"
+                >
                   Difficulty
                 </Label>
                 <Controller
@@ -235,10 +253,12 @@ function CreateProblemForm() {
                       defaultValue={field.value}
                       disabled={isSubmitting}
                     >
-                      <SelectTrigger className="w-full md:w-[180px] mt-1">
+                      <SelectTrigger className="w-full md:w-[180px] mt-1 bg-input/80 text-foreground">
                         <SelectValue placeholder="Select difficulty" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-popover text-popover-foreground">
+                        {" "}
+                        {/* Ensure select dropdown respects theme */}
                         <SelectItem value="EASY">Easy</SelectItem>
                         <SelectItem value="MEDIUM">Medium</SelectItem>
                         <SelectItem value="HARD">Hard</SelectItem>
@@ -247,19 +267,24 @@ function CreateProblemForm() {
                   )}
                 />
                 {errors.difficulty && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {errors.difficulty.message}
+                  <p className="text-destructive text-sm min-h-[1.25rem] mt-1">
+                    {errors.difficulty.message || "placeholder"}
+                  </p>
+                )}
+                {!errors.difficulty && (
+                  <p className="text-destructive text-sm min-h-[1.25rem] mt-1 opacity-0">
+                    placeholder
                   </p>
                 )}
               </div>
             </div>
-            <Separator />
+            <Separator className="bg-border/50" />
 
             {/* Tags */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <BookOpen className="w-5 h-5" /> Tags
+                <h3 className="text-lg font-semibold flex items-center gap-2 text-foreground">
+                  <BookOpen className="w-5 h-5 text-primary" /> Tags
                 </h3>
                 <Button
                   type="button"
@@ -276,32 +301,41 @@ function CreateProblemForm() {
                     <Input
                       {...register(`tags.${index}`)}
                       placeholder="e.g., Array"
+                      className="bg-input/80 text-foreground"
                     />
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon"
                       onClick={() => removeTag(index)}
-                      disabled={tagFields.length <= 1 /* Keep at least one */}
+                      disabled={tagFields.length <= 1}
                     >
-                      <Trash2 className="w-4 h-4 text-red-500" />
+                      <Trash2 className="w-4 h-4 text-destructive" />{" "}
+                      {/* Use theme destructive color */}
                     </Button>
                   </div>
                 ))}
               </div>
               {errors.tags && (
-                <p className="text-sm text-red-500 mt-1">
-                  {errors.tags.message || errors.tags.root?.message}
+                <p className="text-destructive text-sm min-h-[1.25rem] mt-1">
+                  {errors.tags.message ||
+                    errors.tags.root?.message ||
+                    "placeholder"}
+                </p>
+              )}
+              {!errors.tags && (
+                <p className="text-destructive text-sm min-h-[1.25rem] mt-1 opacity-0">
+                  placeholder
                 </p>
               )}
             </div>
-            <Separator />
+            <Separator className="bg-border/50" />
 
             {/* Test Cases */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5" /> Test Cases
+                <h3 className="text-lg font-semibold flex items-center gap-2 text-foreground">
+                  <CheckCircle2 className="w-5 h-5 text-primary" /> Test Cases
                 </h3>
                 <Button
                   type="button"
@@ -314,8 +348,14 @@ function CreateProblemForm() {
               </div>
               <div className="space-y-3">
                 {testCaseFields.map((field, index) => (
-                  <Card key={field.id} className="p-4">
-                    <div className="flex justify-between items-center mb-2">
+                  <Card
+                    key={field.id}
+                    className="
+                      p-4 bg-card/50 border border-border/50
+                      backdrop-blur-sm transition-colors duration-500
+                    "
+                  >
+                    <div className="flex justify-between items-center mb-2 text-foreground">
                       <h4 className="font-medium">Test Case #{index + 1}</h4>
                       <Button
                         type="button"
@@ -324,121 +364,173 @@ function CreateProblemForm() {
                         onClick={() => removeTestCase(index)}
                         disabled={testCaseFields.length <= 1}
                       >
-                        <Trash2 className="w-4 h-4 mr-1 text-red-500" />
+                        <Trash2 className="w-4 h-4 mr-1 text-destructive" />
                         Remove
                       </Button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div>
-                        <Label htmlFor={`testcases.${index}.input`}>
+                        <Label
+                          htmlFor={`testcases.${index}.input`}
+                          className="text-foreground"
+                        >
                           Input
                         </Label>
                         <Textarea
                           id={`testcases.${index}.input`}
                           {...register(`testcases.${index}.input`)}
-                          className="mt-1 min-h-[70px]"
+                          className="mt-1 min-h-[70px] bg-input/80 text-foreground"
                         />
-                        {errors.testcases?.[index]?.input && (
-                          <p className="text-xs text-red-500 mt-1">
-                            {errors.testcases[index].input.message}
-                          </p>
-                        )}
+                        <p
+                          className={`text-xs text-destructive min-h-[1.25rem] mt-1 ${
+                            errors.testcases?.[index]?.input
+                              ? "opacity-100"
+                              : "opacity-0"
+                          }`}
+                        >
+                          {errors.testcases?.[index]?.input?.message ||
+                            "placeholder"}
+                        </p>
                       </div>
                       <div>
-                        <Label htmlFor={`testcases.${index}.output`}>
+                        <Label
+                          htmlFor={`testcases.${index}.output`}
+                          className="text-foreground"
+                        >
                           Expected Output
                         </Label>
                         <Textarea
                           id={`testcases.${index}.output`}
                           {...register(`testcases.${index}.output`)}
-                          className="mt-1 min-h-[70px]"
+                          className="mt-1 min-h-[70px] bg-input/80 text-foreground"
                         />
-                        {errors.testcases?.[index]?.output && (
-                          <p className="text-xs text-red-500 mt-1">
-                            {errors.testcases[index].output.message}
-                          </p>
-                        )}
+                        <p
+                          className={`text-xs text-destructive min-h-[1.25rem] mt-1 ${
+                            errors.testcases?.[index]?.output
+                              ? "opacity-100"
+                              : "opacity-0"
+                          }`}
+                        >
+                          {errors.testcases?.[index]?.output?.message ||
+                            "placeholder"}
+                        </p>
                       </div>
                     </div>
                   </Card>
                 ))}
               </div>
               {errors.testcases && !Array.isArray(errors.testcases) && (
-                <p className="text-sm text-red-500 mt-1">
-                  {errors.testcases.message}
+                <p className="text-destructive text-sm min-h-[1.25rem] mt-1">
+                  {errors.testcases.message || "placeholder"}
+                </p>
+              )}
+              {errors.testcases &&
+                Array.isArray(errors.testcases) &&
+                errors.testcases.some((tcError) => tcError) && (
+                  <p className="text-destructive text-sm min-h-[1.25rem] mt-1">
+                    Please fix errors in test cases above.
+                  </p>
+                )}
+              {(!errors.testcases ||
+                (Array.isArray(errors.testcases) &&
+                  !errors.testcases.some((tcError) => tcError))) && (
+                <p className="text-destructive text-sm min-h-[1.25rem] mt-1 opacity-0">
+                  placeholder
                 </p>
               )}
             </div>
-            <Separator />
+            <Separator className="bg-border/50" />
 
             {/* Code Editors for Snippets, Solutions, Examples */}
             <div className="space-y-4">
               {LANGUAGES.map((language) => (
-                <Card key={language} className="p-1">
-                  {" "}
-                  {/* Slightly less padding on outer card */}
-                  <CardHeader className="p-3 pb-2">
-                    {" "}
-                    {/* Less padding in header */}
-                    <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                      <Code2 className="w-5 h-5" />{" "}
+                <Card
+                  key={language}
+                  className="
+                    p-1 bg-card/50 border border-border/50
+                    backdrop-blur-sm transition-colors duration-500
+                  "
+                >
+                  <CardHeader className="p-3 pb-2 bg-background/50 border-b border-border/50">
+                    <CardTitle className="text-lg font-semibold flex items-center gap-2 text-foreground">
+                      <Code2 className="w-5 h-5 text-primary" />{" "}
                       {language.charAt(0) + language.slice(1).toLowerCase()}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3 p-3">
                     {/* Examples */}
-                    <div className="border p-2 rounded-md bg-slate-50 dark:bg-slate-800/50">
+                    <div className="border border-border/50 p-2 rounded-md bg-background/50">
                       <Label
                         htmlFor={`examples.${language}.input`}
-                        className="font-medium text-sm"
+                        className="font-medium text-sm text-foreground"
                       >
                         Example Input
                       </Label>
                       <Textarea
                         id={`examples.${language}.input`}
                         {...register(`examples.${language}.input`)}
-                        className="mt-1 text-xs min-h-[40px]"
+                        className="mt-1 text-xs min-h-[40px] bg-input/80 text-foreground"
                       />
-                      {errors.examples?.[language]?.input && (
-                        <p className="text-xs text-red-500 mt-1">
-                          {errors.examples[language].input.message}
-                        </p>
-                      )}
+                      <p
+                        className={`text-xs text-destructive min-h-[1.25rem] mt-1 ${
+                          errors.examples?.[language]?.input
+                            ? "opacity-100"
+                            : "opacity-0"
+                        }`}
+                      >
+                        {errors.examples?.[language]?.input?.message ||
+                          "placeholder"}
+                      </p>
 
                       <Label
                         htmlFor={`examples.${language}.output`}
-                        className="font-medium text-sm mt-2 block"
+                        className="font-medium text-sm mt-2 block text-foreground"
                       >
                         Example Output
                       </Label>
                       <Textarea
                         id={`examples.${language}.output`}
                         {...register(`examples.${language}.output`)}
-                        className="mt-1 text-xs min-h-[40px]"
+                        className="mt-1 text-xs min-h-[40px] bg-input/80 text-foreground"
                       />
-                      {errors.examples?.[language]?.output && (
-                        <p className="text-xs text-red-500 mt-1">
-                          {errors.examples[language].output.message}
-                        </p>
-                      )}
+                      <p
+                        className={`text-xs text-destructive min-h-[1.25rem] mt-1 ${
+                          errors.examples?.[language]?.output
+                            ? "opacity-100"
+                            : "opacity-0"
+                        }`}
+                      >
+                        {errors.examples?.[language]?.output?.message ||
+                          "placeholder"}
+                      </p>
 
                       <Label
                         htmlFor={`examples.${language}.explanation`}
-                        className="font-medium text-sm mt-2 block"
+                        className="font-medium text-sm mt-2 block text-foreground"
                       >
                         Example Explanation (Optional)
                       </Label>
                       <Textarea
                         id={`examples.${language}.explanation`}
                         {...register(`examples.${language}.explanation`)}
-                        className="mt-1 text-xs min-h-[60px]"
+                        className="mt-1 text-xs min-h-[60px] bg-input/80 text-foreground"
                       />
+                      <p
+                        className={`text-xs text-destructive min-h-[1.25rem] mt-1 ${
+                          errors.examples?.[language]?.explanation
+                            ? "opacity-100"
+                            : "opacity-0"
+                        }`}
+                      >
+                        {errors.examples?.[language]?.explanation?.message ||
+                          "placeholder"}
+                      </p>
                     </div>
                     {/* Code Snippet */}
                     <div>
                       <Label
                         htmlFor={`codeSnippet.${language}`}
-                        className="font-medium text-sm"
+                        className="font-medium text-sm text-foreground"
                       >
                         Starter Code Snippet
                       </Label>
@@ -446,33 +538,39 @@ function CreateProblemForm() {
                         name={`codeSnippet.${language}`}
                         control={control}
                         render={({ field }) => (
-                          <div className="mt-1 border rounded-md overflow-hidden">
+                          <div className="mt-1 border border-border/50 rounded-md overflow-hidden">
                             <Editor
                               height="200px"
                               language={language.toLowerCase()}
-                              theme="vs-dark"
+                              theme="vs-dark" // Consider custom theme here later
                               value={field.value}
                               onChange={field.onChange}
                               options={{
                                 minimap: { enabled: false },
                                 fontSize: 12,
                                 automaticLayout: true,
+                                wordWrap: "on",
                               }}
                             />
                           </div>
                         )}
                       />
-                      {errors.codeSnippet?.[language] && (
-                        <p className="text-xs text-red-500 mt-1">
-                          {errors.codeSnippet[language].message}
-                        </p>
-                      )}
+                      <p
+                        className={`text-xs text-destructive min-h-[1.25rem] mt-1 ${
+                          errors.codeSnippet?.[language]
+                            ? "opacity-100"
+                            : "opacity-0"
+                        }`}
+                      >
+                        {errors.codeSnippet?.[language]?.message ||
+                          "placeholder"}
+                      </p>
                     </div>
                     {/* Reference Solution */}
                     <div>
                       <Label
                         htmlFor={`refrenceSolution.${language}`}
-                        className="font-medium text-sm"
+                        className="font-medium text-sm text-foreground"
                       >
                         Reference Solution
                       </Label>
@@ -480,88 +578,132 @@ function CreateProblemForm() {
                         name={`refrenceSolution.${language}`}
                         control={control}
                         render={({ field }) => (
-                          <div className="mt-1 border rounded-md overflow-hidden">
+                          <div className="mt-1 border border-border/50 rounded-md overflow-hidden">
                             <Editor
                               height="250px"
                               language={language.toLowerCase()}
-                              theme="vs-dark"
+                              theme="vs-dark" // Consider custom theme here later
                               value={field.value}
                               onChange={field.onChange}
                               options={{
                                 minimap: { enabled: false },
                                 fontSize: 12,
                                 automaticLayout: true,
+                                wordWrap: "on",
                               }}
                             />
                           </div>
                         )}
                       />
-                      {errors.refrenceSolution?.[language] && (
-                        <p className="text-xs text-red-500 mt-1">
-                          {errors.refrenceSolution[language].message}
-                        </p>
-                      )}
+                      <p
+                        className={`text-xs text-destructive min-h-[1.25rem] mt-1 ${
+                          errors.refrenceSolution?.[language]
+                            ? "opacity-100"
+                            : "opacity-0"
+                        }`}
+                      >
+                        {errors.refrenceSolution?.[language]?.message ||
+                          "placeholder"}
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
-            <Separator />
+            <Separator className="bg-border/50" />
 
             {/* Additional Information: Constraints, Hints, Editorial, Category, Company Tags, IsDemo, DemoSolution */}
             <div>
-              <h3 className="text-lg font-semibold flex items-center gap-2 mb-3">
+              <h3 className="text-lg font-semibold flex items-center gap-2 mb-3 text-foreground">
                 <Lightbulb className="w-5 h-5 text-yellow-400" /> Additional
                 Information
               </h3>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="constraints" className="font-medium">
+                  <Label
+                    htmlFor="constraints"
+                    className="font-medium text-foreground"
+                  >
                     Constraints
                   </Label>
                   <Textarea
                     id="constraints"
                     {...register("constraints")}
-                    className="mt-1 min-h-[70px]"
+                    className="mt-1 min-h-[70px] bg-input/80 text-foreground"
                   />
-                  {errors.constraints && (
-                    <p className="text-sm text-red-500 mt-1">
-                      {errors.constraints.message}
-                    </p>
-                  )}
+                  <p
+                    className={`text-sm text-destructive min-h-[1.25rem] mt-1 ${
+                      errors.constraints ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    {errors.constraints?.message || "placeholder"}
+                  </p>
                 </div>
                 <div>
-                  <Label htmlFor="hints" className="font-medium">
+                  <Label
+                    htmlFor="hints"
+                    className="font-medium text-foreground"
+                  >
                     Hints (Optional)
                   </Label>
                   <Textarea
                     id="hints"
                     {...register("hints")}
-                    className="mt-1 min-h-[70px]"
+                    className="mt-1 min-h-[70px] bg-input/80 text-foreground"
                   />
+                  <p
+                    className={`text-sm text-destructive min-h-[1.25rem] mt-1 ${
+                      errors.hints ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    {errors.hints?.message || "placeholder"}
+                  </p>
                 </div>
                 <div>
-                  <Label htmlFor="editorail" className="font-medium">
+                  <Label
+                    htmlFor="editorail"
+                    className="font-medium text-foreground"
+                  >
                     Editorial (Optional)
                   </Label>
                   <Textarea
                     id="editorail"
                     {...register("editorail")}
-                    className="mt-1 min-h-[100px]"
+                    className="mt-1 min-h-[100px] bg-input/80 text-foreground"
                   />
+                  <p
+                    className={`text-sm text-destructive min-h-[1.25rem] mt-1 ${
+                      errors.editorail ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    {errors.editorail?.message || "placeholder"}
+                  </p>
                 </div>
                 <div>
-                  <Label htmlFor="category" className="font-medium">
+                  <Label
+                    htmlFor="category"
+                    className="font-medium text-foreground"
+                  >
                     Category (Optional)
                   </Label>
                   <Input
                     id="category"
                     {...register("category")}
-                    className="mt-1"
+                    className="mt-1 bg-input/80 text-foreground"
                   />
+                  <p
+                    className={`text-sm text-destructive min-h-[1.25rem] mt-1 ${
+                      errors.category ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    {errors.category?.message || "placeholder"}
+                  </p>
                 </div>
                 <div>
-                  <Label htmlFor="companyTags" className="font-medium">
+                  <Label
+                    htmlFor="companyTags"
+                    className="font-medium text-foreground"
+                  >
                     Company Tags (comma-separated)
                   </Label>
                   <Input
@@ -572,11 +714,8 @@ function CreateProblemForm() {
                           return value
                             .split(",")
                             .map((tag) => tag.trim())
-                            .filter((tag) => tag); // filter(Boolean) also works here to remove empty strings
+                            .filter((tag) => tag);
                         }
-                        // If the value isn't a string (e.g., undefined, or already an array),
-                        // return an empty array or the value if it's already an array.
-                        // For a text input, we generally expect a string or undefined.
                         return Array.isArray(value)
                           ? value.filter(
                               (tag) => typeof tag === "string" && tag.trim()
@@ -585,14 +724,17 @@ function CreateProblemForm() {
                       },
                     })}
                     placeholder="e.g. Google, Amazon"
-                    className="mt-1"
+                    className="mt-1 bg-input/80 text-foreground"
                   />
-                  {errors.companyTags && (
-                    <p className="text-sm text-red-500 mt-1">
-                      {errors.companyTags.message ||
-                        errors.companyTags.root?.message}
-                    </p>
-                  )}
+                  <p
+                    className={`text-sm text-destructive min-h-[1.25rem] mt-1 ${
+                      errors.companyTags ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    {errors.companyTags?.message ||
+                      errors.companyTags?.root?.message ||
+                      "placeholder"}
+                  </p>
                 </div>
                 <div className="flex items-center space-x-2 pt-2">
                   <Controller
@@ -606,20 +748,26 @@ function CreateProblemForm() {
                       />
                     )}
                   />
-                  <Label htmlFor="isDemo" className="font-medium">
+                  <Label
+                    htmlFor="isDemo"
+                    className="font-medium text-foreground"
+                  >
                     Is this a Demo Problem?
                   </Label>
                 </div>
+                {/* Demo Solution section - apply theme-aware styling */}
                 {watch("isDemo") && (
-                  <div className="pl-2 border-l-2 border-blue-500 space-y-2">
-                    <h4 className="text-md font-semibold text-slate-700">
+                  <div className="pl-2 border-l-2 border-primary/50 space-y-2">
+                    {" "}
+                    {/* Uses primary theme color */}
+                    <h4 className="text-md font-semibold text-foreground">
                       Demo Solution Code
                     </h4>
                     {LANGUAGES.map((language) => (
                       <div key={`demo-${language}`}>
                         <Label
                           htmlFor={`demoSolution.${language}`}
-                          className="font-medium text-sm"
+                          className="font-medium text-sm text-foreground"
                         >
                           {language}
                         </Label>
@@ -628,34 +776,40 @@ function CreateProblemForm() {
                           control={control}
                           defaultValue=""
                           render={({ field }) => (
-                            <div className="mt-1 border rounded-md overflow-hidden">
+                            <div className="mt-1 border border-border/50 rounded-md overflow-hidden">
                               <Editor
                                 height="150px"
                                 language={language.toLowerCase()}
-                                theme="vs-dark"
+                                theme="vs-dark" // Consider custom theme here later
                                 value={field.value}
                                 onChange={field.onChange}
                                 options={{
                                   minimap: { enabled: false },
                                   fontSize: 12,
                                   automaticLayout: true,
+                                  wordWrap: "on",
                                 }}
                               />
                             </div>
                           )}
                         />
-                        {errors.demoSolution?.[language] && (
-                          <p className="text-xs text-red-500 mt-1">
-                            {errors.demoSolution[language].message}
-                          </p>
-                        )}
+                        <p
+                          className={`text-xs text-destructive min-h-[1.25rem] mt-1 ${
+                            errors.demoSolution?.[language]
+                              ? "opacity-100"
+                              : "opacity-0"
+                          }`}
+                        >
+                          {errors.demoSolution?.[language]?.message ||
+                            "placeholder"}
+                        </p>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
             </div>
-            <Separator />
+            <Separator className="bg-border/50" />
 
             <CardFooter className="pt-6">
               <Button

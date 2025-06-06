@@ -74,6 +74,27 @@
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.705 0.015 286.067);
+
+  /* GLOBAL BACKGROUND GRADIENT - LIGHT MODE (Purple shades) */
+  --site-gradient-start: #d8c2e6; /* Lighter purple start */
+  --site-gradient-via: #e6e6fa; /* Lavender/light purple via */
+  --site-gradient-end: #f8f0ff; /* Very light purple/near white end */
+
+  /* Hero Hexagon Background - Light Mode */
+  --hero-hexagon-bg: rgba(255, 255, 255, 0.5); /* White with 50% opacity */
+  --hero-hexagon-border: rgba(
+    0,
+    0,
+    0,
+    0.1
+  ); /* Subtle dark border for contrast */
+  --hero-hexagon-shadow-base: 0px 5px 15px rgba(0, 0, 0, 0.15); /* Subtle grey shadow for light mode */
+  --hero-hexagon-shadow-pulse: 0px 8px 25px rgba(0, 0, 0, 0.2); /* Slightly stronger shadow for pulse */
+
+  /* NEW: Chart Inactive/Unsolved Slice Color - Light Mode */
+  --chart-inactive-slice: hsl(
+    210 20% 80%
+  ); /* A medium-light grey for light mode */
 }
 
 .dark {
@@ -108,6 +129,23 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.552 0.016 285.938);
+
+  /* GLOBAL BACKGROUND GRADIENT - DARK MODE (Deep purple/black shades) */
+  --site-gradient-start: #2b0a22; /* Darker purple start */
+  --site-gradient-via: #1a0b1d; /* Mid purple via */
+  --site-gradient-end: #050505; /* Deepest black/purple end */
+
+  /* Hero Hexagon Background - Dark Mode */
+  --hero-hexagon-bg: rgba(0, 0, 0, 0.4);
+  --hero-hexagon-border: rgba(255, 255, 255, 0.1);
+  --hero-hexagon-shadow-base: 0 0 15px 5px rgba(255, 77, 145, 0.5); /* Glowing shadow for dark mode */
+  --hero-hexagon-shadow-pulse: 0 0 30px 10px rgba(255, 77, 145, 0.8),
+    0 0 40px 15px rgba(255, 77, 145, 0.3); /* More intense glow for pulse */
+
+  /* NEW: Chart Inactive/Unsolved Slice Color - Dark Mode */
+  --chart-inactive-slice: hsl(
+    210 40% 50%
+  ); /* A darker, but still visible, grey for dark mode */
 }
 
 @layer base {
@@ -115,6 +153,168 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground; /* Keep the default text color from your theme */
+    min-height: 100vh; /* Ensure it covers the whole viewport height */
+    /* Use the global site-gradient variables */
+    background: linear-gradient(
+      to bottom,
+      /* Adjust direction as needed (to top, to right, etc.) */
+        var(--site-gradient-start),
+      var(--site-gradient-via),
+      var(--site-gradient-end)
+    );
+    background-attachment: fixed; /* Keep the gradient fixed when scrolling */
+    transition: background 0.5s ease-in-out; /* Smooth transition when theme changes */
+    margin: 0; /* Remove default body margin */
   }
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(#fff 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: 0.05;
+  z-index: -1;
+}
+
+/* Hexagon background using clip-path */
+.hero-hexagon {
+  background: var(--hero-hexagon-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--hero-hexagon-border);
+  /* DO NOT CHANGE THE CLIP PATH */
+  clip-path: polygon(
+    0% 15%,
+    15% 15%,
+    15% 0%,
+    85% 0%,
+    85% 15%,
+    100% 15%,
+    100% 85%,
+    85% 85%,
+    85% 100%,
+    15% 100%,
+    15% 85%,
+    0% 85%
+  );
+  z-index: 10;
+  padding: 4rem 3rem;
+  box-shadow: var(--hero-hexagon-shadow-base);
+  animation: pulse-hexagon-shadow 2s infinite alternate;
+}
+
+@keyframes pulse-hexagon-shadow {
+  0% {
+    box-shadow: var(--hero-hexagon-shadow-base);
+  }
+  50% {
+    box-shadow: var(--hero-hexagon-shadow-pulse);
+  }
+  100% {
+    box-shadow: var(--hero-hexagon-shadow-base);
+  }
+}
+
+.hero-hexagon:hover {
+  animation: hero-hexagon-hover-glow 0.8s forwards;
+}
+
+@keyframes hero-hexagon-hover-glow {
+  from {
+    box-shadow: var(--hero-hexagon-shadow-base);
+  }
+  to {
+    box-shadow: 0 0 40px 15px rgba(255, 77, 145, 1),
+      0 0 60px 20px rgba(255, 77, 145, 0.6);
+  }
+}
+
+/* --- Styles for react-calendar-heatmap --- */
+/* ... (calendar heatmap styles, shimmer animation, etc. are unchanged) ... */
+
+/* RESTORED: bubbleeffectbtn with its original, specific styling for the unique effect */
+.bubbleeffectbtn {
+  min-width: 130px;
+  height: 40px;
+  color: #fff; /* Keep white text as it's designed for dark backgrounds */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  display: inline-block;
+  outline: none;
+  border-radius: 25px;
+  border: none;
+  /* Original hardcoded gradient for the base button */
+  background: linear-gradient(
+    45deg,
+    #212529,
+    #343a40
+  ); /* Dark grey to slightly lighter grey */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  overflow: hidden;
+}
+
+.bubbleeffectbtn:before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  /* Original specific gradient for the "bubble" shine effect */
+  background: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.1),
+    /* A very light, transparent white for the glint */ rgba(0, 0, 0, 0)
+      /* Fully transparent */
+  );
+  transform: rotate(45deg);
+  transition: all 0.5s ease;
+  z-index: -1;
+}
+
+.bubbleeffectbtn:hover:before {
+  top: -100%;
+  left: -100%;
+}
+
+.bubbleeffectbtn:after {
+  border-radius: 25px;
+  position: absolute;
+  content: "";
+  width: 0;
+  height: 100%;
+  top: 0;
+  z-index: -1;
+  /* Original specific box-shadow for inner depth/light */
+  box-shadow: inset 2px 2px 2px 0px rgba(255, 255, 255, 0.5),
+    /* Inner white highlight */ 7px 7px 20px 0px rgba(0, 0, 0, 0.1),
+    4px 4px 5px 0px rgba(0, 0, 0, 0.1); /* Subtle outer shadow */
+  transition: all 0.3s ease;
+  /* Original specific gradient for hover background */
+  background: linear-gradient(
+    45deg,
+    #343a40,
+    #495057
+  ); /* Slightly lighter grey to mid-grey */
+  right: 0;
+}
+
+.bubbleeffectbtn:hover:after {
+  width: 100%;
+  left: 0;
+}
+
+.bubbleeffectbtn:active {
+  top: 2px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  /* Original specific gradient for active state */
+  background: linear-gradient(45deg, #212529, #343a40);
 }
