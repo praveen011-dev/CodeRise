@@ -11,32 +11,45 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNowStrict } from "date-fns"; // For "X time ago"
 
-// Your helper functions (or import them if they are in a separate utils file)
+// --- MODIFIED HELPER FUNCTIONS ---
+
+// This safeParse is likely not needed if tc.time/tc.memory are direct strings from Judge0,
+// but it's harmless to keep if you're unsure of your backend's exact storage format.
 const safeParse = (dataString) => {
-  // Assuming this is your safe JSON parse
   try {
-    return JSON.parse(dataString || "[]"); // Default to empty array string if dataString is null/undefined
+    const parsed = JSON.parse(dataString || "[]");
+    return Array.isArray(parsed) ? parsed : [];
   } catch (e) {
-    console.error("Failed to parse JSON string:", dataString, e);
+    // console.error("Failed to parse JSON string:", dataString, e); // Uncomment for debugging
     return [];
   }
 };
 
-const calculateAverageMemory = (memoryDataString) => {
-  const memoryArray = safeParse(memoryDataString).map((m) =>
-    parseFloat(String(m).replace(/kb/i, ""))
-  ); // Handle "KB" and ensure string
-  if (memoryArray.length === 0 || memoryArray.some(isNaN)) return 0; // Check for NaN after parseFloat
-  return memoryArray.reduce((a, b) => a + b, 0) / memoryArray.length;
+// New version: accepts an array of test case objects
+const calculateAverageMemoryFromTestcases = (testcases) => {
+  if (!testcases || testcases.length === 0) return 0;
+
+  const memoryValues = testcases
+    .map((tc) => parseFloat(String(tc.memory || "0").replace(/kb/i, ""))) // Extract memory from each tc object
+    .filter((m) => !isNaN(m)); // Filter out any NaN results
+
+  if (memoryValues.length === 0) return 0; // If no valid numbers found
+  return memoryValues.reduce((a, b) => a + b, 0) / memoryValues.length;
 };
 
-const calculateAverageTime = (timeDataString) => {
-  const timeArray = safeParse(timeDataString).map((t) =>
-    parseFloat(String(t).replace(/s/i, ""))
-  ); // Handle "s" and ensure string
-  if (timeArray.length === 0 || timeArray.some(isNaN)) return 0;
-  return timeArray.reduce((a, b) => a + b, 0) / timeArray.length;
+// New version: accepts an array of test case objects
+const calculateAverageTimeFromTestcases = (testcases) => {
+  if (!testcases || testcases.length === 0) return 0;
+
+  const timeValues = testcases
+    .map((tc) => parseFloat(String(tc.time || "0").replace(/s/i, ""))) // Extract time from each tc object
+    .filter((t) => !isNaN(t)); // Filter out any NaN results
+
+  if (timeValues.length === 0) return 0; // If no valid numbers found
+  return timeValues.reduce((a, b) => a + b, 0) / timeValues.length;
 };
+
+// --- END MODIFIED HELPER FUNCTIONS ---
 
 function SubmissionsList({ submissions, isLoading }) {
   if (isLoading) {
@@ -101,9 +114,7 @@ function SubmissionsList({ submissions, isLoading }) {
   return (
     <ScrollArea className="h-[300px] md:h-[400px] w-full rounded-md border dark:border-slate-700">
       <Table className="text-xs sm:text-sm">
-        {/* Slightly larger base text on sm+ */}
         <TableHeader className="sticky top-0 bg-slate-100 dark:bg-slate-800 z-10">
-          {/* Sticky header */}
           <TableRow>
             <TableHead className="w-[150px] sm:w-[180px] px-3 py-2.5">
               Submitted
@@ -120,9 +131,11 @@ function SubmissionsList({ submissions, isLoading }) {
         </TableHeader>
         <TableBody>
           {submissions.map((sub) => {
-            // Calculate averages for each submission
-            const avgTime = calculateAverageTime(sub.time); // sub.time is the stringified array "[\"0.1s\", ...]"
-            const avgMemory = calculateAverageMemory(sub.memory); // sub.memory is "[\"1024KB\", ...]"
+            // <<< IMPORTANT: Call new helper functions with sub.testcases >>>
+            const avgTime = calculateAverageTimeFromTestcases(sub.testcases);
+            const avgMemory = calculateAverageMemoryFromTestcases(
+              sub.testcases
+            );
 
             return (
               <TableRow
@@ -131,11 +144,18 @@ function SubmissionsList({ submissions, isLoading }) {
               >
                 <TableCell
                   className="font-medium px-3 py-2"
-                  title={new Date(sub.createdAt).toLocaleString()}
+                  // Ensure sub.createdAt or sub.submittedAt is the correct timestamp field.
+                  // 'submittedAt' is often used for ordering in backend, usually correct for display.
+                  title={new Date(
+                    sub.submittedAt || sub.createdAt
+                  ).toLocaleString()}
                 >
-                  {formatDistanceToNowStrict(new Date(sub.createdAt), {
-                    addSuffix: true,
-                  })}
+                  {formatDistanceToNowStrict(
+                    new Date(sub.submittedAt || sub.createdAt),
+                    {
+                      addSuffix: true,
+                    }
+                  )}
                 </TableCell>
                 <TableCell className="px-3 py-2">
                   {getStatusBadge(sub.status)}

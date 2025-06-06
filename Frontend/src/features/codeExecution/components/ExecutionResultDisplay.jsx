@@ -4,8 +4,8 @@ import {
   XCircle,
   Clock,
   Code2 as MemoryIcon,
-} from "lucide-react"; // Using Code2 for Memory for now
-import { Card, CardContent } from "@/components/ui/card"; // Using Shadcn Card
+} from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -16,38 +16,51 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
-// Helper function to safely parse JSON strings (if your backend still sends time/memory as stringified arrays)
+// Helper function to safely parse JSON strings (not strictly needed if backend sends arrays directly now,
+// but good to keep if there's a chance of stringified data)
 const safeParse = (dataString) => {
   try {
-    return JSON.parse(dataString || "[]");
+    const parsed = JSON.parse(dataString || "[]");
+    return Array.isArray(parsed) ? parsed : [];
   } catch (e) {
-    return []; // Return empty if parsing fails
+    return [];
   }
 };
 
-// Helper to get badge styling for individual test case status
+// Helper to get badge styling and TEXT for individual test case status
 const getTestCaseStatusBadge = (statusText, passed) => {
-  if (passed)
+  if (passed) {
     return (
       <Badge className="bg-green-500 hover:bg-green-500 text-white">
         <CheckCircle2 className="w-3 h-3 mr-1" />
         Passed
       </Badge>
     );
-  if (!statusText) return <Badge variant="secondary">Unknown</Badge>;
-  const lowerStatus = statusText.toLowerCase();
-  if (lowerStatus.includes("wrong answer"))
-    return (
-      <Badge variant="destructive">
-        <XCircle className="w-3 h-3 mr-1" />
-        Wrong Answer
-      </Badge>
-    );
-  // Add more specific badges for TLE, MLE, CE, RE based on statusText from Judge0/Sulu
+  }
+
+  // If NOT passed (i.e., failed), determine appropriate text and color
+  const lowerStatus = statusText?.toLowerCase();
+  let badgeText = "Failed"; // Default text for a failed test
+
+  // Be explicit about known failure statuses
+  if (lowerStatus?.includes("wrong answer")) {
+    badgeText = "Wrong Answer";
+  } else if (lowerStatus?.includes("time limit exceeded")) {
+    badgeText = "Time Limit Exceeded";
+  } else if (lowerStatus?.includes("memory limit exceeded")) {
+    badgeText = "Memory Limit Exceeded";
+  } else if (lowerStatus?.includes("compilation error")) {
+    badgeText = "Compilation Error";
+  } else if (lowerStatus?.includes("runtime error")) {
+    badgeText = "Runtime Error";
+  }
+  // If statusText is "Accepted" but passed is false, we still show "Failed" or "Wrong Answer"
+  // based on the logic above, overriding the misleading "Accepted" text from Judge0.
+
   return (
     <Badge variant="destructive">
       <XCircle className="w-3 h-3 mr-1" />
-      {statusText}
+      {badgeText} {/* Use the determined badgeText */}
     </Badge>
   );
 };
@@ -61,37 +74,33 @@ function ExecutionResultDisplay({ executionResult }) {
     );
   }
 
-  // --- Calculate Aggregate/Average Metrics ---
   let displayTime = "N/A";
   let displayMemory = "N/A";
 
-  // Option 2: Fallback to calculating average if backend sends arrays (as per your DaisyUI example)
-  // This assumes executionResult.time and executionResult.memory are stringified JSON arrays.
+  const testcases = executionResult.testcases || [];
 
-  if (executionResult.time) {
-    const timeArray = safeParse(executionResult.time).map((t) =>
-      parseFloat(String(t).replace(/s/i, ""))
-    );
-    if (timeArray.length > 0 && !timeArray.some(isNaN)) {
-      displayTime = `${(
-        timeArray.reduce((a, b) => a + b, 0) / timeArray.length
-      ).toFixed(3)}s (Avg)`;
-    }
-  }
-  if (executionResult.memory) {
-    const memoryArray = safeParse(executionResult.memory).map((m) =>
-      parseFloat(String(m).replace(/kb/i, ""))
-    );
-    if (memoryArray.length > 0 && !memoryArray.some(isNaN)) {
-      displayMemory = `${(
-        memoryArray.reduce((a, b) => a + b, 0) / memoryArray.length
-      ).toFixed(0)}KB (Avg)`;
-    }
+  // Calculate average time
+  const times = testcases
+    .map((tc) => parseFloat(String(tc.time || "0").replace(/s/i, "")))
+    .filter((t) => !isNaN(t));
+
+  if (times.length > 0) {
+    const totalTime = times.reduce((sum, t) => sum + t, 0);
+    displayTime = `${(totalTime / times.length).toFixed(3)}s (Avg)`;
   }
 
-  const passedTests =
-    executionResult.testcases?.filter((tc) => tc.passed).length || 0;
-  const totalRunTests = executionResult.testcases?.length || 0;
+  // Calculate average memory
+  const memories = testcases
+    .map((tc) => parseFloat(String(tc.memory || "0").replace(/KB/i, "")))
+    .filter((m) => !isNaN(m));
+
+  if (memories.length > 0) {
+    const totalMemory = memories.reduce((sum, m) => sum + m, 0);
+    displayMemory = `${(totalMemory / memories.length).toFixed(0)}KB (Avg)`;
+  }
+
+  const passedTests = testcases.filter((tc) => tc.passed).length || 0;
+  const totalRunTests = testcases.length || 0;
   const successRate =
     totalRunTests > 0 ? (passedTests / totalRunTests) * 100 : 0;
 
@@ -136,7 +145,7 @@ function ExecutionResultDisplay({ executionResult }) {
       </div>
 
       {/* Detailed Test Case Results Table */}
-      {executionResult.testcases && executionResult.testcases.length > 0 && (
+      {testcases && testcases.length > 0 && (
         <div>
           <h4 className="text-xs font-semibold mb-1.5 text-slate-700 dark:text-slate-200">
             Test Case Breakdown:
@@ -154,7 +163,7 @@ function ExecutionResultDisplay({ executionResult }) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {executionResult.testcases.map((tc, index) => (
+                {testcases.map((tc, index) => (
                   <TableRow
                     key={index}
                     className={

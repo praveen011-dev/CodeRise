@@ -1,31 +1,23 @@
-// --- Imports ---
 import React, { useState, useEffect, useMemo } from "react";
-import { Link, useParams } from "react-router-dom"; // For navigation and getting URL params
-import Editor from "@monaco-editor/react"; // The code editor component
+import { Link, useParams } from "react-router-dom";
+import Editor from "@monaco-editor/react";
 
-import SubmissionsList from "../../../features/submissions/components/SubmissionsList"; // Or your chosen path
-import ExecutionResultDisplay from "../../../features/codeExecution/components/ExecutionResultDisplay"; //execution results
+import SubmissionsList from "../../../features/submissions/components/SubmissionsList";
+import ExecutionResultDisplay from "../../../features/codeExecution/components/ExecutionResultDisplay";
 
 // Your Zustand stores - these manage global/shared state
-import { useProblemStore } from "../../../store/useProblemStore"; // For fetching and storing current problem's details
-import { useExecutionStore } from "../../../store/useExecutionStore"; // For managing current code execution (run/submit)
-import { useSubmissionStore } from "../../../store/useSubmissionStore"; // For fetching past submission lists and counts
+import { useProblemStore } from "../../../store/useProblemStore";
+import { useExecutionStore } from "../../../store/useExecutionStore";
+import { useSubmissionStore } from "../../../store/useSubmissionStore";
 
 // Your utility function
-import { getLanguageIdByName } from "../../../lib/languageUtils"; // Converts language name to ID for backend
+import { getLanguageIdByName } from "../../../lib/languageUtils";
 
 // Shadcn/UI Components
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-import {
-  Card,
-  CardContent,
-  CardDescription, // Not used in this snippet but kept for completeness
-  CardHeader,
-  CardTitle,
-  CardFooter, // Not used in this snippet but kept for completeness
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
@@ -34,8 +26,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea"; // Used for custom input
-import { Label } from "@/components/ui/label"; // Not used in this snippet but kept for completeness
 
 // Lucide Icons
 import {
@@ -48,7 +38,6 @@ import {
   Terminal,
   Check,
   ChevronRight,
-  Clock, // Not used in this snippet but kept for completeness
 } from "lucide-react";
 
 // Helper to map our language keys (e.g., "JAVASCRIPT") to Monaco Editor's language keys (e.g., "javascript")
@@ -92,10 +81,10 @@ function ProblemDetailPage() {
 
   const [userCode, setUserCode] = useState("");
   const [selectedLanguageKey, setSelectedLanguageKey] = useState("JAVASCRIPT");
-  const [customInput, setCustomInput] = useState("");
+
+  // activeInfoTab state and useEffect remain
   const [activeInfoTab, setActiveInfoTab] = useState("description");
 
-  // --- useEffect Hooks (for side effects like data fetching) ---
   useEffect(() => {
     if (problemId) {
       clearProblem();
@@ -164,14 +153,16 @@ function ProblemDetailPage() {
   };
 
   const handleRunCode = async () => {
-    if (!problem || !problem.testcases) {
+    // Check if problem data and testcases are available BEFORE mapping
+    if (!problem || !problem.testcases || problem.testcases.length === 0) {
       useExecutionStore.setState({
-        error: "Problem data or sample test cases not loaded for 'Run Code'.",
+        error: "No test cases available for this problem to run your code.",
         executingAction: null,
       });
-      return;
+      return; // Exit early if no test cases
     }
-    clearExecutionState?.();
+
+    clearExecutionState?.(); // Clear previous state
 
     const languageId = getLanguageIdByName(selectedLanguageKey);
     if (!languageId) {
@@ -179,32 +170,20 @@ function ProblemDetailPage() {
         error: `Invalid language selected: ${selectedLanguageKey}`,
         executingAction: null,
       });
-      return;
+      return; // Exit early if language is invalid
     }
 
-    let stdinArray, expectedOutputsArray;
-    if (customInput.trim() !== "") {
-      stdinArray = [customInput];
-      expectedOutputsArray = [""];
-    } else {
-      stdinArray = problem.testcases.map((tc) => tc.input);
-      expectedOutputsArray = problem.testcases.map((tc) => tc.output);
-    }
-
-    if (stdinArray.length === 0 && customInput.trim() === "") {
-      useExecutionStore.setState({
-        error: "No input provided for 'Run Code'. Use samples or custom input.",
-        executingAction: null,
-      });
-      return;
-    }
+    // --- FIX START: Define stdinArray and expectedOutputsArray here ---
+    const stdinArray = problem.testcases.map((tc) => tc.input);
+    const expectedOutputsArray = problem.testcases.map((tc) => tc.output);
+    // --- FIX END ---
 
     console.log("Running code with payload:", {
       userCode,
       languageId,
       stdinArray,
       expectedOutputsArray,
-      problemId,
+      problemId, // problemId is passed, but not used by runCodeService on backend
     });
     try {
       await runUserCode(
@@ -299,7 +278,6 @@ function ProblemDetailPage() {
 
   // --- Main JSX Return (Renders the Page UI) ---
   return (
-    // Removed specific background classes from here, let body handle it
     <div className="min-h-[calc(100vh-4rem)]">
       {/* Top Info Bar */}
       <div
@@ -564,8 +542,8 @@ function ProblemDetailPage() {
                   lineNumbers: "on",
                   automaticLayout: true,
                   wordWrap: "on",
-                  roundedSelection: false,
                   scrollBeyondLastLine: false,
+                  roundedSelection: false,
                 }}
               />
             </CardContent>
@@ -580,25 +558,11 @@ function ProblemDetailPage() {
             "
           >
             <CardContent className="p-3 space-y-2">
-              {/* Custom Input (if uncommented) */}
-              {/* <div>
-                <Label htmlFor="customInput" className="text-xs font-medium text-foreground">
-                  Custom Input (for "Run Code")
-                </Label>
-                <Textarea
-                  id="customInput"
-                  value={customInput}
-                  onChange={(e) => setCustomInput(e.target.value)}
-                  placeholder="Enter custom input for 'Run Code' here..."
-                  className="text-xs min-h-[50px] mt-1 font-mono bg-input/80 text-foreground"
-                  disabled={executingAction !== null}
-                />
-              </div> */}
               <div className="flex justify-end items-center space-x-3">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={handleRunCode}
+                  onClick={handleRunCode} // Calls the now-fixed handleRunCode
                   disabled={executingAction !== null}
                 >
                   {executingAction === "run" ? (
@@ -629,10 +593,9 @@ function ProblemDetailPage() {
           </Card>
         </div>
       </div>
+
       {/* Execution Results Card - outside the grid, full width at the bottom */}
       <div className="container mx-auto p-3 pt-0">
-        {" "}
-        {/* Added pt-0 to reduce top padding if needed */}
         <Card
           className="
             mt-4 text-xs max-h-[350px] flex flex-col shadow-xl relative z-10

@@ -1,13 +1,11 @@
 import { create } from "zustand";
-import { executeUserCode } from "../services/executionService";
+import { executeUserCode } from "../services/executionService"; // Ensure this service calls your backend API
 import { toast } from "sonner";
 
 export const useExecutionStore = create((set) => ({
-  executingAction: null, // <--- NEW STATE: null, 'run', or 'submit'
-  submission: null, // Stores submission result (from your backend's ApiResponse data)
-  error: null, // Stores any execution error
-
-  // Action specifically for "Run Code"
+  executingAction: null,
+  submission: null, // This will hold the result from run or submit
+  error: null,
 
   runUserCode: async (
     source_code,
@@ -24,9 +22,9 @@ export const useExecutionStore = create((set) => ({
         stdin,
         expected_outputs,
         problemId,
+        isSubmit: false, // Explicitly set to false for 'Run Code'
       };
-      const resultData = await executeUserCode(payload); // Calls your existing service
-
+      const resultData = await executeUserCode(payload);
       set({ submission: resultData, executingAction: null });
       toast.info("Code Executed!", { description: "Check results below." });
       return resultData;
@@ -38,7 +36,6 @@ export const useExecutionStore = create((set) => ({
     }
   },
 
-  // Action specifically for "Submit Solution"
   submitUserSolution: async (
     source_code,
     language_id,
@@ -54,13 +51,13 @@ export const useExecutionStore = create((set) => ({
         stdin,
         expected_outputs,
         problemId,
+        isSubmit: true, // Explicitly set to true for 'Submit Solution'
       };
-      const submissionResult = await executeUserCode(payload); // Calls your existing service
-
+      const submissionResult = await executeUserCode(payload);
       set({ submission: submissionResult, executingAction: null });
       toast.success("Solution Submitted!", {
         description: `Status: ${
-          submissionResult.status || "Processing complete."
+          submissionResult?.status || "Processing complete."
         }`,
       });
       return submissionResult;
@@ -72,8 +69,7 @@ export const useExecutionStore = create((set) => ({
     }
   },
 
-  // Action to clear the execution state (results, errors)
   clearExecutionState: () => {
-    set({ submission: null, error: null, executingAction: null }); // Also clear executingAction
+    set({ submission: null, error: null, executingAction: null });
   },
 }));
