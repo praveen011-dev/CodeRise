@@ -6,6 +6,7 @@ import {
   getAllProblems,
   getProblemById,
   getProblemSolvedByUser,
+  getTotalProblemsCount,
   updateProblem,
 } from "../controllers/problem.controller.js";
 import {
@@ -20,6 +21,8 @@ router
   .post(isLoggedIn, isAdmin, validateCreateProblem, createProblem)
   .get(isLoggedIn, getAllProblems);
 
+// NEW Route for problem count
+router.route("/count").get(getTotalProblemsCount);
 router.route("/:id").get(isLoggedIn, getProblemById);
 
 router

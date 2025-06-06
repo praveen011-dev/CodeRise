@@ -113,6 +113,21 @@ const getAllProblems = asyncHandler(async (req, res, next) => {
     .json(new ApiResponse(200, allproblems, "Problems Found SuccessFully"));
 });
 
+// NEW: Controller to get the total count of problems
+const getTotalProblemsCount = asyncHandler(async (req, res, next) => {
+  const count = await db.problem.count();
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { count },
+        "Total problems count fetched successfully",
+      ),
+    );
+});
+
 const getProblemById = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
@@ -284,4 +299,5 @@ export {
   updateProblem,
   deleteProblem,
   getProblemSolvedByUser,
+  getTotalProblemsCount,
 };
