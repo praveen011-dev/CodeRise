@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
-import MainLayout from "../components/Layout/MainLayout";
+import MainLayout from "../components/layout/MainLayout";
 import HomePage from "../pages/HomePage";
 import ProblemDetailPage from "@/features/problems/pages/ProblemDetailPage";
 import NotFoundPage from "../pages/NotFoundPage";
@@ -9,6 +9,7 @@ import SignupPage from "@/features/auth/pages/SignupPage";
 import ProtectedRoute from "./ProtectedRoute";
 import AddProblemPage from "@/features/problems/pages/AddProblemPage";
 import ProfilePage from "../features/auth/pages/ProfilePage";
+import EditProblemPage from "@/features/problems/pages/EditProblemPage";
 
 export const router = createBrowserRouter([
   {
@@ -42,7 +43,7 @@ export const router = createBrowserRouter([
             element: <ProblemListPage />,
           },
           {
-            path: "profile", //
+            path: "profile", // <--- NEW: Add the profile route here
             element: <ProfilePage />,
           },
         ],
@@ -51,7 +52,10 @@ export const router = createBrowserRouter([
         element: <ProtectedRoute allowedRoles={["ADMIN"]} />, // Pass the allowed roles
         children: [
           { path: "admin/add-problem", element: <AddProblemPage /> },
-          // Add other admin-only routes here
+          {
+            path: "admin/edit-problem/:problemId",
+            element: <EditProblemPage />,
+          },
         ],
       },
 

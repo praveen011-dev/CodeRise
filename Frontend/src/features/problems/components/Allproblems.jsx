@@ -7,7 +7,7 @@ import AddToPlaylistDialog from "../../playlists/components/AddToPlaylistDialog"
 
 // Shadcn/UI Components
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card"; // CardHeader might not be used but kept for completeness
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -39,6 +39,9 @@ function AllProblems() {
     isProblemsLoading,
     error: problemsError,
     solvedProblems,
+    getSolvedProblemByUser,
+    deleteProblem: deleteProblemAction, // Destructure the delete action
+    updateProblem: updateProblemAction, // Destructure the update action (aliased for clarity)
   } = useProblemStore();
   const { user } = useAuthStore();
   const navigate = useNavigate();
@@ -59,31 +62,56 @@ function AllProblems() {
 
   useEffect(() => {
     getAllProblems();
-  }, [getAllProblems, user]);
+    // Call getSolvedProblemByUser when user is logged in
+    if (user?.id) {
+      getSolvedProblemByUser();
+    } else {
+      // Clear solvedProblems in store if user logs out or is not logged in
+      useProblemStore.setState({ solvedProblems: [] });
+    }
+  }, [getAllProblems, user?.id, getSolvedProblemByUser]);
 
+  // --- MODIFIED: handleEditProblem ---
+  // This function will navigate to an admin edit page for the problem.
+  // The actual update logic will reside on that dedicated edit page.
   const handleEditProblem = (problemId) => {
-    toast.info(`Edit action for problem ID: ${problemId}`, {
-      description: "This functionality is not yet implemented.",
-    });
+    navigate(`/admin/edit-problem/${problemId}`); // Navigate to a dedicated edit route
+    toast.info(`Navigating to edit problem ID: ${problemId}`); // Inform user
   };
 
+  // --- MODIFIED: handleDeleteProblem ---
+  // This function will trigger a confirmation toast and then call the deleteProblemAction.
   const handleDeleteProblem = (problemId) => {
     toast("Delete Problem?", {
-      description: `Are you sure you want to delete problem ID: ${problemId}?`,
+      description: `Are you sure you want to delete problem ID: ${problemId}? This action cannot be undone.`,
       action: {
         label: "Delete",
-        onClick: () => console.log("Confirmed delete:", problemId),
+        onClick: async () => {
+          try {
+            await deleteProblemAction(problemId); // Call the Zustand store action to delete
+            // The success toast will be handled by the deleteProblemAction in the store
+          } catch (error) {
+            // The error toast will also be handled by the deleteProblemAction
+            console.error("Failed to initiate delete from component:", error);
+          }
+        },
       },
-      cancel: { label: "Cancel", onClick: () => toast.dismiss() },
+      cancel: {
+        label: "Cancel",
+        onClick: () => toast.dismiss(), // Dismiss the toast on cancel
+      },
+      duration: 5000, // Keep confirmation toast visible for a bit longer
     });
   };
 
+  // --- handleSaveToPlaylist (unchanged) ---
   const handleSaveToPlaylist = (problemId) => {
     toast.info(`Save to playlist for problem ID: ${problemId}`, {
       description: "This functionality is not yet implemented.",
     });
   };
 
+  // --- Memoized Values (unchanged for this feature) ---
   const filteredAndSortedProblems = useMemo(() => {
     return problems
       .filter((p) => p.title?.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -101,7 +129,7 @@ function AllProblems() {
   }, [problems, searchTerm, difficultyFilter, tagFilter]);
 
   const solvedProblemIds = useMemo(() => {
-    return new Set(solvedProblems?.map((p) => p.id));
+    return new Set(solvedProblems?.map((p) => p.problemId));
   }, [solvedProblems]);
 
   const allUniqueTags = useMemo(() => {
@@ -110,6 +138,7 @@ function AllProblems() {
     return ["All", ...Array.from(tagsSet).sort()];
   }, [problems]);
 
+  // --- Conditional Rendering for Loading/Error States (unchanged) ---
   if (isProblemsLoading && problems.length === 0) {
     return (
       <div className="container mx-auto p-8 text-center text-lg text-foreground">
@@ -125,13 +154,14 @@ function AllProblems() {
     );
   }
 
+  // --- Main JSX Return ---
   return (
     <div className="container mx-auto py-6 px-4 md:px-6">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-        {/* Adjusted header text color */}
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
           Problem Set
         </h1>
+        {/* Only show "Add New Problem" button if user is ADMIN */}
         {user?.role === "ADMIN" && (
           <Button
             onClick={() => navigate("/admin/add-problem")}
@@ -140,7 +170,6 @@ function AllProblems() {
             <PlusCircle size={18} /> Add New Problem
           </Button>
         )}
-
         <CreatePlaylistDialog
           onPlaylistCreated={(newPlaylist) => {
             console.log("Playlist created from ProblemListPage:", newPlaylist);
@@ -148,7 +177,7 @@ function AllProblems() {
         />
       </div>
 
-      {/* SEARCH/FILTER CARD - APPLYING NEW STYLES HERE */}
+      {/* SEARCH/FILTER CARD */}
       <Card
         className="
           mb-6 shadow-xl relative z-10
@@ -162,13 +191,11 @@ function AllProblems() {
             <Input
               type="search"
               placeholder="Search by problem title..."
-              // Adjusted Input background and text color
               className="pl-8 w-full bg-input/80 text-foreground"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          {/* Adjusted Select background and text color */}
           <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
             <SelectTrigger className="w-full md:w-[180px] bg-input/80 text-foreground">
               <SelectValue placeholder="Difficulty" />
@@ -180,7 +207,6 @@ function AllProblems() {
               <SelectItem value="HARD">Hard</SelectItem>
             </SelectContent>
           </Select>
-          {/* Adjusted Select background and text color */}
           <Select value={tagFilter} onValueChange={setTagFilter}>
             <SelectTrigger className="w-full md:w-[180px] bg-input/80 text-foreground">
               <SelectValue placeholder="Tag" />
@@ -196,7 +222,7 @@ function AllProblems() {
         </CardContent>
       </Card>
 
-      {/* PROBLEMS TABLE CARD - APPLYING NEW STYLES HERE */}
+      {/* PROBLEMS TABLE CARD */}
       <Card
         className="
           shadow-xl relative z-10
@@ -208,7 +234,6 @@ function AllProblems() {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                {/* Adjusted TableRow border */}
                 <TableRow className="border-border/50">
                   <TableHead className="w-[60px] px-3 hidden sm:table-cell text-foreground/80">
                     Solved
@@ -232,7 +257,6 @@ function AllProblems() {
                   filteredAndSortedProblems.map((problem) => (
                     <TableRow
                       key={problem.id}
-                      // Adjusted TableRow border and hover
                       className="border-border/50 hover:bg-accent/30"
                     >
                       <TableCell className="px-3 hidden sm:table-cell text-foreground">
@@ -245,7 +269,6 @@ function AllProblems() {
                       <TableCell className="font-medium px-3 max-w-[200px] sm:max-w-xs truncate">
                         <Link
                           to={`/problems/${problem.id}`}
-                          // Adjusted link color for theme
                           className="hover:underline text-primary"
                           title={problem.title}
                         >
@@ -254,7 +277,6 @@ function AllProblems() {
                             {problem.isDemo && (
                               <Badge
                                 variant="outline"
-                                // Adjusted Badge colors for theme blending
                                 className="bg-blue-100/80 text-blue-700/80 border-blue-200/80 dark:bg-blue-900/80 dark:text-blue-300/80 dark:border-blue-700/80 text-[0.6rem] px-1 py-0.5"
                               >
                                 DEMO
@@ -269,7 +291,7 @@ function AllProblems() {
                             <Badge
                               key={index}
                               variant="secondary"
-                              className="text-xs" // Secondary variant should handle theme colors already
+                              className="text-xs"
                             >
                               {tag}
                             </Badge>
@@ -280,7 +302,6 @@ function AllProblems() {
                               <Badge
                                 key={`company-${index}`}
                                 variant="outline"
-                                // Adjusted Badge colors for theme blending
                                 className="text-xs border-blue-500/50 text-blue-600/80 dark:border-blue-400/50 dark:text-blue-400/80"
                               >
                                 {tag}
@@ -299,7 +320,6 @@ function AllProblems() {
                               ? "destructive"
                               : "outline"
                           }
-                          // Adjusted Badge colors for theme blending
                           className={
                             problem.difficulty === "EASY"
                               ? "bg-green-100/80 text-green-700/80 border-green-200/80 dark:bg-green-900/80 dark:text-green-300/80 dark:border-green-700/80"
@@ -307,7 +327,7 @@ function AllProblems() {
                               ? "bg-yellow-100/80 text-yellow-700/80 border-yellow-200/80 dark:bg-yellow-900/80 dark:text-yellow-300/80 dark:border-yellow-700/80"
                               : problem.difficulty === "HARD"
                               ? "bg-red-100/80 text-red-700/80 border-red-200/80 dark:bg-red-900/80 dark:text-red-300/80 dark:border-red-700/80"
-                              : "dark:border-slate-600/80" // Fallback for unknown difficulty
+                              : "dark:border-slate-600/80"
                           }
                         >
                           {problem.difficulty || "N/A"}
@@ -328,16 +348,16 @@ function AllProblems() {
                             </span>
                             <span className="sm:hidden">Save</span>
                           </Button>
+                          {/* Admin-only actions: Edit and Delete */}
                           {user?.role === "ADMIN" && (
                             <>
                               <Button
                                 variant="ghost"
                                 size="icon"
                                 className="h-8 w-8"
-                                onClick={() => handleEditProblem(problem.id)}
+                                onClick={() => handleEditProblem(problem.id)} // Pass problem.id for navigation
                                 title="Edit Problem"
                               >
-                                {/* Adjusted icon colors for theme */}
                                 <Edit3 className="h-4 w-4 text-yellow-600/80 dark:text-yellow-500/80" />
                                 <span className="sr-only">Edit Problem</span>
                               </Button>
@@ -346,10 +366,9 @@ function AllProblems() {
                                 variant="ghost"
                                 size="icon"
                                 className="h-8 w-8"
-                                onClick={() => handleDeleteProblem(problem.id)}
+                                onClick={() => handleDeleteProblem(problem.id)} // Pass problem.id for deletion
                                 title="Delete Problem"
                               >
-                                {/* Adjusted icon colors for theme */}
                                 <Trash2 className="h-4 w-4 text-red-600/80 dark:text-red-500/80" />
                                 <span className="sr-only">Delete Problem</span>
                               </Button>
