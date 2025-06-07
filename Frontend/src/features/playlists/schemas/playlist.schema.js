@@ -8,5 +8,5 @@ export const createPlaylistSchema = z.object({
   description: z
     .string()
     .max(500, { message: "Description must be 500 characters or less." })
-    .optional(), // Description can be optional
+    .optional(), 
 });

@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../../store/authStore";
 import {
   DropdownMenu,
-  DropdownMenuContent, // <--- This is the component we'll target
+  DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -132,7 +132,6 @@ function Navbar() {
                   </span>
                 </button>
               </DropdownMenuTrigger>
-              {/* TARGETED COMPONENT: DropdownMenuContent */}
               <DropdownMenuContent
                 className="
                   w-48 mr-2 md:mr-0
@@ -146,17 +145,16 @@ function Navbar() {
                   {displayUserWithRole()}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-border/50" />{" "}
-                {/* Make separator theme-aware */}
                 <DropdownMenuItem
                   onClick={handleProfileNavigate}
-                  className="cursor-pointer hover:bg-accent/30 hover:text-accent-foreground" // Theme-aware hover
+                  className="cursor-pointer hover:bg-accent/30 hover:text-accent-foreground"
                 >
                   My Profile
                 </DropdownMenuItem>
                 {user.role === "ADMIN" && (
                   <DropdownMenuItem
                     onClick={handleAddProblemNavigate}
-                    className="cursor-pointer hover:bg-accent/30 hover:text-accent-foreground" // Theme-aware hover
+                    className="cursor-pointer hover:bg-accent/30 hover:text-accent-foreground"
                   >
                     Add Problem
                   </DropdownMenuItem>
@@ -164,7 +162,6 @@ function Navbar() {
                 <DropdownMenuSeparator className="bg-border/50" />
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  // Keep text-red-500 for logout, but adjust hover
                   className="
                     cursor-pointer text-destructive
                     hover:!bg-destructive/30 hover:!text-destructive-foreground

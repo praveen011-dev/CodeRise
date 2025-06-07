@@ -1,33 +1,30 @@
 import React from "react";
-import { Link } from "react-router-dom"; // Assuming you use react-router-dom for navigation
-import { Button } from "@/components/ui/button"; // Assuming Shadcn Button
-import { Mail, Phone, MapPin, Linkedin, Twitter, Github } from "lucide-react"; // Social/contact icons
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Mail, Phone, MapPin, Linkedin, Twitter, Github } from "lucide-react";
 
 function Footer() {
   return (
     <footer className="pt-24 md:pt-32 pb-8 text-foreground relative overflow-hidden">
-      {/* Consistent Linear Background Gradient - from site-gradient vars */}
       <div
-        className="absolute inset-0 z-0 opacity-25" // Increased opacity slightly for more impact
+        className="absolute inset-0 z-0 opacity-25"
         style={{
           background:
             "linear-gradient(to bottom, var(--site-gradient-start) 0%, var(--site-gradient-via) 50%, var(--site-gradient-end) 100%)",
-          backgroundAttachment: "fixed", // Keep fixed like body
+          backgroundAttachment: "fixed",
         }}
       ></div>
 
-      {/* Consistent Dotted Background Pattern - from body::before */}
       <div
         className="absolute inset-0 z-0 opacity-5"
         style={{
           backgroundImage:
             "radial-gradient(var(--foreground) 1px, transparent 1px)",
           backgroundSize: "20px 20px",
-          backgroundAttachment: "fixed", // Keep fixed like body::before
+          backgroundAttachment: "fixed",
         }}
       ></div>
 
-      {/* Section-specific Radial Gradient Background for unique depth (optional, but good for variation) */}
       <div
         className="absolute inset-0 z-0 opacity-20"
         style={{
@@ -37,7 +34,6 @@ function Footer() {
       ></div>
 
       <div className="container mx-auto px-4 relative z-10">
-        {/* Call to Action Section - Inspired by Dribbble Ref */}
         <div className="relative py-16 md:py-20 px-8 md:px-12 rounded-4xl border border-[rgba(255,255,255,0.15)] shadow-2xl bg-[rgba(0,0,0,0.3)] backdrop-blur-xl flex flex-col md:flex-row items-center justify-between text-center md:text-left mb-16 md:mb-22">
           <div>
             <h2 className="text-3xl md:text-4xl font-extrabold mb-2 leading-tight">
@@ -63,7 +59,7 @@ function Footer() {
               variant="outline"
               className="px-8 py-3 text-lg border-2 border-primary text-primary rounded-full font-bold shadow-lg hover:bg-primary/10 transition-transform duration-300 hover:scale-105"
             >
-              Contact Sales
+              Connnect now
             </Button>
           </div>
         </div>
@@ -101,7 +97,7 @@ function Footer() {
                   to="/leaderboard"
                   className="hover:text-primary transition-colors"
                 >
-                  Leaderboard
+                  Dashboard
                 </Link>
               </li>
               <li>
@@ -218,8 +214,6 @@ function Footer() {
             </div>
           </div>
         </div>
-
-        {/* Copyright Line - MUST NOT BE REMOVED */}
         <div className="mt-8 text-center text-sm text-muted-foreground">
           © 2025 CodeRise. All rights reserved.
         </div>

@@ -55,10 +55,10 @@ function CreatePlaylistDialog({ onPlaylistCreated }) {
       toast.success("Playlist Created!", {
         description: `Playlist "${newPlaylist.name}" was successfully created.`,
       });
-      reset(); // Reset form fields
-      setIsOpen(false); // Close the dialog
+      reset();
+      setIsOpen(false);
       if (onPlaylistCreated) {
-        onPlaylistCreated(newPlaylist); // Callback if parent needs to know
+        onPlaylistCreated(newPlaylist);
       }
     } catch (error) {
       toast.error("Failed to Create Playlist", {
@@ -71,7 +71,6 @@ function CreatePlaylistDialog({ onPlaylistCreated }) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        {/* This button will open the dialog. You can place it where needed. */}
         <Button variant="outline" size="sm">
           <PlusCircle className="mr-2 h-4 w-4" /> Create New Playlist
         </Button>
@@ -85,7 +84,7 @@ function CreatePlaylistDialog({ onPlaylistCreated }) {
         </DialogHeader>
         <Form {...form}>
           {" "}
-          {/* Spread form methods into Shadcn/UI Form */}
+          {/* Spread form methods into the Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-2">
             <FormField
               control={control}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"; // Import useState
+import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -123,12 +123,10 @@ function LoginForm() {
               )}
             </div>
 
-            {/* Password Field - Added show/hide toggle */}
             <div>
               <Label htmlFor="password">Password</Label>
               <div className="relative">
                 {" "}
-                {/* Make this div relative for icon positioning */}
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
@@ -136,7 +134,6 @@ function LoginForm() {
                   {...register("password")}
                   disabled={isLoading}
                   className={`mt-3 bg-input/80 text-foreground pr-10 ${
-                    /* Add pr-10 for icon space */
                     errors.password
                       ? "border-destructive focus:ring-destructive"
                       : ""
@@ -144,7 +141,7 @@ function LoginForm() {
                   placeholder="••••••••"
                 />
                 <button
-                  type="button" // Important: type="button" to prevent form submission
+                  type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   disabled={isLoading}

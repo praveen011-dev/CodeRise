@@ -40,8 +40,8 @@ function AllProblems() {
     error: problemsError,
     solvedProblems,
     getSolvedProblemByUser,
-    deleteProblem: deleteProblemAction, // Destructure the delete action
-    updateProblem: updateProblemAction, // Destructure the update action (aliased for clarity)
+    deleteProblem: deleteProblemAction,
+    updateProblem: updateProblemAction,
   } = useProblemStore();
   const { user } = useAuthStore();
   const navigate = useNavigate();
@@ -62,25 +62,18 @@ function AllProblems() {
 
   useEffect(() => {
     getAllProblems();
-    // Call getSolvedProblemByUser when user is logged in
     if (user?.id) {
       getSolvedProblemByUser();
     } else {
-      // Clear solvedProblems in store if user logs out or is not logged in
       useProblemStore.setState({ solvedProblems: [] });
     }
   }, [getAllProblems, user?.id, getSolvedProblemByUser]);
 
-  // --- MODIFIED: handleEditProblem ---
-  // This function will navigate to an admin edit page for the problem.
-  // The actual update logic will reside on that dedicated edit page.
   const handleEditProblem = (problemId) => {
-    navigate(`/admin/edit-problem/${problemId}`); // Navigate to a dedicated edit route
-    toast.info(`Navigating to edit problem ID: ${problemId}`); // Inform user
+    navigate(`/admin/edit-problem/${problemId}`);
+    toast.info(`Navigating to edit problem ID: ${problemId}`);
   };
 
-  // --- MODIFIED: handleDeleteProblem ---
-  // This function will trigger a confirmation toast and then call the deleteProblemAction.
   const handleDeleteProblem = (problemId) => {
     toast("Delete Problem?", {
       description: `Are you sure you want to delete problem ID: ${problemId}? This action cannot be undone.`,
@@ -91,27 +84,25 @@ function AllProblems() {
             await deleteProblemAction(problemId); // Call the Zustand store action to delete
             // The success toast will be handled by the deleteProblemAction in the store
           } catch (error) {
-            // The error toast will also be handled by the deleteProblemAction
             console.error("Failed to initiate delete from component:", error);
           }
         },
       },
       cancel: {
         label: "Cancel",
-        onClick: () => toast.dismiss(), // Dismiss the toast on cancel
+        onClick: () => toast.dismiss(),
       },
-      duration: 5000, // Keep confirmation toast visible for a bit longer
+      duration: 5000,
     });
   };
 
-  // --- handleSaveToPlaylist (unchanged) ---
   const handleSaveToPlaylist = (problemId) => {
     toast.info(`Save to playlist for problem ID: ${problemId}`, {
       description: "This functionality is not yet implemented.",
     });
   };
 
-  // --- Memoized Values (unchanged for this feature) ---
+  //Memoized Values
   const filteredAndSortedProblems = useMemo(() => {
     return problems
       .filter((p) => p.title?.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -138,7 +129,7 @@ function AllProblems() {
     return ["All", ...Array.from(tagsSet).sort()];
   }, [problems]);
 
-  // --- Conditional Rendering for Loading/Error States (unchanged) ---
+  // --- Conditional Rendering for Loading/Error States  ---
   if (isProblemsLoading && problems.length === 0) {
     return (
       <div className="container mx-auto p-8 text-center text-lg text-foreground">
@@ -154,14 +145,12 @@ function AllProblems() {
     );
   }
 
-  // --- Main JSX Return ---
   return (
     <div className="container mx-auto py-6 px-4 md:px-6">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
           Problem Set
         </h1>
-        {/* Only show "Add New Problem" button if user is ADMIN */}
         {user?.role === "ADMIN" && (
           <Button
             onClick={() => navigate("/admin/add-problem")}
@@ -355,7 +344,7 @@ function AllProblems() {
                                 variant="ghost"
                                 size="icon"
                                 className="h-8 w-8"
-                                onClick={() => handleEditProblem(problem.id)} // Pass problem.id for navigation
+                                onClick={() => handleEditProblem(problem.id)}
                                 title="Edit Problem"
                               >
                                 <Edit3 className="h-4 w-4 text-yellow-600/80 dark:text-yellow-500/80" />
@@ -366,7 +355,7 @@ function AllProblems() {
                                 variant="ghost"
                                 size="icon"
                                 className="h-8 w-8"
-                                onClick={() => handleDeleteProblem(problem.id)} // Pass problem.id for deletion
+                                onClick={() => handleDeleteProblem(problem.id)}
                                 title="Delete Problem"
                               >
                                 <Trash2 className="h-4 w-4 text-red-600/80 dark:text-red-500/80" />

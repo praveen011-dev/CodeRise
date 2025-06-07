@@ -60,7 +60,7 @@ const getTestCaseStatusBadge = (statusText, passed) => {
   return (
     <Badge variant="destructive">
       <XCircle className="w-3 h-3 mr-1" />
-      {badgeText} {/* Use the determined badgeText */}
+      {badgeText} 
     </Badge>
   );
 };

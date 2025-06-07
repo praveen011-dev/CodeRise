@@ -12,16 +12,13 @@ function PricingSection() {
           backgroundAttachment: "fixed",
         }}
       ></div>
-      {/* <<< NEW: Dotted Background Pattern for FeatureSection >>> */}
       <div
-        className="absolute inset-0 z-0 opacity-5" // Adjust opacity as needed (0.05 from body::before is subtle)
+        className="absolute inset-0 z-0 opacity-5"
         style={{
           backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", // Dotted pattern
           backgroundSize: "20px 20px", // Size of the dots grid
         }}
       ></div>
-      {/* <<< END NEW DOTTED BACKGROUND >>> */}
-      {/* Removed the third section-specific radial gradient from PricingSection for consistency with Features */}
       <div
         className="absolute inset-0 z-0 opacity-15"
         style={{
@@ -146,13 +143,11 @@ function PricingSection() {
               </li>
             </ul>
             <button className="px-6 py-2 text-base bg-accent text-accent-foreground rounded-full font-bold shadow-lg hover:bg-accent/90 transition-transform duration-300 hover:scale-105 mt-auto">
-              Contact Sales
+              Contact Now
             </button>
           </div>
         </div>{" "}
-        {/* End Pricing Tiers Grid */}
       </div>{" "}
-      {/* End container */}
     </section>
   );
 }

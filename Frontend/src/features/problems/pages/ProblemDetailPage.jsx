@@ -40,7 +40,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-// Helper to map our language keys (e.g., "JAVASCRIPT") to Monaco Editor's language keys (e.g., "javascript")
+// Helper to map our language keys
 const languageToMonacoKey = (langKey = "JAVASCRIPT") => {
   const map = {
     JAVASCRIPT: "javascript",
@@ -51,7 +51,6 @@ const languageToMonacoKey = (langKey = "JAVASCRIPT") => {
 };
 
 function ProblemDetailPage() {
-  // --- Hooks and State Initialization ---
   const { problemId } = useParams();
 
   const {
@@ -162,7 +161,7 @@ function ProblemDetailPage() {
       return; // Exit early if no test cases
     }
 
-    clearExecutionState?.(); // Clear previous state
+    clearExecutionState?.();
 
     const languageId = getLanguageIdByName(selectedLanguageKey);
     if (!languageId) {
@@ -173,17 +172,15 @@ function ProblemDetailPage() {
       return; // Exit early if language is invalid
     }
 
-    // --- FIX START: Define stdinArray and expectedOutputsArray here ---
     const stdinArray = problem.testcases.map((tc) => tc.input);
     const expectedOutputsArray = problem.testcases.map((tc) => tc.output);
-    // --- FIX END ---
 
     console.log("Running code with payload:", {
       userCode,
       languageId,
       stdinArray,
       expectedOutputsArray,
-      problemId, // problemId is passed, but not used by runCodeService on backend
+      problemId,
     });
     try {
       await runUserCode(
@@ -533,7 +530,7 @@ function ProblemDetailPage() {
               <Editor
                 height="100%"
                 language={languageToMonacoKey(selectedLanguageKey)}
-                theme="vs-dark" // Monaco editor theme, keep as is for dark mode
+                theme="vs-dark"
                 value={userCode}
                 onChange={handleEditorChange}
                 options={{

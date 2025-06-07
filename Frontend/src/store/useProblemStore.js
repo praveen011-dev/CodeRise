@@ -90,7 +90,7 @@ export const useProblemStore = create((set) => ({
       console.error("Error updating problem:", error);
       toast.error("Failed to update problem", { description: error.message });
       set({ isProblemsLoading: false, error: error.message });
-      throw error; // Re-throw to allow component to handle if needed
+      throw error;
     }
   },
 
@@ -103,7 +103,7 @@ export const useProblemStore = create((set) => ({
         isProblemsLoading: false,
       }));
       toast.success("Problem deleted successfully!");
-      // Optionally refresh solved problems if a problem might be deleted that was solved
+
       get().getSolvedProblemByUser();
     } catch (error) {
       console.error("Error deleting problem:", error);
@@ -115,6 +115,6 @@ export const useProblemStore = create((set) => ({
 
   // NEW ACTION: Clear the currently loaded problem
   clearProblem: () => {
-    set({ problem: null, error: null, isLoading: false }); // <--- THIS IS CRUCIAL
+    set({ problem: null, error: null, isLoading: false }); 
   },
 }));

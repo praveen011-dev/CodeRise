@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate, useParams } from "react-router-dom"; // Import useParams to get problemId
-import { toast } from "sonner"; // For notifications
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 
-import { createProblemFormSchema } from "../schemas/Problem.schema.js"; // Use the same validation schema
-// Import useProblemStore to fetch problem data and use the update action
+import { createProblemFormSchema } from "../schemas/Problem.schema.js";
 import { useProblemStore } from "../../../store/useProblemStore";
 
 // Shadcn/UI Components
@@ -40,39 +39,37 @@ import {
   Lightbulb,
   BookOpen,
   CheckCircle2,
-  Download, // Included if you have sample data loading
+  Download,
 } from "lucide-react";
-import Editor from "@monaco-editor/react"; // For code editors
+import Editor from "@monaco-editor/react";
 
 const LANGUAGES = ["JAVASCRIPT", "PYTHON", "JAVA"];
 
 function EditProblemForm() {
-  const { problemId } = useParams(); // Extract problemId from the URL (e.g., /admin/edit-problem/:problemId)
-  const navigate = useNavigate(); // For navigation after update
+  const { problemId } = useParams();
+  const navigate = useNavigate();
 
   // Access relevant state and actions from the problem store
   const {
-    problem, // The problem object that will be fetched for editing
-    isProblemLoading, // Loading state for fetching a single problem
-    error: problemError, // Error state if fetching a single problem fails
-    getProblemById, // Action to fetch a single problem by ID
-    updateProblem: updateProblemAction, // The action to send the updated problem data to the backend
+    problem,
+    isProblemLoading,
+    error: problemError,
+    getProblemById,
+    updateProblem: updateProblemAction,
   } = useProblemStore();
 
-  const [sampleType, setSampleType] = useState("DP"); // State for sample data buttons (less critical in edit mode, but part of original form)
+  const [sampleType, setSampleType] = useState("DP");
 
   const {
     register,
     control,
     handleSubmit,
-    reset, // Key for prefilling the form with fetched data
-    setValue, // Can be useful for manually setting values if needed
-    watch, // To subscribe to form value changes (e.g., for 'isDemo' checkbox)
-    formState: { errors, isSubmitting }, // Form submission state and validation errors
+    reset,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
   } = useForm({
-    resolver: zodResolver(createProblemFormSchema), // Apply the same Zod schema for validation
-    // Default values are set as empty, but they will be dynamically overwritten
-    // by the `reset` function once the problem data is loaded for editing.
+    resolver: zodResolver(createProblemFormSchema),
     defaultValues: {
       title: "",
       description: "",
@@ -108,38 +105,29 @@ function EditProblemForm() {
   // --- Effect 1: Fetch the problem data when the component mounts or problemId changes ---
   useEffect(() => {
     if (problemId) {
-      getProblemById(problemId); // Call the store action to fetch the problem
+      getProblemById(problemId);
     }
-  }, [problemId, getProblemById]); // Dependencies: problemId from URL, and the getProblemById action
+  }, [problemId, getProblemById]);
 
   // --- Effect 2: Prefill the form with the fetched problem data once it's available ---
   useEffect(() => {
-    // Ensure that `problem` object exists and its ID matches the problemId from the URL.
-    // This prevents trying to prefill with data for a different problem or before data is loaded.
     if (problem && problem.id === problemId) {
       reset({
-        // Use reset to populate all form fields with the fetched data
         title: problem.title || "",
         description: problem.description || "",
         difficulty: problem.difficulty || "EASY",
-        // Tags: Ensure it's an array for react-hook-form. If empty, provide [""] to show one input.
         tags: problem.tags?.length ? problem.tags : [""],
         constraints: problem.constraints || "",
         hints: problem.hints || "",
         editorail: problem.editorail || "",
         category: problem.category || "",
-        // Company Tags: Convert the array from backend to a comma-separated string for the input field.
         companyTags: Array.isArray(problem.companyTags)
           ? problem.companyTags.join(", ")
           : problem.companyTags || "",
-        // Testcases: Ensure it's an array. If empty, provide a default empty test case.
         testcases: problem.testcases?.length
           ? problem.testcases
           : [{ input: "", output: "" }],
 
-        // Examples, Code Snippets, Reference Solutions, Demo Solution:
-        // Dynamically populate these nested objects for each language.
-        // Provide a fallback empty structure if the data is missing from the fetched problem.
         examples:
           problem.examples ||
           LANGUAGES.reduce(
@@ -155,21 +143,19 @@ function EditProblemForm() {
         refrenceSolution:
           problem.refrenceSolution ||
           LANGUAGES.reduce((acc, lang) => ({ ...acc, [lang]: "" }), {}),
-        isDemo: typeof problem.isDemo === "boolean" ? problem.isDemo : false, // Ensure boolean type for checkbox
+        isDemo: typeof problem.isDemo === "boolean" ? problem.isDemo : false,
         demoSolution:
           problem.demoSolution ||
           LANGUAGES.reduce((acc, lang) => ({ ...acc, [lang]: "" }), {}),
       });
     }
-  }, [problem, problemId, reset]); // Dependencies: fetched problem object, problemId from URL, and react-hook-form's reset function
+  }, [problem, problemId, reset]);
 
   // --- onSubmit handler for updating the problem ---
   const onSubmit = async (formData) => {
     try {
-      // Data transformation before sending to the backend
       const dataToSubmit = {
         ...formData,
-        // Convert companyTags string from input back to an array for the backend.
         companyTags:
           typeof formData.companyTags === "string"
             ? formData.companyTags
@@ -179,23 +165,20 @@ function EditProblemForm() {
             : Array.isArray(formData.companyTags)
             ? formData.companyTags.filter((tag) => tag)
             : [],
-        // Ensure tags array is clean (filter out any empty strings if user left fields blank)
         tags: formData.tags.filter((tag) => tag),
       };
 
       // Call the updateProblemAction from the Zustand store
       const response = await updateProblemAction(problemId, dataToSubmit);
       toast.success("Problem Updated!", {
-        // Show success notification
         description: response?.message || "Successfully updated the problem.",
       });
-      navigate("/problems"); // Navigate back to the problems list after a successful update
+      navigate("/problems");
     } catch (error) {
       toast.error("Failed to Update Problem", {
-        // Show error notification
         description: error?.message || "An unknown error occurred.",
       });
-      console.error("Error updating problem:", error); // Log error for debugging
+      console.error("Error updating problem:", error);
     }
   };
 
@@ -204,7 +187,7 @@ function EditProblemForm() {
     toast.info(
       "Load sample data functionality needs to be reviewed with updated field names for editing."
     );
-    // You could optionally implement logic here to prefill with specific sample data,
+    //  could optionally implement logic here to prefill with specific sample data,
     // which might be useful for admins to quickly test problem setups.
   };
 
@@ -223,7 +206,6 @@ function EditProblemForm() {
       </div>
     );
   }
-  // If no problem is found after loading (e.g., if problemId is invalid or problem doesn't exist)
   if (!problem && !isProblemLoading) {
     return (
       <div className="container mx-auto py-8 px-4 max-w-4xl text-center text-muted-foreground">
@@ -252,9 +234,7 @@ function EditProblemForm() {
           <CardTitle className="text-2xl md:text-3xl flex items-center gap-2 text-foreground">
             <FileText className="w-7 h-7 text-primary" />
             Edit Problem: {problem?.title || "Loading..."}{" "}
-            {/* Displays the title of the problem being edited */}
           </CardTitle>
-          {/* Card Description for Edit Mode */}
           <CardDescription className="text-muted-foreground">
             Modify the details below to update this programming problem.
           </CardDescription>
@@ -293,7 +273,6 @@ function EditProblemForm() {
 
           {/* Form Starts Here */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Basic Information Section */}
             <div className="space-y-4">
               <div>
                 <Label
@@ -928,7 +907,6 @@ function EditProblemForm() {
                   <CheckCircle2 className="w-5 h-5" />
                 )}
                 {isSubmitting ? "Updating Problem..." : "Update Problem"}{" "}
-                {/* Changed text for edit form */}
               </Button>
             </CardFooter>
           </form>

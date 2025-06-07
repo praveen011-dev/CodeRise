@@ -7,7 +7,7 @@ import {
   TrendingUp,
   Lightbulb,
 } from "lucide-react";
-import { Link } from "react-router-dom"; // <<< Make sure this is imported at the top
+import { Link } from "react-router-dom";
 
 function FeatureSection() {
   return (
@@ -21,15 +21,14 @@ function FeatureSection() {
         }}
       ></div>
 
-      {/* <<< NEW: Dotted Background Pattern for FeatureSection >>> */}
+      {/* Dotted Background Pattern  */}
       <div
-        className="absolute inset-0 z-0 opacity-5" // Adjust opacity as needed (0.05 from body::before is subtle)
+        className="absolute inset-0 z-0 opacity-5"
         style={{
           backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", // Dotted pattern
-          backgroundSize: "20px 20px", // Size of the dots grid
+          backgroundSize: "20px 20px",
         }}
       ></div>
-      {/* <<< END NEW DOTTED BACKGROUND >>> */}
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Heading */}
@@ -133,15 +132,12 @@ function FeatureSection() {
             </Link>
           </div>
         </div>
-        {/* <<< ADD THE CALL TO ACTION BUTTON HERE >>> */}
         <div className="text-center mt-16 md:mt-20">
           {" "}
-          {/* Centering and top margin */}
           <button className="px-8 py-3 text-lg bg-primary text-primary-foreground rounded-full font-bold shadow-lg hover:bg-primary/90 transition-transform duration-300 hover:scale-105">
             Start Your Coding Journey
           </button>
         </div>
-        {/* <<< END CALL TO ACTION BUTTON >>> */}
       </div>
     </section>
   );

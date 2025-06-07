@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"; // Import useState
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../../../store/authStore";
 import { useForm } from "react-hook-form";
@@ -160,7 +160,6 @@ function SignupForm() {
                 <div>
                   <Label htmlFor="password">Password</Label>
                   <div className="relative">
-                    {/* Make this div relative for icon positioning */}
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
@@ -168,7 +167,6 @@ function SignupForm() {
                       {...register("password")}
                       disabled={isLoading}
                       className={`mt-1 bg-input/80 text-foreground pr-10 ${
-                        /* Add pr-10 for icon space */
                         errors.password
                           ? "border-destructive focus:ring-destructive"
                           : ""
@@ -200,11 +198,9 @@ function SignupForm() {
                   </p>
                 </div>
 
-                {/* Confirm Password Field - Added show/hide toggle */}
                 <div>
                   <Label htmlFor="confirmPassword">Confirm Password</Label>
                   <div className="relative">
-                    {/* Make this div relative for icon positioning */}
                     <Input
                       id="confirmPassword"
                       type={showConfirmPassword ? "text" : "password"}
@@ -212,7 +208,6 @@ function SignupForm() {
                       {...register("confirmPassword")}
                       disabled={isLoading}
                       className={`mt-1 bg-input/80 text-foreground pr-10 ${
-                        /* Add pr-10 for icon space */
                         errors.confirmPassword
                           ? "border-destructive focus:ring-destructive"
                           : ""

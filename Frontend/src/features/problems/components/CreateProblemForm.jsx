@@ -1,4 +1,3 @@
-// src/features/problems/components/CreateProblemForm.jsx
 import React, { useState } from "react";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -143,9 +142,7 @@ function CreateProblemForm() {
           "
         >
           <CardTitle className="text-2xl md:text-3xl flex items-center gap-2 text-foreground">
-            <FileText className="w-7 h-7 text-primary" />{" "}
-            {/* Uses theme primary color */}
-            Create New Problem
+            <FileText className="w-7 h-7 text-primary" /> Create New Problem
           </CardTitle>
           <CardDescription className="text-muted-foreground">
             Fill in the details below to add a new programming problem.
@@ -156,12 +153,11 @@ function CreateProblemForm() {
           <div className="flex flex-col sm:flex-row gap-3 items-start">
             <div className="flex border border-border rounded-md overflow-hidden">
               {" "}
-              {/* Border for the group */}
               <Button
                 type="button"
                 variant={sampleType === "DP" ? "default" : "outline"}
                 onClick={() => setSampleType("DP")}
-                className="rounded-r-none border-r border-border/50" // Apply border consistent with theme
+                className="rounded-r-none border-r border-border/50"
               >
                 DP Sample
               </Button>
@@ -183,9 +179,8 @@ function CreateProblemForm() {
               <Download className="w-4 h-4" /> Load Sample
             </Button>
           </div>
-          <Separator className="bg-border/50" /> {/* Theme-aware separator */}
+          <Separator className="bg-border/50" />
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Basic Information */}
             <div className="space-y-4">
               <div>
                 <Label
@@ -203,11 +198,10 @@ function CreateProblemForm() {
                 {errors.title && (
                   <p className="text-destructive text-sm min-h-[1.25rem] mt-1">
                     {" "}
-                    {/* Fixed error message height */}
                     {errors.title.message || "placeholder"}
                   </p>
                 )}
-                {!errors.title && ( // Invisible placeholder for stability
+                {!errors.title && (
                   <p className="text-destructive text-sm min-h-[1.25rem] mt-1 opacity-0">
                     placeholder
                   </p>
@@ -258,7 +252,6 @@ function CreateProblemForm() {
                       </SelectTrigger>
                       <SelectContent className="bg-popover text-popover-foreground">
                         {" "}
-                        {/* Ensure select dropdown respects theme */}
                         <SelectItem value="EASY">Easy</SelectItem>
                         <SelectItem value="MEDIUM">Medium</SelectItem>
                         <SelectItem value="HARD">Hard</SelectItem>
@@ -311,7 +304,6 @@ function CreateProblemForm() {
                       disabled={tagFields.length <= 1}
                     >
                       <Trash2 className="w-4 h-4 text-destructive" />{" "}
-                      {/* Use theme destructive color */}
                     </Button>
                   </div>
                 ))}
@@ -755,11 +747,9 @@ function CreateProblemForm() {
                     Is this a Demo Problem?
                   </Label>
                 </div>
-                {/* Demo Solution section - apply theme-aware styling */}
                 {watch("isDemo") && (
                   <div className="pl-2 border-l-2 border-primary/50 space-y-2">
                     {" "}
-                    {/* Uses primary theme color */}
                     <h4 className="text-md font-semibold text-foreground">
                       Demo Solution Code
                     </h4>
@@ -780,7 +770,7 @@ function CreateProblemForm() {
                               <Editor
                                 height="150px"
                                 language={language.toLowerCase()}
-                                theme="vs-dark" // Consider custom theme here later
+                                theme="vs-dark"
                                 value={field.value}
                                 onChange={field.onChange}
                                 options={{

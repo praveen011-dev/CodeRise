@@ -11,7 +11,6 @@ function HomePage() {
       <FeatureSection />
       <AboutSection />
       <PricingSection />
-      {/* You will add other sections of your landing page here later, like: */}
     </div>
   );
 }

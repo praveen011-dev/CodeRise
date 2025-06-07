@@ -30,7 +30,6 @@ export const fetchSolvedProblemsByUser = async (userId) => {
 
 export const updateProblem = async (problemId, problemData) => {
   if (!problemId) throw new Error("Problem ID is required to update.");
-  // Assuming /api/v1/problems/:problemId PATCH endpoint
   return apiClient(
     `${PROBLEM_RESOURCE_PATH}/${problemId}`,
     "PATCH",
@@ -40,6 +39,5 @@ export const updateProblem = async (problemId, problemData) => {
 
 export const deleteProblem = async (problemId) => {
   if (!problemId) throw new Error("Problem ID is required to delete.");
-  // Assuming /api/v1/problems/:problemId DELETE endpoint
   return apiClient(`${PROBLEM_RESOURCE_PATH}/${problemId}`, "DELETE");
 };

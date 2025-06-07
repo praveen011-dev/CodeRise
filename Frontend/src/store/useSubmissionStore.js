@@ -7,10 +7,10 @@ import {
 import { toast } from "sonner";
 
 export const useSubmissionStore = create((set) => ({
-  submissions: [], // List of past submissions
-  submissionCount: null, // Count for a problem submitted by current user.
+  submissions: [],
+  submissionCount: null,
   isLoading: false,
-  error: null, // Error state
+  error: null,
 
   // Action to get all submissions (consider if this is user-specific or admin)
   getAllSubmissions: async () => {
@@ -31,8 +31,7 @@ export const useSubmissionStore = create((set) => ({
     set({ isLoading: true, error: null, submissions: [] }); // Clear previous problem's submissions
     try {
       const subsData = await fetchSubmissionsForProblem(problemId);
-      // Your original store set 'submission: res.data.submissions'.
-      // Assuming this endpoint returns an array for the 'submissions' state.
+
       set({ submissions: subsData || [], isLoading: false });
     } catch (error) {
       console.error("Error getting submissions for problem:", error);
@@ -45,7 +44,6 @@ export const useSubmissionStore = create((set) => ({
 
   // Action to get submission count for a problem
   getSubmissionCountForProblem: async (problemId) => {
-    // No separate isLoading needed if it's a quick background update
     set({ isLoading: true, error: null });
 
     try {
@@ -57,7 +55,7 @@ export const useSubmissionStore = create((set) => ({
     } catch (error) {
       console.error("Error getting submission count:", error);
 
-      set({ error: error.message }); // Just set error if needed
+      set({ error: error.message }); 
     }
     // finally {
     //   set({ isLoading: false });

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import useUserPlaylistsStore from "../../../store/useUserPlaylistsStore"; // Adjust path
+import useUserPlaylistsStore from "../../../store/useUserPlaylistsStore";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -51,7 +51,7 @@ function AddToPlaylistDialog({
       return;
     }
     await addProblemToPlaylist(selectedPlaylistId, problemId, problemTitle);
-    setIsOpen(false); // Close the dialog
+    setIsOpen(false);
     setSelectedPlaylistId(""); // Reset selection
   };
 
@@ -95,7 +95,6 @@ function AddToPlaylistDialog({
                   {playlists.map((playlist) => (
                     <SelectItem key={playlist.id} value={playlist.id}>
                       {playlist.name} ({playlist.problemCount || 0} problems){" "}
-                      {/* Assuming problemCount is available */}
                     </SelectItem>
                   ))}
                 </SelectContent>

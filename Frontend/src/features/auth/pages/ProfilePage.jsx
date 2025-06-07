@@ -17,7 +17,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -251,7 +250,7 @@ function ProfilePage() {
       {
         name: "Unsolved",
         value: unsolvedCount >= 0 ? unsolvedCount : 0,
-        color: "var(--chart-inactive-slice)", // <--- USE CSS VARIABLE HERE
+        color: "var(--chart-inactive-slice)",
       },
     ];
   }, [solvedProblemsCount, totalProblemsCount]);
@@ -262,12 +261,12 @@ function ProfilePage() {
       {
         name: "Playlists",
         value: playlistsCount,
-        color: "hsl(262.1 83.3% 57.8%)", // Purple for playlists
+        color: "hsl(262.1 83.3% 57.8%)",
       },
       {
         name: "Remaining",
-        value: Math.max(0, 5 - playlistsCount), // Assuming a max of 5 playlists for this demo
-        color: "var(--chart-inactive-slice)", // <--- USE CSS VARIABLE HERE
+        value: Math.max(0, 5 - playlistsCount), // max of 5 playlists
+        color: "var(--chart-inactive-slice)",
       },
     ];
   }, [playlistsCount]);
@@ -297,20 +296,19 @@ function ProfilePage() {
         name: "Other",
         value: otherErrors,
         color: "var(--chart-inactive-slice)",
-      }); // <--- USE CSS VARIABLE HERE
-
+      });
     if (data.length === 0 && total === 0) {
       data.push({
         name: "No Submissions",
         value: 1,
         color: "var(--chart-inactive-slice)",
-      }); // <--- USE CSS VARIABLE HERE
+      });
     } else if (data.length === 0 && total > 0) {
       data.push({
         name: "Other",
         value: total,
         color: "var(--chart-inactive-slice)",
-      }); // <--- USE CSS VARIABLE HERE
+      });
     }
 
     return data;
@@ -344,7 +342,7 @@ function ProfilePage() {
         name: "Days Inactive",
         value: Math.max(0, totalDaysInLastYear - daysWithContributions),
         color: "var(--chart-inactive-slice)",
-      }, // <--- USE CSS VARIABLE HERE
+      },
     ];
   }, [contributionData]);
 

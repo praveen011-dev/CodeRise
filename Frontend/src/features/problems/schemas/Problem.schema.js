@@ -1,4 +1,3 @@
-// src/validation/problem.validator.js
 import { z } from "zod";
 
 // For 'examples' items

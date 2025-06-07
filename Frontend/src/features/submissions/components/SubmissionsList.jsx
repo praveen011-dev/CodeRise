@@ -20,7 +20,7 @@ const safeParse = (dataString) => {
     const parsed = JSON.parse(dataString || "[]");
     return Array.isArray(parsed) ? parsed : [];
   } catch (e) {
-    // console.error("Failed to parse JSON string:", dataString, e); // Uncomment for debugging
+    // console.error("Failed to parse JSON string:", dataString, e); 
     return [];
   }
 };

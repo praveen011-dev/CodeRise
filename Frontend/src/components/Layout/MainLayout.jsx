@@ -23,14 +23,12 @@ function MainLayout() {
           "Initial session check completed (no active session or error)."
         );
       } finally {
-        // wheather we got an error or not, we are done
         setIsVerifyingSession(false);
       }
     };
     initializeAuth();
-  }, [checkAuthStatus]); // run when checkAuthStatus changes
+  }, [checkAuthStatus]);
 
-  // show loading indicator while session is being verified
   if (isVerifyingSession) {
     return (
       <div className="flex justify-center items-center min-h-screen text-xl">

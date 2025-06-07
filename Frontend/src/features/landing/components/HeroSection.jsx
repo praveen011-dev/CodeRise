@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import "../../../index.css"; // Ensure this is imported
+import "../../../index.css";
 
 const quotes = [
   "Practice makes progress.",
@@ -25,23 +25,18 @@ function HeroSection() {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1 }}
-        // Removed text-white from here, will apply to inner elements
         className="mx-auto w-[90%] md:w-[70%] max-w-6xl text-center px-4 relative hero-hexagon "
       >
         <h1 className="text-4xl md:text-5xl mb-6 leading-tight text-foreground">
           {" "}
-          {/* Changed to text-foreground */}
           Rise with every
-          <span className="text-pink-600 dark:text-pink-400">
-            {" "}
-            challenge
-          </span>, {/* Adjust pink shade */}
+          <span className="text-pink-600 dark:text-pink-400"> challenge</span>,
           <br></br> growing your
           <span className="text-yellow-600 dark:text-yellow-400">
             {" "}
             career.
           </span>{" "}
-          <br /> {/* Adjust yellow shade */}
+          <br />
         </h1>
 
         <motion.p
@@ -60,7 +55,6 @@ function HeroSection() {
           transition={{ duration: 1, delay: 0.4 }}
           className="space-x-4"
         >
-          {/* Keep the existing button styles, they seem fine */}
           <Button
             size="lg"
             className="bg-[#ff4d91] hover:bg-[#ff267a] text-white shadow-md transition-transform duration-300 hover:scale-105"
@@ -75,7 +69,7 @@ function HeroSection() {
       {/* AI Quote Rotator */}
       <p className="mt-6 italic text-muted-foreground text-sm transition-opacity duration-500">
         {" "}
-        {/* Changed to text-muted-foreground */}“{quotes[quoteIndex]}”
+        “{quotes[quoteIndex]}”
       </p>
     </section>
   );
