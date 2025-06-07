@@ -1,9 +1,9 @@
 import React from "react";
 import { CheckCircle, XCircle, DollarSign } from "lucide-react";
 
-function PricingSection() {
+function PricingSection({id}) {
   return (
-    <section className="py-12 md:py-16 text-foreground relative overflow-hidden">
+    <section id={id} className="py-12 md:py-16 text-foreground relative overflow-hidden">
       <div
         className="absolute inset-0 z-0 opacity-25"
         style={{

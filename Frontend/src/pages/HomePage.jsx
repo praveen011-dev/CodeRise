@@ -9,8 +9,8 @@ function HomePage() {
     <div>
       <HeroSection />
       <FeatureSection />
-      <AboutSection />
-      <PricingSection />
+      <AboutSection id="about"/>
+      <PricingSection id="pricing"/>
     </div>
   );
 }

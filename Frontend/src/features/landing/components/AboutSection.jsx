@@ -1,26 +1,29 @@
 import React from "react";
 
-function AboutSection() {
+function AboutSection({ id }) {
   return (
-    <section className="py-16 md:py-24 text-foreground relative overflow-hidden">
+    <section
+      id={id}
+      className="py-16 md:py-24 text-foreground relative overflow-hidden"
+    >
       {" "}
       {/* NEW: Linear Background Gradient (from site-gradient vars) - Mimics body background */}
       <div
-        className="absolute inset-0 z-0 opacity-25" 
+        className="absolute inset-0 z-0 opacity-25"
         style={{
           background:
             "linear-gradient(to bottom, var(--site-gradient-start) 0%, var(--site-gradient-via) 50%, var(--site-gradient-end) 100%)",
-          backgroundAttachment: "fixed", 
+          backgroundAttachment: "fixed",
         }}
       ></div>
       {/* NEW: Dotted Background Pattern (from body::before)*/}
       <div
-        className="absolute inset-0 z-0 opacity-5" 
+        className="absolute inset-0 z-0 opacity-5"
         style={{
           backgroundImage:
             "radial-gradient(var(--foreground) 1px, transparent 1px)", // Dot color from --foreground
           backgroundSize: "20px 20px",
-          backgroundAttachment: "fixed", 
+          backgroundAttachment: "fixed",
         }}
       ></div>
       {/* This can overlay the linear gradient and dotted pattern for more depth */}

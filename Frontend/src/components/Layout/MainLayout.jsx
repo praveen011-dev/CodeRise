@@ -4,6 +4,7 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import useAuthStore from "../../store/authStore";
 import { Toaster } from "@/components/ui/sonner";
+import ScrollToTop from "../ScrollToTop";
 
 function MainLayout() {
   // get the action from the auth store
@@ -39,6 +40,7 @@ function MainLayout() {
 
   return (
     <div>
+      <ScrollToTop />
       <Navbar />
       <main>
         <Outlet />

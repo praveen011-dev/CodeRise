@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom"; // Keep Link, useNavigate, useLocation
 import useAuthStore from "../../store/authStore";
 import {
   DropdownMenu,
@@ -12,12 +12,37 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import ThemeToggle from "../ThemeToggle/ThemeToggle";
+import useThemeDetector from "../../hooks/useThemeDetector";
+
+import CodeRiseLogoLight from "../../../public/lightlogo.png";
+import CodeRiseLogoDark from "../../../public/darklogo.png";
 
 function Navbar() {
   const { isLoggedIn, user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { theme } = useThemeDetector();
 
   const [scrolled, setScrolled] = useState(false);
+
+  const handleSmoothScroll = (id) => {
+    // If the current path is not the homepage ('/')
+    if (location.pathname !== "/") {
+      navigate("/", { replace: true });
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+    } else {
+      // If already on the homepage, directly scroll to the element
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -85,9 +110,24 @@ function Navbar() {
         {/* Left: CodeRise Logo/Brand */}
         <Link
           to="/"
-          className="text-xl font-bold border p-2 rounded hover:bg-muted transition-colors duration-200 text-foreground"
+          // className="text-xl font-bold border p-2 rounded hover:bg-muted transition-colors duration-200 text-foreground"
         >
-          CodeRise
+          {/* Conditional logo rendering based on theme */}
+          {theme === "dark" ? (
+            <img
+              src={CodeRiseLogoDark}
+              alt="CodeRise Logo Dark"
+              className="h-8 md:h-10"
+            />
+          ) : (
+            <img
+              src={CodeRiseLogoLight}
+              alt="CodeRise Logo Light"
+              className="h-8 md:h-10"
+            />
+          )}
+          {/* Optional: If you want text alongside the logo, or as a fallback */}
+          {/* <span className="ml-2 text-foreground">CodeRise</span> */}
         </Link>
 
         {/* Center: Main Navigation Links */}
@@ -104,18 +144,29 @@ function Navbar() {
           >
             Problems
           </Link>
-          <Link
-            to="/about"
+
+          {/* Changed 'About' from Link to <a> tag and added onClick */}
+          <a
+            href="#about" // Semantic HTML for anchor links
+            onClick={(e) => {
+              e.preventDefault(); // Prevent default browser jump behavior
+              handleSmoothScroll("about"); // Call our custom smooth scroll function
+            }}
             className="hover:text-foreground/80 transition-colors duration-200"
           >
             About
-          </Link>
-          <Link
-            to="/contact"
+          </a>
+
+          <a
+            href="#pricing"
+            onClick={(e) => {
+              e.preventDefault(); // Prevent default browser jump behavior
+              handleSmoothScroll("pricing"); // Call custom function
+            }}
             className="hover:text-foreground/80 transition-colors duration-200"
           >
-            Contact
-          </Link>
+            Pricing
+          </a>
         </div>
 
         {/* Right: User Actions and Theme Toggle */}
@@ -144,7 +195,7 @@ function Navbar() {
                 <DropdownMenuLabel className="text-popover-foreground">
                   {displayUserWithRole()}
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-border/50" />{" "}
+                <DropdownMenuSeparator className="bg-border/50" />
                 <DropdownMenuItem
                   onClick={handleProfileNavigate}
                   className="cursor-pointer hover:bg-accent/30 hover:text-accent-foreground"

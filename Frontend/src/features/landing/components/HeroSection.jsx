@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import "../../../index.css";
+import { Link } from "react-router-dom";
 
 const quotes = [
   "Practice makes progress.",
@@ -20,7 +21,11 @@ function HeroSection() {
   }, []);
 
   return (
-    <section className="relative py-28 overflow-hidden">
+    <section className="relative py-15 overflow-hidden">
+      {/* AI Quote Rotator */}
+      <div className="mt-6 mb-4 italic text-muted-foreground text-md transition-opacity duration-500 w-full text-center">
+        “{quotes[quoteIndex]}”
+      </div>
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -55,22 +60,19 @@ function HeroSection() {
           transition={{ duration: 1, delay: 0.4 }}
           className="space-x-4"
         >
-          <Button
-            size="lg"
-            className="bg-[#ff4d91] hover:bg-[#ff267a] text-white shadow-md transition-transform duration-300 hover:scale-105"
-          >
-            Get Started
-          </Button>
+          <Link to="/signup">
+            <Button
+              size="lg"
+              className="bg-[#ff4d91] hover:bg-[#ff267a] text-white shadow-md transition-transform duration-300 hover:scale-105 cursor-pointer bubbleeffectbtn"
+            >
+              Get Started
+            </Button>
+          </Link>
           <Button size="lg" className="bubbleeffectbtn">
             Browse Problems
           </Button>
         </motion.div>
       </motion.div>
-      {/* AI Quote Rotator */}
-      <p className="mt-6 italic text-muted-foreground text-sm transition-opacity duration-500">
-        {" "}
-        “{quotes[quoteIndex]}”
-      </p>
     </section>
   );
 }
