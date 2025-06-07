@@ -159,20 +159,14 @@ function LoginForm() {
                   </span>
                 </button>
               </div>
-              <p className="mt-1 text-xs text-destructive">
-                {errors.password && (
-                  <p className="mt-1 text-xs text-destructive">
-                    {errors.password.message}
-                  </p>
-                )}
-                {/* Error message container for password - Keep it consistent to prevent jumps */}
-                <p
-                  className={`text-xs text-destructive min-h-[1.25rem] ${
-                    errors.password ? "opacity-100" : "opacity-0"
-                  }`}
-                >
-                  {errors.password?.message || "placeholder text for spacing"}
-                </p>
+
+              {/* Error message container for password - Keep it consistent to prevent jumps */}
+              <p
+                className={`text-xs text-destructive min-h-[1.25rem] ${
+                  errors.password ? "opacity-100" : "opacity-0"
+                }`}
+              >
+                {errors.password?.message || "placeholder text for spacing"}
               </p>
             </div>
 
