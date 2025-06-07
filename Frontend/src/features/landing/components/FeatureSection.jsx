@@ -68,10 +68,11 @@ function FeatureSection() {
             </h3>
             <p className="text-muted-foreground text-sm mb-3">
               Run your solutions against comprehensive test cases and receive
-              immediate, detailed feedback to debug and refine your code. this will boost your problem-solving skills.
+              immediate, detailed feedback to debug and refine your code. this
+              will boost your problem-solving skills.
             </p>
             <Link to="/problems">
-              <button className="self-start px-4 py-3 text-xs bg-secondary text-secondary-foreground rounded-full font-semibold hover:bg-secondary/90 transition-colors mt-auto">
+              <button className="self-start px-4 py-3 text-xs bg-secondary text-secondary-foreground rounded-full font-semibold hover:bg-secondary/90 transition-colors mt-auto cursor-pointer">
                 See How It Works
               </button>
             </Link>
@@ -85,7 +86,7 @@ function FeatureSection() {
               Track your solved problems, submission history, and performance
               trends with intuitive dashboards and contribution heatmaps.
             </p>
-            <button className="self-start px-3 py-1.5 text-xs bg-accent text-accent-foreground rounded-full font-semibold hover:bg-accent/90 transition-colors mt-auto">
+            <button className="self-start px-4 py-3 text-xs bg-accent text-accent-foreground rounded-full font-semibold hover:bg-accent/90 transition-colors mt-auto cursor-pointer">
               View Dashboard
             </button>
           </div>
@@ -98,7 +99,7 @@ function FeatureSection() {
               Connect with fellow coders, share insights, ask questions, and
               learn from diverse solutions in our active community forums.
             </p>
-            <button className="self-start px-3 py-1.5 text-xs bg-primary text-primary-foreground rounded-full font-semibold hover:bg-primary/90 transition-colors mt-auto">
+            <button className="self-start px-4 py-3 text-xs bg-primary text-primary-foreground rounded-full font-semibold hover:bg-primary/90 transition-colors mt-auto cursor-pointer">
               Join the Community
             </button>
           </div>
@@ -111,7 +112,7 @@ function FeatureSection() {
               Access curated problem sets for interview prep, mock tests, and
               company-specific challenges to ace your next job.
             </p>
-            <button className="self-start px-3 py-1.5 text-xs bg-secondary text-secondary-foreground rounded-full font-semibold hover:bg-secondary/90 transition-colors mt-auto">
+            <button className="self-start px-4 py-3 text-xs bg-secondary text-secondary-foreground rounded-full font-semibold hover:bg-secondary/90 transition-colors mt-auto cursor-pointer">
               Prepare Now
             </button>
           </div>
@@ -125,9 +126,11 @@ function FeatureSection() {
               Learn optimal solutions with comprehensive editorials and
               explanations for every problem, guiding you through complex logic.
             </p>
-            <button className="self-start px-3 py-1.5 text-xs bg-accent text-accent-foreground rounded-full font-semibold hover:bg-accent/90 transition-colors mt-auto">
-              Learn More
-            </button>
+            <Link to="/problems">
+              <button className="self-start px-4 py-3 text-xs bg-accent text-accent-foreground rounded-full font-semibold hover:bg-accent/90 transition-colors mt-auto cursor-pointer">
+                Learn More
+              </button>
+            </Link>
           </div>
         </div>
         {/* <<< ADD THE CALL TO ACTION BUTTON HERE >>> */}
