@@ -1,8 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom"; // For navigation to homepage
 import { Button } from "@/components/ui/button"; // Assuming Shadcn Button component
+import { Loader2 } from "lucide-react"; // Example icon for loading/coming soon
 
-function NotFoundPage() {
+function ComingSoonPage() {
   return (
     <section className="min-h-screen py-16 md:py-24 text-foreground relative overflow-hidden flex flex-col items-center justify-center text-center">
       {/* Consistent Linear Background Gradient - from site-gradient vars */}
@@ -11,7 +12,7 @@ function NotFoundPage() {
         style={{
           background:
             "linear-gradient(to bottom, var(--site-gradient-start) 0%, var(--site-gradient-via) 50%, var(--site-gradient-end) 100%)",
-          backgroundAttachment: "fixed", // Keeps the background fixed to the viewport
+          backgroundAttachment: "fixed",
         }}
       ></div>
 
@@ -20,34 +21,34 @@ function NotFoundPage() {
         className="absolute inset-0 z-0 opacity-5"
         style={{
           backgroundImage:
-            "radial-gradient(var(--foreground) 1px, transparent 1px)", // Dots colored with --foreground
+            "radial-gradient(var(--foreground) 1px, transparent 1px)",
           backgroundSize: "20px 20px",
-          backgroundAttachment: "fixed", // Keeps dots fixed to the viewport
+          backgroundAttachment: "fixed",
         }}
       ></div>
 
       {/* Section-specific Radial Gradient Background for unique depth */}
-      {/* Adds a subtle red/orange glow specific to this error page */}
+      {/* Adds a subtle blue/green glow specific to this page */}
       <div
         className="absolute inset-0 z-0 opacity-20"
         style={{
           background:
-            "radial-gradient(circle at center, var(--tw-color-red-500)/0.2 0%, transparent 40%), radial-gradient(circle at top right, var(--tw-color-orange-500)/0.15 0%, transparent 40%)",
+            "radial-gradient(circle at center, var(--tw-color-cyan-500)/0.2 0%, transparent 40%), radial-gradient(circle at bottom left, var(--tw-color-indigo-500)/0.15 0%, transparent 40%)",
         }}
       ></div>
 
       {/* Main Content Area - Styled like a prominent glassmorphic card */}
       <div className="relative p-10 md:p-16 rounded-2xl border border-[rgba(255,255,255,0.15)] shadow-2xl bg-[rgba(0,0,0,0.3)] backdrop-blur-xl flex flex-col items-center max-w-md mx-auto z-10">
-        {/* Large "404" heading with pulsing animation */}
-        <h1 className="text-6xl md:text-8xl font-extrabold text-destructive mb-4 animate-pulse">
-          404
+        {/* Large spinning icon */}
+        <Loader2 className="w-16 h-16 text-primary mb-4 animate-spin" />
+        {/* Heading */}
+        <h1 className="text-4xl md:text-5xl font-extrabold text-primary mb-4">
+          Coming Soon!
         </h1>
-        {/* Secondary heading */}
-        <h2 className="text-3xl md:text-4xl font-bold mb-6">Page Not Found</h2>
         {/* Descriptive paragraph */}
         <p className="text-lg text-muted-foreground mb-8">
-          Oops! The page you are looking for doesn't exist or has been moved.
-          Please check the URL or navigate back to the homepage.
+          We're working hard to bring you this exciting new feature. Stay tuned
+          for updates!
         </p>
         {/* Call-to-action button to return home */}
         <Link to="/">
@@ -55,7 +56,7 @@ function NotFoundPage() {
             size="lg"
             className="px-8 py-3 text-lg bg-primary text-primary-foreground rounded-full font-bold shadow-lg hover:bg-primary/90 transition-transform duration-300 hover:scale-105"
           >
-            Go to Homepage
+            Back to Homepage
           </Button>
         </Link>
       </div>
@@ -63,4 +64,4 @@ function NotFoundPage() {
   );
 }
 
-export default NotFoundPage;
+export default ComingSoonPage;
