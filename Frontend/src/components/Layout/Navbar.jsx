@@ -14,8 +14,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ThemeToggle from "../ThemeToggle/ThemeToggle";
 import useThemeDetector from "../../hooks/useThemeDetector";
 
-import CodeRiseLogoLight from "../../../public/lightlogo.png";
-import CodeRiseLogoDark from "../../../public/darklogo.png";
+import CodeRiseLogoLight from "../../assets/lightlogo.png";
+import CodeRiseLogoDark from "../../assets/darklogo.png";
 
 function Navbar() {
   const { isLoggedIn, user, logout } = useAuthStore();
