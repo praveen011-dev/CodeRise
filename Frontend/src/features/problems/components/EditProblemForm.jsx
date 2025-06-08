@@ -241,14 +241,7 @@ function EditProblemForm() {
     }
   };
 
-  if (isProblemLoading) {
-    return (
-      <div className="container mx-auto py-8 px-4 max-w-4xl text-center text-foreground">
-        {/* Replace with your dedicated EditProblemFormSkeleton here */}
-        Loading problem data...
-      </div>
-    );
-  }
+ 
   if (problemError) {
     return (
       <div className="container mx-auto py-8 px-4 max-w-4xl text-center text-destructive">

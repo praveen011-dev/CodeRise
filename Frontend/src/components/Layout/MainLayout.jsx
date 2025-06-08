@@ -8,17 +8,22 @@ import ScrollToTop from "../ScrollToTop";
 import HomePageSkeleton from "@/features/landing/components/HomePageSkeleton";
 import ProblemsSkeleton from "@/features/problems/components/ProblemsSkeleton";
 import CreateProblemFormSkeleton from "@/features/problems/components/CreateProblemFormSkeleton";
+import EditProblemFormSkeleton from "@/features/problems/components/EditProblemFormSkeleton";
 
-// Define a mapping of paths to their corresponding skeleton components
-const PathToSkeletonMap = {
+// Define a mapping of *exact* paths to their corresponding skeleton components
+const ExactPathToSkeletonMap = {
   "/": HomePageSkeleton,
-  "/problems": ProblemsSkeleton, // Assuming this is the path to your 
-  "/admin/add-problem":CreateProblemFormSkeleton, // Assuming this is the path to your 
-  // problems page
-  // Add other paths and their skeletons as needed, e.g.:
-  // "/dashboard": DashboardSkeleton,
-  // "/settings": SettingsSkeleton,
+  "/problems": ProblemsSkeleton,
+  "/admin/add-problem": CreateProblemFormSkeleton,
+  // For other exact paths
 };
+
+// Define a mapping of *pattern-based* paths to their corresponding skeleton components
+const PatternToSkeletonMap = [
+  { path: "/admin/edit-problem/", skeleton: EditProblemFormSkeleton }, // Matches /admin/edit-problem/<anyId>
+  // Add other pattern-based paths as needed, e.g.:
+  // { path: "/user/", skeleton: UserProfileSkeleton },
+];
 
 function MainLayout() {
   // get the action from the auth store
@@ -52,13 +57,27 @@ function MainLayout() {
         {isVerifyingSession ? (
           // If session is still verifying, render the specific skeleton for the current path
           (() => {
-            const SpecificSkeleton = PathToSkeletonMap[location.pathname];
+            let SpecificSkeleton = null;
+
+            // 1. Check exact paths first
+            if (ExactPathToSkeletonMap[location.pathname]) {
+              SpecificSkeleton = ExactPathToSkeletonMap[location.pathname];
+            } else {
+              // 2. Check pattern-based paths
+              for (const map of PatternToSkeletonMap) {
+                if (location.pathname.startsWith(map.path)) {
+                  SpecificSkeleton = map.skeleton;
+                  break; // Found a match, no need to check further
+                }
+              }
+            }
+
             if (SpecificSkeleton) {
               return <SpecificSkeleton />;
             } else {
               // Fallback for paths without a specific skeleton
               return (
-                <div className="flex justify-center items-center min-h-screen text-xl">
+                <div className="flex justify-center items-center min-h-screen">
                   <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary dark:border-primary-foreground"></div>
                 </div>
               );

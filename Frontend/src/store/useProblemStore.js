@@ -8,6 +8,7 @@ import {
 } from "../services/problemService";
 import { toast } from "sonner";
 import useAuthStore from "./authStore";
+import  useUserPlaylistsStore  from "../store/useUserPlaylistsStore";
 
 export const useProblemStore = create((set, get) => ({
   isProblemLoading: false,
@@ -105,6 +106,19 @@ export const useProblemStore = create((set, get) => ({
       toast.success("Problem deleted successfully!");
 
       get().getSolvedProblemByUser();
+      // --- NEW: Trigger refresh of playlists after problem deletion ---
+      // Get the getUserPlaylists action from the useUserPlaylistsStore
+      const { getUserPlaylists } = useUserPlaylistsStore.getState(); // Get current state of playlist store
+      if (getUserPlaylists) {
+        // Check for the correct action name
+        await getUserPlaylists(); // Call the action to refresh playlist data
+        console.log("Playlists refreshed after problem deletion.");
+      } else {
+        console.warn(
+          "getUserPlaylists action not found in usePlaylistStore. Playlists might not update."
+        );
+      }
+      // --- END NEW ---
     } catch (error) {
       console.error("Error deleting problem:", error);
       toast.error("Failed to delete problem", { description: error.message });
