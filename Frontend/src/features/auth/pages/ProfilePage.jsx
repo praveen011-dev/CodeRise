@@ -379,10 +379,11 @@ function ProfilePage() {
       </div>
     );
   }
-  if (loading && user) {
+  if (!user) {
+    // Only check !user here. 'loading' is managed by skeleton now.
     return (
       <div className="container mx-auto p-8 text-center text-muted-foreground">
-        Loading profile data...
+        Please log in to view your profile.
       </div>
     );
   }

@@ -34,7 +34,14 @@ function Footer() {
       ></div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="relative py-16 md:py-20 px-8 md:px-12 rounded-4xl border border-[rgba(255,255,255,0.15)] shadow-2xl bg-[rgba(0,0,0,0.3)] backdrop-blur-xl flex flex-col md:flex-row items-center justify-between text-center md:text-left mb-16 md:mb-22">
+        <div
+          className="relative py-16 md:py-20 px-8 md:px-12 rounded-4xl
+            border border-[var(--footer-card-border)] /* Use CSS variable for border */
+            shadow-2xl /* Keep original shadow for depth */
+            bg-[var(--footer-card-bg)] /* Use CSS variable for background */
+            backdrop-blur-xl flex flex-col md:flex-row items-center justify-between
+            text-center md:text-left mb-16 md:mb-22"
+        >
           <div>
             <h2 className="text-3xl md:text-4xl font-extrabold mb-2 leading-tight">
               Ready to Start Your{" "}
@@ -48,19 +55,23 @@ function Footer() {
             </p>
           </div>
           <div className="mt-8 md:mt-0 flex flex-col sm:flex-row gap-4">
-            <Button
-              size="lg"
-              className="px-8 py-3 text-lg bg-primary text-primary-foreground rounded-full font-bold shadow-lg hover:bg-primary/90 transition-transform duration-300 hover:scale-105"
-            >
-              Get Started
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="px-8 py-3 text-lg border-2 border-primary text-primary rounded-full font-bold shadow-lg hover:bg-primary/10 transition-transform duration-300 hover:scale-105"
-            >
-              Connnect now
-            </Button>
+            <Link to="/signup">
+              <Button
+                size="lg"
+                className="px-8 py-3 text-lg bg-primary text-primary-foreground rounded-full font-bold shadow-lg hover:bg-primary/90 transition-transform duration-300 hover:scale-105 cursor-pointer"
+              >
+                Get Started
+              </Button>
+            </Link>
+            <Link>
+              <Button
+                size="lg"
+                variant="outline"
+                className="px-8 py-3 text-lg border-2 border-primary text-primary rounded-full font-bold shadow-lg hover:bg-primary/10 transition-transform duration-300 hover:scale-105 cursor-pointer"
+              >
+                Connnect now
+              </Button>
+            </Link>
           </div>
         </div>
 

@@ -9,12 +9,15 @@ import HomePageSkeleton from "@/features/landing/components/HomePageSkeleton";
 import ProblemsSkeleton from "@/features/problems/components/ProblemsSkeleton";
 import CreateProblemFormSkeleton from "@/features/problems/components/CreateProblemFormSkeleton";
 import EditProblemFormSkeleton from "@/features/problems/components/EditProblemFormSkeleton";
+import ProfilePageSkeleton from "@/features/auth/components/ProfilePageSkeleton";
 
 // Define a mapping of *exact* paths to their corresponding skeleton components
 const ExactPathToSkeletonMap = {
   "/": HomePageSkeleton,
   "/problems": ProblemsSkeleton,
   "/admin/add-problem": CreateProblemFormSkeleton,
+  "/profile": ProfilePageSkeleton, // Add this line
+
   // For other exact paths
 };
 

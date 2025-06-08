@@ -68,9 +68,12 @@ function HeroSection() {
               Get Started
             </Button>
           </Link>
-          <Button size="lg" className="bubbleeffectbtn">
-            Browse Problems
-          </Button>
+
+          <Link to="/problems">
+            <Button size="lg" className="bubbleeffectbtn">
+              Browse Problems
+            </Button>
+          </Link>
         </motion.div>
       </motion.div>
     </section>
