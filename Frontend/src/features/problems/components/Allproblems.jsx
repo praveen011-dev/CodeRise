@@ -32,6 +32,8 @@ import {
 import { Edit3, Trash2, ListPlus, PlusCircle, Search } from "lucide-react";
 import { toast } from "sonner";
 
+import ProblemsSkeleton from "../components/ProblemsSkeleton";
+
 function AllProblems() {
   const {
     getAllProblems,
@@ -130,12 +132,8 @@ function AllProblems() {
   }, [problems]);
 
   // --- Conditional Rendering for Loading/Error States  ---
-  if (isProblemsLoading && problems.length === 0) {
-    return (
-      <div className="container mx-auto p-8 text-center text-lg text-foreground">
-        Loading problems...
-      </div>
-    );
+  if (isProblemsLoading) {
+    return <ProblemsSkeleton />;
   }
   if (problemsError) {
     return (

@@ -5,6 +5,17 @@ import Footer from "./Footer";
 import useAuthStore from "../../store/authStore";
 import { Toaster } from "@/components/ui/sonner";
 import ScrollToTop from "../ScrollToTop";
+import HomePageSkeleton from "@/features/landing/components/HomePageSkeleton";
+import ProblemsSkeleton from "@/features/problems/components/ProblemsSkeleton";
+
+// Define a mapping of paths to their corresponding skeleton components
+const PathToSkeletonMap = {
+  "/": HomePageSkeleton,
+  "/problems": ProblemsSkeleton, // Assuming this is the path to your problems page
+  // Add other paths and their skeletons as needed, e.g.:
+  // "/dashboard": DashboardSkeleton,
+  // "/settings": SettingsSkeleton,
+};
 
 function MainLayout() {
   // get the action from the auth store
@@ -30,20 +41,30 @@ function MainLayout() {
     initializeAuth();
   }, [checkAuthStatus]);
 
-  if (isVerifyingSession) {
-    return (
-      <div className="flex justify-center items-center min-h-screen text-xl">
-        Loading Application...
-      </div>
-    );
-  }
-
   return (
     <div>
       <ScrollToTop />
       <Navbar />
       <main>
-        <Outlet />
+        {isVerifyingSession ? (
+          // If session is still verifying, render the specific skeleton for the current path
+          (() => {
+            const SpecificSkeleton = PathToSkeletonMap[location.pathname];
+            if (SpecificSkeleton) {
+              return <SpecificSkeleton />;
+            } else {
+              // Fallback for paths without a specific skeleton
+              return (
+                <div className="flex justify-center items-center min-h-screen text-xl">
+                  <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary dark:border-primary-foreground"></div>
+                </div>
+              );
+            }
+          })()
+        ) : (
+          // Once session verification is complete, render the actual page content via Outlet
+          <Outlet />
+        )}
       </main>
       <Footer />
       <Toaster position="top-right" richColors />

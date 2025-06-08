@@ -318,3 +318,94 @@ body::before {
   /* Original specific gradient for active state */
   background: linear-gradient(45deg, #212529, #343a40);
 }
+
+/* index.css
+.skelton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 25%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.05) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+} */
+
+/* index.css */
+
+/* Define the shimmer effect using CSS variables for theme adaptation */
+.skelton-shimmer {
+  /* Use theme-aware colors for the shimmer effect */
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-shimmer-from-color) 25%,
+    var(--skeleton-shimmer-via-color) 50%,
+    var(--skeleton-shimmer-to-color) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Define CSS variables for shimmer colors based on theme */
+
+/* Light Mode Variables (default if no dark class is present) */
+:root {
+  --skeleton-shimmer-from-color: rgba(
+    0,
+    0,
+    0,
+    0.08
+  ); /* Slightly dark, very translucent */
+  --skeleton-shimmer-via-color: rgba(
+    0,
+    0,
+    0,
+    0.25
+  ); /* Darker, more noticeable */
+  --skeleton-shimmer-to-color: rgba(
+    0,
+    0,
+    0,
+    0.08
+  ); /* Slightly dark, very translucent */
+}
+
+/* Dark Mode Variables (when .dark class is applied, usually to body or html) */
+.dark {
+  --skeleton-shimmer-from-color: rgba(
+    255,
+    255,
+    255,
+    0.05
+  ); /* Slightly light, very translucent */
+  --skeleton-shimmer-via-color: rgba(
+    255,
+    255,
+    255,
+    0.2
+  ); /* Lighter, more noticeable */
+  --skeleton-shimmer-to-color: rgba(
+    255,
+    255,
+    255,
+    0.05
+  ); /* Slightly light, very translucent */
+}

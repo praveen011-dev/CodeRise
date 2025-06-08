@@ -115,6 +115,6 @@ export const useProblemStore = create((set) => ({
 
   // NEW ACTION: Clear the currently loaded problem
   clearProblem: () => {
-    set({ problem: null, error: null, isLoading: false }); 
+    set({ problem: null, error: null, isProblemLoading: false });
   },
 }));
