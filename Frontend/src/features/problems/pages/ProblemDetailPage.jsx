@@ -397,11 +397,11 @@ function ProblemDetailPage() {
                 Submissions ({submissionCount ?? 0})
               </TabsTrigger>
               <TabsTrigger
-                value="discussion"
+                value="editorail"
                 className="text-xs p-2 sm:text-sm data-[state=active]:bg-background/70 data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary"
               >
                 <MessageSquare className="w-3.5 h-3.5 mr-1 sm:mr-2" />
-                Discuss
+                Editorial
               </TabsTrigger>
               <TabsTrigger
                 value="hints"
@@ -485,15 +485,12 @@ function ProblemDetailPage() {
                   isLoading={isPastSubmissionsLoading}
                   problemId={problemId}
                 />
-                <p className="text-sm text-muted-foreground">
-                  Past submissions display area - To be implemented.
-                </p>
               </TabsContent>
               {/* Content for "Discussion" Tab */}
-              <TabsContent value="discussion" className="mt-0">
-                <p className="text-center text-sm text-muted-foreground">
-                  Discussion feature coming soon.
-                </p>
+              <TabsContent value="editorail" className="mt-0">
+                <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap leading-relaxed">
+                  {problem.editorail}
+                </div>
               </TabsContent>
               {/* Content for "Hints" Tab */}
               <TabsContent value="hints" className="mt-0">
@@ -638,12 +635,12 @@ function ProblemDetailPage() {
                   {problem.testcases.map((tc, index) => (
                     <div
                       key={index}
-                      className="p-2 bg-background/50 rounded border border-border/50"
+                      className="p-2 bg-background/50 rounded border border-border/50 flex gap-2 justify-between"
                     >
-                      <p className="font-medium text-xs text-foreground/80">
+                      <p className="font-medium text-xl text-foreground/80">
                         Test Case {index + 1}
                       </p>
-                      <div className="text-[10px] mt-0.5">
+                      <div className="text-[14px] mt-0.5">
                         <strong className="text-muted-foreground">
                           Input:{" "}
                         </strong>
@@ -651,7 +648,7 @@ function ProblemDetailPage() {
                           {tc.input}
                         </pre>
                       </div>
-                      <div className="text-[10px] mt-0.5">
+                      <div className="text-[14px] mt-0.5">
                         <strong className="text-muted-foreground">
                           Expected Output:{" "}
                         </strong>
