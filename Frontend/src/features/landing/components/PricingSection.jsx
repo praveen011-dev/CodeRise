@@ -1,7 +1,7 @@
 import React from "react";
 import { CheckCircle, XCircle } from "lucide-react";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import useAuthStore from "../../../store/authStore";
 
 function PricingSection({ id }) {
@@ -146,9 +146,11 @@ function PricingSection({ id }) {
                 Content
               </li>
             </ul>
-            <button className="px-6 py-2 text-base bg-primary text-primary-foreground rounded-full font-bold shadow-lg hover:bg-primary/90 transition-transform duration-300 hover:scale-105 mt-auto">
-              Get Started - Free
-            </button>
+            <Link to="/problems">
+              <button className="px-6 py-2 text-base bg-primary text-primary-foreground rounded-full font-bold shadow-lg hover:bg-primary/90 transition-transform duration-300 hover:scale-105 mt-auto cursor-pointer">
+                Get Started - Free
+              </button>
+            </Link>
           </div>
 
           {/* Pro Plan - Razorpay enabled */}
@@ -183,7 +185,7 @@ function PricingSection({ id }) {
             </ul>
             <button
               onClick={handleProPayment}
-              className="px-6 py-2 text-base bg-primary text-primary-foreground rounded-full font-bold shadow-lg hover:bg-primary/90 transition-transform duration-300 hover:scale-105 mt-auto"
+              className="px-6 py-2 text-base bg-primary text-primary-foreground rounded-full font-bold shadow-lg hover:bg-primary/90 transition-transform duration-300 hover:scale-105 mt-auto cursor-pointer"
             >
               Choose Pro
             </button>
@@ -191,7 +193,7 @@ function PricingSection({ id }) {
 
           {/* Enterprise Plan */}
           <div className="p-6 rounded-2xl shadow-xl flex flex-col items-center border border-[rgba(0,0,0,0.1)] bg-[rgba(255,255,255,0.1)] backdrop-blur-xl dark:border-[rgba(255,255,255,0.15)] dark:bg-[rgba(0,0,0,0.3)]">
-            <h3 className="text-2xl font-bold mb-3 text-primary">Enterprise</h3>
+            <h3 className="text-2xl font-bold mb-3 text-primary">Legendary</h3>
             <p className="text-4xl md:text-5xl font-extrabold mb-3">
               $49<span className="text-base text-muted-foreground">/month</span>
             </p>
@@ -212,8 +214,11 @@ function PricingSection({ id }) {
                 Support
               </li>
             </ul>
-            <button className="px-6 py-2 text-base bg-accent text-accent-foreground rounded-full font-bold shadow-lg hover:bg-accent/90 transition-transform duration-300 hover:scale-105 mt-auto">
-              Contact Now
+            <button
+              onClick={handleProPayment}
+              className="px-6 py-2 text-base bg-primary text-primary-foreground rounded-full font-bold shadow-lg hover:bg-primary/90 transition-transform duration-300 hover:scale-105 mt-auto cursor-pointer"
+            >
+              Choose Legendary
             </button>
           </div>
         </div>
