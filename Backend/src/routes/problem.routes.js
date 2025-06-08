@@ -26,10 +26,9 @@ router.route("/count").get(getTotalProblemsCount);
 router.route("/:id").get(isLoggedIn, getProblemById);
 
 router
-  .route("/update-problem/:id")
-  .put(isLoggedIn, isAdmin, validateUpdateProblem, updateProblem);
-
-router.route("/delete-problem/:id").delete(isLoggedIn, isAdmin, deleteProblem);
+  .route("/:id")
+  .patch(isLoggedIn, isAdmin, validateUpdateProblem, updateProblem)
+  .delete(isLoggedIn, isAdmin, deleteProblem);
 
 router.route("/get-solved-problems").get(isLoggedIn, getProblemSolvedByUser);
 
