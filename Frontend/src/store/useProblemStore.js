@@ -9,7 +9,7 @@ import {
 import { toast } from "sonner";
 import useAuthStore from "./authStore";
 
-export const useProblemStore = create((set) => ({
+export const useProblemStore = create((set, get) => ({
   isProblemLoading: false,
   isProblemsLoading: false,
   problems: [],

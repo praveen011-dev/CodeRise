@@ -7,11 +7,14 @@ import { Toaster } from "@/components/ui/sonner";
 import ScrollToTop from "../ScrollToTop";
 import HomePageSkeleton from "@/features/landing/components/HomePageSkeleton";
 import ProblemsSkeleton from "@/features/problems/components/ProblemsSkeleton";
+import CreateProblemFormSkeleton from "@/features/problems/components/CreateProblemFormSkeleton";
 
 // Define a mapping of paths to their corresponding skeleton components
 const PathToSkeletonMap = {
   "/": HomePageSkeleton,
-  "/problems": ProblemsSkeleton, // Assuming this is the path to your problems page
+  "/problems": ProblemsSkeleton, // Assuming this is the path to your 
+  "/admin/add-problem":CreateProblemFormSkeleton, // Assuming this is the path to your 
+  // problems page
   // Add other paths and their skeletons as needed, e.g.:
   // "/dashboard": DashboardSkeleton,
   // "/settings": SettingsSkeleton,

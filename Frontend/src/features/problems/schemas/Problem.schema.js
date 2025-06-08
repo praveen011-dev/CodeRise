@@ -46,9 +46,38 @@ export const createProblemFormSchema = z.object({
   hints: z.string().optional(),
   editorail: z.string().optional(),
   category: z.string().optional(),
-  companyTags: z
-    .array(z.string().min(1, "Each company tag must be non-empty."))
-    .default([]),
+  // *** CRITICAL CHANGE FOR COMPANY TAGS ***
+  companyTags: z.preprocess(
+    // Use preprocess to transform input before validation
+    (val) => {
+      // If it's already an array (e.g., from pre-filled data), join it to a string for consistency
+      if (Array.isArray(val)) {
+        return val.join(", ");
+      }
+      return val; // Otherwise, pass the string as is
+    },
+    z
+      .string() // Expect a string from the input
+      .optional()
+      .transform((val) => {
+        // Transform the string to an array for the final output data
+        if (!val) return []; // If empty string, return empty array
+        return val
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter((tag) => tag); // Split, trim, and filter out empty tags
+      })
+      .pipe(z.array(z.string())) // Ensure the transformed value is an array of strings
+      .or(z.array(z.string())) // Also allow direct array input if already an array
+      .transform((val) => {
+        // Final transformation to ensure it's always an array of strings
+        if (Array.isArray(val)) {
+          return val.filter((tag) => tag); // Filter out any empty strings that might have slipped through
+        }
+        return [];
+      })
+  ),
+  // ****************************************
   isDemo: z.boolean().optional(),
   demoSolution: languageObjectSchema(codeStringSchema).optional(),
 });

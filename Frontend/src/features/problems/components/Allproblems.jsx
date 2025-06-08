@@ -7,7 +7,7 @@ import AddToPlaylistDialog from "../../playlists/components/AddToPlaylistDialog"
 
 // Shadcn/UI Components
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -57,6 +57,10 @@ function AllProblems() {
   const [selectedProblemForPlaylist, setSelectedProblemForPlaylist] =
     useState(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const problemsPerPage = 10; // Number of problems to show per page
+
   const openAddToPlaylistDialog = (problem) => {
     setSelectedProblemForPlaylist(problem);
     setIsAddToPlaylistDialogOpen(true);
@@ -70,6 +74,11 @@ function AllProblems() {
       useProblemStore.setState({ solvedProblems: [] });
     }
   }, [getAllProblems, user?.id, getSolvedProblemByUser]);
+
+  // Reset to first page whenever filters or search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, difficultyFilter, tagFilter]);
 
   const handleEditProblem = (problemId) => {
     navigate(`/admin/edit-problem/${problemId}`);
@@ -105,7 +114,7 @@ function AllProblems() {
   };
 
   //Memoized Values
-  const filteredAndSortedProblems = useMemo(() => {
+  const filteredProblems = useMemo(() => {
     return problems
       .filter((p) => p.title?.toLowerCase().includes(searchTerm.toLowerCase()))
       .filter(
@@ -121,6 +130,18 @@ function AllProblems() {
       });
   }, [problems, searchTerm, difficultyFilter, tagFilter]);
 
+  // Calculate total pages based on filtered problems
+  const totalPages = useMemo(() => {
+    return Math.ceil(filteredProblems.length / problemsPerPage);
+  }, [filteredProblems, problemsPerPage]);
+
+  // Get problems for the current page
+  const paginatedProblems = useMemo(() => {
+    const startIndex = (currentPage - 1) * problemsPerPage;
+    const endIndex = startIndex + problemsPerPage;
+    return filteredProblems.slice(startIndex, endIndex);
+  }, [filteredProblems, currentPage, problemsPerPage]);
+
   const solvedProblemIds = useMemo(() => {
     return new Set(solvedProblems?.map((p) => p.problemId));
   }, [solvedProblems]);
@@ -130,6 +151,15 @@ function AllProblems() {
     problems.forEach((p) => p.tags?.forEach((tag) => tagsSet.add(tag)));
     return ["All", ...Array.from(tagsSet).sort()];
   }, [problems]);
+
+  // Pagination Handlers
+  const goToNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  };
+
+  const goToPreviousPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
 
   // --- Conditional Rendering for Loading/Error States  ---
   if (isProblemsLoading) {
@@ -184,7 +214,7 @@ function AllProblems() {
             />
           </div>
           <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
-            <SelectTrigger className="w-full md:w-[180px] bg-input/80 text-foreground">
+            <SelectTrigger className="w-full md:w-[400px] bg-input/80 text-foreground">
               <SelectValue placeholder="Difficulty" />
             </SelectTrigger>
             <SelectContent>
@@ -195,7 +225,7 @@ function AllProblems() {
             </SelectContent>
           </Select>
           <Select value={tagFilter} onValueChange={setTagFilter}>
-            <SelectTrigger className="w-full md:w-[180px] bg-input/80 text-foreground">
+            <SelectTrigger className="w-full md:w-[380px] bg-input/80 text-foreground">
               <SelectValue placeholder="Tag" />
             </SelectTrigger>
             <SelectContent>
@@ -240,8 +270,8 @@ function AllProblems() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredAndSortedProblems.length > 0 ? (
-                  filteredAndSortedProblems.map((problem) => (
+                {paginatedProblems.length > 0 ? ( // Use paginatedProblems here
+                  paginatedProblems.map((problem) => (
                     <TableRow
                       key={problem.id}
                       className="border-border/50 hover:bg-accent/30"
@@ -380,6 +410,32 @@ function AllProblems() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Pagination Controls */}
+      {filteredProblems.length > problemsPerPage && (
+        <div className="flex justify-between items-center mt-6 p-4 bg-card/70 border border-border/50 rounded-md shadow-xl backdrop-blur-md">
+          <Button
+            onClick={goToPreviousPage}
+            disabled={currentPage === 1}
+            variant="outline"
+            className="text-sm"
+          >
+            Previous
+          </Button>
+          <span className="text-sm text-muted-foreground">
+            Page {currentPage} of {totalPages}
+          </span>
+          <Button
+            onClick={goToNextPage}
+            disabled={currentPage === totalPages}
+            variant="outline"
+            className="text-sm"
+          >
+            Next
+          </Button>
+        </div>
+      )}
+
       {selectedProblemForPlaylist && (
         <AddToPlaylistDialog
           problemId={selectedProblemForPlaylist.id}
