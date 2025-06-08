@@ -23,9 +23,7 @@ const ExactPathToSkeletonMap = {
 
 // Define a mapping of *pattern-based* paths to their corresponding skeleton components
 const PatternToSkeletonMap = [
-  { path: "/admin/edit-problem/", skeleton: EditProblemFormSkeleton }, // Matches /admin/edit-problem/<anyId>
-  // Add other pattern-based paths as needed, e.g.:
-  // { path: "/user/", skeleton: UserProfileSkeleton },
+  { path: "/admin/edit-problem/", skeleton: EditProblemFormSkeleton }, 
 ];
 
 function MainLayout() {

@@ -8,8 +8,10 @@ import {
   Lightbulb,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-
+import useAuthStore from "../../../store/authStore";
 function FeatureSection() {
+  const { user } = useAuthStore();
+
   return (
     <section className="py-10 md:py-14 bg-background text-foreground relative overflow-hidden">
       <div
@@ -85,9 +87,11 @@ function FeatureSection() {
               Track your solved problems, submission history, and performance
               trends with intuitive dashboards and contribution heatmaps.
             </p>
-            <button className="self-start px-4 py-3 text-xs bg-accent text-accent-foreground rounded-full font-semibold hover:bg-accent/90 transition-colors mt-auto cursor-pointer">
-              View Dashboard
-            </button>
+            <Link to="/profile">
+              <button className="self-start px-4 py-3 text-xs bg-accent text-accent-foreground rounded-full font-semibold hover:bg-accent/90 transition-colors mt-auto cursor-pointer">
+                View Dashboard
+              </button>
+            </Link>
           </div>
 
           {/* Feature Card 4: Vibrant Community */}
@@ -98,9 +102,11 @@ function FeatureSection() {
               Connect with fellow coders, share insights, ask questions, and
               learn from diverse solutions in our active community forums.
             </p>
-            <button className="self-start px-4 py-3 text-xs bg-primary text-primary-foreground rounded-full font-semibold hover:bg-primary/90 transition-colors mt-auto cursor-pointer">
-              Join the Community
-            </button>
+            <Link to="join">
+              <button className="self-start px-4 py-3 text-xs bg-primary text-primary-foreground rounded-full font-semibold hover:bg-primary/90 transition-colors mt-auto cursor-pointer">
+                Join the Community
+              </button>
+            </Link>
           </div>
 
           {/* Example 5th Card */}
@@ -111,9 +117,11 @@ function FeatureSection() {
               Access curated problem sets for interview prep, mock tests, and
               company-specific challenges to ace your next job.
             </p>
-            <button className="self-start px-4 py-3 text-xs bg-secondary text-secondary-foreground rounded-full font-semibold hover:bg-secondary/90 transition-colors mt-auto cursor-pointer">
-              Prepare Now
-            </button>
+            <Link to="preapare">
+              <button className="self-start px-4 py-3 text-xs bg-secondary text-secondary-foreground rounded-full font-semibold hover:bg-secondary/90 transition-colors mt-auto cursor-pointer">
+                Prepare Now
+              </button>
+            </Link>
           </div>
 
           {/* Optional 6th Card */}
